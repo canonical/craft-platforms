@@ -1,12 +1,12 @@
 [project]
-name = "starcraft"
+name = "craft-platforms"
 dynamic = ["version", "readme"]
 dependencies = [
 
 ]
 classifiers = [
-    "Development Status :: 1 - Planning",
-    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "Development Status :: 2 - Pre-Alpha",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.12",
@@ -14,7 +14,6 @@ classifiers = [
 requires-python = ">=3.10"
 
 [project.scripts]
-starcraft-hello = "starcraft:hello"
 
 [project.optional-dependencies]
 dev = [
@@ -51,7 +50,7 @@ build-backend = "setuptools.build_meta"
 readme = {file = "README.rst"}
 
 [tool.setuptools_scm]
-write_to = "starcraft/_version.py"
+write_to = "craft_platforms/_version.py"
 # the version comes from the latest annotated git tag formatted as 'X.Y.Z'
 # version scheme:
 #   - X.Y.Z.post<commits since tag>+g<hash>.d<%Y%m%d>
@@ -105,7 +104,7 @@ exclude_also = [
 ]
 
 [tool.pyright]
-strict = ["starcraft"]
+strict = ["craft-platforms"]
 pythonVersion = "3.10"
 pythonPlatform = "Linux"
 exclude = [
@@ -132,7 +131,7 @@ disallow_untyped_decorators = true
 disallow_any_generics = true
 
 [[tool.mypy.overrides]]
-module = ["starcraft.*"]
+module = ["craft-platforms.*"]
 disallow_untyped_defs = true
 no_implicit_optional = true
 
@@ -143,7 +142,7 @@ strict = false
 [tool.ruff]
 line-length = 88
 target-version = "py310"
-src = ["starcraft", "tests"]
+src = ["craft-platforms", "tests"]
 extend-exclude = [
     "docs",
     "__pycache__",

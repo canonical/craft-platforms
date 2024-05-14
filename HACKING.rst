@@ -1,8 +1,8 @@
-*********
-Starcraft
-*********
+***************
+craft-platforms
+***************
 
-Welcome to Starcraft! We hope this document helps you get started. Before
+Welcome to craft-platforms! We hope this document helps you get started. Before
 contributing any code, please sign the `Canonical contributor licence
 agreement`_.
 
@@ -18,7 +18,7 @@ Tooling
 We use a large number of tools for our project. Most of these are installed for
 you with tox, but you'll need to install:
 
-- Python 3.8 (default on Ubuntu 20.04, available on Ubuntu 22.04 through the
+- Python 3.10 (default on Ubuntu 22.04, available on Ubuntu 24.04 through the
   deadsnakes_ PPA) with setuptools.
 - tox_ version 3.8 or later
 - ShellCheck_  (also available via snap: ``snap install shellcheck``)
