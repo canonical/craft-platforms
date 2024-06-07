@@ -47,13 +47,12 @@ def get_platforms_charm_build_plan(
             # In python 3.12+ we can just check:
             # `if platform_name not in _architectures.DebianArchitecture`
             try:
-                _architectures.DebianArchitecture(platform_name)
+                architecture = _architectures.DebianArchitecture(platform_name)
             except ValueError:
                 raise ValueError(
                     f"Platform name {platform_name!r} is not a valid Debian architecture. "
                     "Specify a build-on and build-for.",
                 ) from None
-            architecture = _architectures.DebianArchitecture(platform_name)
             build_plan.append(
                 _buildinfo.BuildInfo(
                     platform=platform_name,
