@@ -73,12 +73,3 @@ _ARCH_TRANSLATIONS_PLATFORM_TO_DEB = {
 _ARCH_TRANSLATIONS_DEB_TO_PLATFORM = {
     deb: platform for platform, deb in _ARCH_TRANSLATIONS_PLATFORM_TO_DEB.items()
 }
-
-# Default platforms for charm tools.
-CRAFT_DEFAULT_ARCHITECTURES = (
-    DebianArchitecture.AMD64,
-    DebianArchitecture.ARM64,
-    DebianArchitecture.PPC64EL,
-    DebianArchitecture.RISCV64,
-    DebianArchitecture.S390X,
-)

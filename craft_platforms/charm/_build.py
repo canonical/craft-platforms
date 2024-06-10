@@ -20,6 +20,14 @@ from collections.abc import Sequence
 
 from craft_platforms import _architectures, _buildinfo, _distro, _platforms
 
+DEFAULT_ARCHITECTURES = (
+    _architectures.DebianArchitecture.AMD64,
+    _architectures.DebianArchitecture.ARM64,
+    _architectures.DebianArchitecture.PPC64EL,
+    _architectures.DebianArchitecture.RISCV64,
+    _architectures.DebianArchitecture.S390X,
+)
+
 
 def get_platforms_charm_build_plan(
     base: str,
@@ -38,7 +46,7 @@ def get_platforms_charm_build_plan(
                 build_for=arch,
                 base=distro_base,
             )
-            for arch in _architectures.CRAFT_DEFAULT_ARCHITECTURES
+            for arch in DEFAULT_ARCHITECTURES
         ]
     build_plan: list[_buildinfo.BuildInfo] = []
     for platform_name, platform in platforms.items():

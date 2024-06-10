@@ -13,31 +13,12 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Package base for craft_platforms."""
+"""Charm-specific build information for craft-platforms."""
 
-from ._architectures import DebianArchitecture
-from ._buildinfo import BuildInfo
-from . import charm
-from ._distro import BaseName, DistroBase, is_ubuntu_like
+from ._build import DEFAULT_ARCHITECTURES, get_platforms_charm_build_plan
 
-try:
-    from ._version import (
-        __version__,
-    )  # pyright: ignore[reportMissingImports,reportUnknownVariableType]
-except ImportError:  # pragma: no cover
-    from importlib.metadata import version, PackageNotFoundError
-
-    try:
-        __version__ = version("craft-platforms")
-    except PackageNotFoundError:
-        __version__ = "dev"
 
 __all__ = [
-    "__version__",
-    "DebianArchitecture",
-    "BuildInfo",
-    "charm",
-    "BaseName",
-    "DistroBase",
-    "is_ubuntu_like",
+    "DEFAULT_ARCHITECTURES",
+    "get_platforms_charm_build_plan",
 ]

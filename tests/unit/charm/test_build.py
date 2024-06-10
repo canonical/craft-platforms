@@ -20,6 +20,7 @@ import itertools
 import craft_platforms
 import pytest
 import pytest_check
+from craft_platforms import charm
 
 SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", "devel")
 
@@ -50,7 +51,7 @@ SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", 
             None,
             {
                 architecture.value: [(architecture, architecture)]
-                for architecture in craft_platforms.CRAFT_DEFAULT_ARCHITECTURES
+                for architecture in charm.DEFAULT_ARCHITECTURES
             },
             id="default-platforms",
         ),
@@ -105,7 +106,7 @@ def test_build_plans_success(
     platform_archs,
 ):
     """Shallow test for success on a large number of platform items."""
-    build_plan = craft_platforms.get_platforms_charm_build_plan(
+    build_plan = charm.get_platforms_charm_build_plan(
         base=base,
         build_base=build_base,
         platforms=platforms,
@@ -211,7 +212,7 @@ def test_build_plans_success(
 )
 def test_build_plans_in_depth(base, build_base, platforms, expected):
     """Test the exact build plan for a set of items."""
-    actual = craft_platforms.get_platforms_charm_build_plan(
+    actual = charm.get_platforms_charm_build_plan(
         base=base,
         build_base=build_base,
         platforms=platforms,
@@ -231,7 +232,7 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
 )
 def test_build_plans_bad_base(base, error_msg):
     with pytest.raises(ValueError, match=error_msg):
-        craft_platforms.get_platforms_charm_build_plan(base, None)
+        charm.get_platforms_charm_build_plan(base, None)
 
 
 @pytest.mark.parametrize(
@@ -251,4 +252,4 @@ def test_build_plans_bad_base(base, error_msg):
 )
 def test_build_plans_bad_architecture(platforms, error_msg):
     with pytest.raises(ValueError, match=error_msg):
-        craft_platforms.get_platforms_charm_build_plan("ubuntu@24.04", platforms)
+        charm.get_platforms_charm_build_plan("ubuntu@24.04", platforms)
