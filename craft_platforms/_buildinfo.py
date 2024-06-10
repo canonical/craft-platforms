@@ -31,5 +31,5 @@ class BuildInfo:
     build_for: _architectures.DebianArchitecture
     """The architecture to build for."""
 
-    build_base: _distro.BaseName
+    build_base: _distro.DistroBase
     """The base to build on."""
