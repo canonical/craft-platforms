@@ -25,10 +25,9 @@ def project_main_module() -> types.ModuleType:
     downstream project.
     """
     try:
-        # This should be the project's main package; downstream projects must update this.
-        import starcraft
+        import craft_platforms
 
-        main_module = starcraft
+        main_module = craft_platforms
     except ImportError:
         pytest.fail(
             "Failed to import the project's main module: check if it needs updating",
