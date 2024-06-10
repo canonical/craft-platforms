@@ -25,7 +25,6 @@ def project_main_module() -> types.ModuleType:
     downstream project.
     """
     try:
-        # This should be the project's main package; downstream projects must update this.
         import craft_platforms
 
         main_module = craft_platforms
