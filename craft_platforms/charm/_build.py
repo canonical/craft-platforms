@@ -44,7 +44,7 @@ def get_platforms_charm_build_plan(
                 platform=arch.value,
                 build_on=arch,
                 build_for=arch,
-                base=distro_base,
+                build_base=distro_base,
             )
             for arch in DEFAULT_ARCHITECTURES
         ]
@@ -66,7 +66,7 @@ def get_platforms_charm_build_plan(
                     platform=platform_name,
                     build_on=architecture,
                     build_for=architecture,
-                    base=distro_base,
+                    build_base=distro_base,
                 ),
             )
         else:
@@ -79,7 +79,7 @@ def get_platforms_charm_build_plan(
                         platform=platform_name,
                         build_on=_architectures.DebianArchitecture(build_on),
                         build_for=_architectures.DebianArchitecture(build_for),
-                        base=distro_base,
+                        build_base=distro_base,
                     ),
                 )
     return build_plan
