@@ -226,7 +226,7 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
     [
         (
             "invalid-base",
-            "Invalid base string 'invalid-base'. Format should be 'distro@version'",
+            "Invalid base string 'invalid-base'. Format should be '<distribution>@<series>'",
         ),
     ],
 )

@@ -81,9 +81,9 @@ ALL_DISTROS = [*ALL_UBUNTU, *ALL_DEBIAN, *ALL_ALMA]
         *[
             pytest.param(
                 distro,
-                (distro.name, distro.version),
+                (distro.distribution, distro.series),
                 True,
-                id=f"{distro.version}_tuple",
+                id=f"{distro.series}_tuple",
             )
             for distro in ALL_DISTROS
         ],
@@ -101,7 +101,7 @@ def test_distro_base_equality(base, other, expected):
             pytest.param(
                 craft_platforms.DistroBase("ubuntu", "4.10"),
                 version,
-                id=f"ubuntu_warty_vs{version.version}",
+                id=f"ubuntu_warty_vs_{version.series}",
             )
             for version in ALL_UBUNTU
         ],
@@ -109,7 +109,7 @@ def test_distro_base_equality(base, other, expected):
             pytest.param(
                 version,
                 craft_platforms.DistroBase("ubuntu", "999999.10"),
-                id=f"ubuntu_infinity_vs{version.version}",
+                id=f"ubuntu_infinity_vs_{version.series}",
             )
             for version in ALL_UBUNTU
         ],
@@ -117,7 +117,7 @@ def test_distro_base_equality(base, other, expected):
             pytest.param(
                 craft_platforms.DistroBase("debian", "1.1"),
                 version,
-                id=f"debian_buzz_vs{version.version}",
+                id=f"debian_buzz_vs_{version.series}",
             )
             for version in ALL_DEBIAN
         ],
@@ -125,7 +125,7 @@ def test_distro_base_equality(base, other, expected):
             pytest.param(
                 version,
                 craft_platforms.DistroBase("debian", "99999"),
-                id=f"debian_future_vs{version.version}",
+                id=f"debian_future_vs_{version.series}",
             )
             for version in ALL_DEBIAN
         ],
@@ -133,7 +133,7 @@ def test_distro_base_equality(base, other, expected):
             pytest.param(
                 craft_platforms.DistroBase("almalinux", "0"),
                 version,
-                id=f"alma_zero_vs_{version.version}",
+                id=f"alma_zero_vs_{version.series}",
             )
             for version in ALL_ALMA
         ],
@@ -141,7 +141,7 @@ def test_distro_base_equality(base, other, expected):
             pytest.param(
                 version,
                 craft_platforms.DistroBase("almalinux", "99999"),
-                id=f"alma_future_vs_{version.version}",
+                id=f"alma_future_vs_{version.series}",
             )
             for version in ALL_ALMA
         ],
