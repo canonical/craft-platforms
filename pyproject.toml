@@ -2,7 +2,9 @@
 name = "craft-platforms"
 dynamic = ["version", "readme"]
 dependencies = [
-
+    "annotated-types",
+    "distro",
+    "typing_extensions",
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -20,6 +22,7 @@ dev = [
     "build",
     "coverage[toml]~=7.4",
     "pytest~=8.0",
+    "pytest-check~=2.3",
     "pytest-cov~=5.0",
     "pytest-mock~=3.12",
 ]
@@ -29,7 +32,7 @@ lint = [
 ]
 types = [
     "mypy[reports]~=1.9.0",
-    "pyright==1.1.359",
+    "pyright==1.1.366",
 ]
 docs = [
     "canonical-sphinx~=0.1",
