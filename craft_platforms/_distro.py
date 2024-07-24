@@ -155,6 +155,4 @@ def is_ubuntu_like(distribution: distro.LinuxDistribution | None = None) -> bool
     if distribution.id() == "ubuntu":
         return True
     distros_like = distribution.like().split()
-    if "ubuntu" in distros_like:
-        return True
-    return False
+    return "ubuntu" in distros_like
