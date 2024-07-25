@@ -140,3 +140,26 @@ class InvalidPlatformError(CraftPlatformsError, ValueError):
             docs_url=docs_url,
             doc_slug=doc_slug,
         )
+
+
+class InvalidBaseError(CraftPlatformsError, ValueError):
+    """Error when a specified base name is invalid."""
+
+    def __init__(
+        self,
+        base: str,
+        *,
+        resolution: str | None = None,
+        docs_url: str | None = None,
+        build_base: bool = False,
+    ):
+        self.base = base
+        if resolution is None:
+            resolution = "Ensure the base matches the <distro>@<series> pattern and is a supported series."
+        message = (
+            f"build-base '{base}' is unknown or invalid"
+            if build_base
+            else f"base '{base}' is unknown or invalid"
+        )
+
+        super().__init__(message=message, resolution=resolution, docs_url=docs_url)
