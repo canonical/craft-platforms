@@ -17,8 +17,9 @@
 
 from ._architectures import DebianArchitecture
 from ._buildinfo import BuildInfo
-from . import charm
+from . import charm, rock
 from ._distro import BaseName, DistroBase, is_ubuntu_like
+from ._platforms import get_platforms_build_plan
 
 try:
     from ._version import (
@@ -37,6 +38,8 @@ __all__ = [
     "DebianArchitecture",
     "BuildInfo",
     "charm",
+    "rock",
+    "get_platforms_build_plan",
     "BaseName",
     "DistroBase",
     "is_ubuntu_like",
