@@ -20,23 +20,15 @@ from collections.abc import Sequence
 from craft_platforms import _buildinfo, _platforms
 
 
-def get_platforms_rock_build_plan(
+def get_rock_build_plan(
     base: str,
     platforms: _platforms.Platforms,
     build_base: str | None = None,
 ) -> Sequence[_buildinfo.BuildInfo]:
-    """Generate the build plan for a platforms-based rock.
+    """Generate the build plan for a rock.
 
-    This will diverge from the parent BuildInfo class when the parent gains
+    This may diverge from the parent BuildInfo class when the parent gains
     support for 'build-for: ["all"]' (#23).
     """
     # rockcraft uses the default build planner
     return _platforms.get_platforms_build_plan(base, platforms, build_base)
-
-
-class RockBuildInfo(_buildinfo.BuildInfo):
-    """Rockcraft-specific build information.
-
-    This will diverge from the parent BuildInfo class when the parent gains
-    support for 'build-for: ["all"]' (#23).
-    """

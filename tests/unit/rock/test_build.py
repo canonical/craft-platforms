@@ -98,7 +98,7 @@ def test_build_plans_success(
     platform_archs,
 ):
     """Shallow test for success on a large number of platform items."""
-    build_plan = rock.get_platforms_rock_build_plan(
+    build_plan = rock.get_rock_build_plan(
         base=base,
         build_base=build_base,
         platforms=platforms,
@@ -218,7 +218,7 @@ def test_build_plans_success(
 )
 def test_build_plans_in_depth(base, build_base, platforms, expected):
     """Test the exact build plan for a set of items."""
-    actual = rock.get_platforms_rock_build_plan(
+    actual = rock.get_rock_build_plan(
         base=base,
         build_base=build_base,
         platforms=platforms,
@@ -238,7 +238,7 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
 )
 def test_build_plans_bad_base(base, error_msg):
     with pytest.raises(ValueError, match=error_msg):
-        rock.get_platforms_rock_build_plan(base, {"amd64": None})
+        rock.get_rock_build_plan(base, {"amd64": None})
 
 
 @pytest.mark.parametrize(
@@ -258,4 +258,4 @@ def test_build_plans_bad_base(base, error_msg):
 )
 def test_build_plans_bad_architecture(platforms, error_msg):
     with pytest.raises(ValueError, match=error_msg):
-        rock.get_platforms_rock_build_plan("ubuntu@24.04", platforms)
+        rock.get_rock_build_plan("ubuntu@24.04", platforms)
