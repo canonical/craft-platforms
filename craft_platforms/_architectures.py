@@ -29,6 +29,7 @@ class DebianArchitecture(str, enum.Enum):
     ARM64 = "arm64"
     ARMHF = "armhf"
     I386 = "i386"
+    PPC = "powerpc"
     PPC64EL = "ppc64el"
     RISCV64 = "riscv64"
     S390X = "s390x"
