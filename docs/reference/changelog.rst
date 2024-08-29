@@ -1,0 +1,40 @@
+*********
+Changelog
+*********
+
+0.2.0 (2024-Aug-29)
+-------------------
+
+Bug Fixes
+=========
+
+- Add support for Rockcraft build plans.
+
+For a complete list of commits, check out the `0.2.0`_ release on GitHub.
+
+
+0.1.1 (2024-Jul-24)
+-------------------
+
+Bug Fixes
+=========
+
+- Mark the ``craft_platform`` package as typed.
+
+For a complete list of commits, check out the `0.1.1`_ release on GitHub.
+
+
+0.1.0 (2024-Jul-01)
+-------------------
+
+New Features
+============
+
+- This initial release has support for Charmcraft build plans.
+
+For a complete list of commits, check out the `0.1.0`_ release on GitHub.
+
+
+.. _0.2.0: https://github.com/canonical/craft-platforms/releases/tag/0.2.0
+.. _0.1.1: https://github.com/canonical/craft-platforms/releases/tag/0.1.1
+.. _0.1.0: https://github.com/canonical/craft-platforms/releases/tag/0.1.0
