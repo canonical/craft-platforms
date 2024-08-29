@@ -1,14 +1,35 @@
 SOURCES=$(wildcard *.py) craft_platforms tests
 DOCS=docs
 
+ifneq ($(OS),Windows_NT)
+	OS := $(shell uname)
+endif
+
 .PHONY: help
 help: ## Show this help.
 	@printf "%-30s %s\n" "Target" "Description"
 	@printf "%-30s %s\n" "------" "-----------"
 	@fgrep " ## " $(MAKEFILE_LIST) | fgrep -v grep | awk -F ': .*## ' '{$$1 = sprintf("%-30s", $$1)} 1'
 
-.PHONY: snap-tools
-snap-tools: start-snap-install finish-snap-install  ## Install necessary tools using snap
+.PHONY: setup
+setup: ## Set up a development environment
+ifeq ($(OS),Linux)
+	sudo snap install codespell ruff shellcheck
+	sudo snap install --classic --beta astral-uv
+	sudo snap alias astral-uv.uv uv
+	sudo snap alias astral-uv.uvx uvx
+else ifeq ($(OS),Windows_NT)
+	pipx install uv
+	choco install shellcheck
+else ifeq ($(OS),Darwin)
+	bash -c 'curl -LsSf https://astral.sh/uv/install.sh | sh'
+	brew install shellcheck
+endif
+ifneq ($(OS),Linux)
+	uv tool install codespell
+	uv tool install ruff
+	uv tool update-shell
+endif
 
 .PHONY: setup-precommit
 setup-precommit:  ## Set up pre-commit hooks in this repository.
