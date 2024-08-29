@@ -5,8 +5,8 @@ Changelog
 0.2.0 (2024-Aug-29)
 -------------------
 
-Bug Fixes
-=========
+Features
+========
 
 - Add support for Rockcraft build plans.
 
