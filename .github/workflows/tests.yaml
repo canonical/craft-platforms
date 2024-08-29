@@ -17,19 +17,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Begin installs
+      - name: Install tools
         run: |
-          sudo make start-snap-install
+          make setup
+      - name: Run Linters
+        run: |
+          make -k lint
       - name: conventional commits
         uses: webiny/action-conventional-commits@v1.3.0
         with:
           allowed-commit-types: "build,chore,ci,docs,feat,fix,perf,refactor,style,test"
-      - name: Finish installs
-        run: |
-          sudo make finish-snap-install
-      - name: Run Linters
-        run: |
-          make -k lint
   test:
     strategy:
       matrix:
@@ -41,29 +38,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Begin installs (Linux)
+      - name: Install tools
         run: |
-          sudo make start-snap-install
-        if: ${{ runner.os == 'Linux' }}
-      - name: Install tools (Mac)
-        if: ${{ runner.os == 'macOS' }}
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-      - name: Install tools (Windows)
-        if: ${{ runner.os == 'Windows' }}
-        run: |
-          powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+          make setup
       - name: Set up Python
         id: setup-python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Finish installs (Linux)
-        if: ${{ runner.os == 'Linux' }}
-        run: |
-          sudo make finish-snap-install
       - name: Test
-        shell: bash
         run: |
           make test-unit
         env:
