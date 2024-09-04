@@ -97,24 +97,36 @@ class DistroBase:
 
     def __lt__(self, other: BaseName | tuple[str, str]) -> bool:
         self._ensure_bases_comparable(other)
+        other_version = _get_version(other)
+        if self.series == "devel" or other_version == "devel":
+            return self.series != "devel" and other_version == "devel"
         self_version_tuple = _get_version_tuple(self.series)
-        other_version_tuple = _get_version_tuple(_get_version(other))
+        other_version_tuple = _get_version_tuple(other_version)
         return self_version_tuple < other_version_tuple
 
     def __le__(self, other: BaseName | tuple[str, str]) -> bool:
         self._ensure_bases_comparable(other)
+        other_version = _get_version(other)
+        if self.series == "devel" or other_version == "devel":
+            return other_version == "devel"
         self_version_tuple = _get_version_tuple(self.series)
-        other_version_tuple = _get_version_tuple(_get_version(other))
+        other_version_tuple = _get_version_tuple(other_version)
         return self_version_tuple <= other_version_tuple
 
     def __gt__(self, other: BaseName | tuple[str, str]) -> bool:
         self._ensure_bases_comparable(other)
+        other_version = _get_version(other)
+        if self.series == "devel" or other_version == "devel":
+            return other_version != "devel"
         self_version_tuple = _get_version_tuple(self.series)
-        other_version_tuple = _get_version_tuple(_get_version(other))
+        other_version_tuple = _get_version_tuple(other_version)
         return self_version_tuple > other_version_tuple
 
     def __ge__(self, other: BaseName | tuple[str, str]) -> bool:
         self._ensure_bases_comparable(other)
+        other_version = _get_version(other)
+        if self.series == "devel" or other_version == "devel":
+            return self.series == "devel"
         self_version_tuple = _get_version_tuple(self.series)
         other_version_tuple = _get_version_tuple(_get_version(other))
         return self_version_tuple >= other_version_tuple
@@ -127,6 +139,10 @@ class DistroBase:
         :returns: A DistroBase of this string.
         :raises: ValueError if the string isn't of the appropriate format.
         """
+        # "devel" is an exception and corresponds to `ubuntu@devel`
+        if base_str == "devel":
+            return cls("ubuntu", "devel")
+
         if base_str.count("@") != 1:
             raise ValueError(
                 f"Invalid base string {base_str!r}. Format should be '<distribution>@<series>'",

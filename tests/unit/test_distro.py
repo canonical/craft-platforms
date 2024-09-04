@@ -58,12 +58,13 @@ FOCAL = craft_platforms.DistroBase("ubuntu", "20.04")
 JAMMY = craft_platforms.DistroBase("ubuntu", "22.04")
 NOBLE = craft_platforms.DistroBase("ubuntu", "24.04")
 ORACULAR = craft_platforms.DistroBase("ubuntu", "24.10")
+DEVEL = craft_platforms.DistroBase("ubuntu", "devel")
 BUSTER = craft_platforms.DistroBase("debian", "10")
 BOOKWORM = craft_platforms.DistroBase("debian", "12")
 ALMA_EIGHT = craft_platforms.DistroBase("almalinux", "8.10")
 ALMA_NINE = craft_platforms.DistroBase("almalinux", "9.4")
 
-ALL_UBUNTU = [DAPPER, BIONIC, FOCAL, JAMMY, NOBLE, ORACULAR]
+ALL_UBUNTU = [DAPPER, BIONIC, FOCAL, JAMMY, NOBLE, ORACULAR, DEVEL]
 ALL_DEBIAN = [BUSTER, BOOKWORM]
 ALL_ALMA = [ALMA_EIGHT, ALMA_NINE]
 ALL_DISTROS = [*ALL_UBUNTU, *ALL_DEBIAN, *ALL_ALMA]
@@ -111,7 +112,19 @@ def test_distro_base_equality(base, other, expected):
                 craft_platforms.DistroBase("ubuntu", "999999.10"),
                 id=f"ubuntu_infinity_vs_{version.series}",
             )
+            # ubuntu 999999.10 is greater than all ubuntu releases except ubuntu@devel
             for version in ALL_UBUNTU
+            if version != DEVEL
+        ],
+        *[
+            pytest.param(
+                version,
+                craft_platforms.DistroBase("ubuntu", "devel"),
+                id=f"ubuntu_devel_vs_{version.series}",
+            )
+            # ubuntu@devel is greater than all ubuntu releases
+            for version in ALL_UBUNTU
+            if version != DEVEL
         ],
         *[
             pytest.param(
@@ -220,3 +233,31 @@ def test_is_ubuntu_like(os_release: str, expected):
         os_release_file=os_release,
     )
     assert craft_platforms.is_ubuntu_like(distribution) is expected
+
+
+@pytest.mark.parametrize(
+    ("distro_string", "expected"),
+    [
+        ("ubuntu@6.06", DAPPER),
+        ("ubuntu@18.04", BIONIC),
+        ("ubuntu@20.04", FOCAL),
+        ("ubuntu@22.04", JAMMY),
+        ("ubuntu@24.04", NOBLE),
+        ("ubuntu@24.10", ORACULAR),
+        ("devel", DEVEL),
+        ("ubuntu@devel", DEVEL),
+        ("debian@10", BUSTER),
+        ("debian@12", BOOKWORM),
+        ("almalinux@8.10", ALMA_EIGHT),
+        ("almalinux@9.4", ALMA_NINE),
+    ],
+)
+def test_from_str(distro_string, expected):
+    actual = craft_platforms.DistroBase.from_str(distro_string)
+
+    assert actual == expected
+
+
+def test_from_str_error():
+    with pytest.raises(ValueError, match="Invalid base string 'invalid-base'.*"):
+        craft_platforms.DistroBase.from_str("invalid-base")

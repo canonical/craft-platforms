@@ -1,3 +1,5 @@
+# This file is part of craft-platforms.
+#
 # Copyright 2024 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
@@ -11,26 +13,22 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Build info."""
+"""Rockcraft-specific platforms information."""
 
-import dataclasses
+from collections.abc import Sequence
 
-from craft_platforms import _architectures, _distro
+from craft_platforms import _buildinfo, _platforms
 
 
-@dataclasses.dataclass
-class BuildInfo:
-    """Platform build information."""
+def get_rock_build_plan(
+    base: str,
+    platforms: _platforms.Platforms,
+    build_base: str | None = None,
+) -> Sequence[_buildinfo.BuildInfo]:
+    """Generate the build plan for a rock.
 
-    platform: str
-    """The platform name."""
-
-    build_on: _architectures.DebianArchitecture
-    """The architecture to build on."""
-
-    # needs support for "all" (#23)
-    build_for: _architectures.DebianArchitecture
-    """The architecture to build for."""
-
-    build_base: _distro.DistroBase
-    """The base to build on."""
+    This may diverge from the parent BuildInfo class when the parent gains
+    support for 'build-for: ["all"]' (#23).
+    """
+    # rockcraft uses the default build planner
+    return _platforms.get_platforms_build_plan(base, platforms, build_base)
