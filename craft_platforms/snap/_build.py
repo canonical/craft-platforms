@@ -58,13 +58,16 @@ DEFAULT_ARCHITECTURES = (
 CORE_BASE_REGEX = re.compile("^core(16|18|[2-9][02468])?$")
 
 
-def get_default_architectures(base):
+def get_default_architectures(base: str) -> Sequence[_architectures.DebianArchitecture]:
     if base in DEFAULT_ARCHITECTURES_BY_BASE:
         return DEFAULT_ARCHITECTURES_BY_BASE[base]
     return DEFAULT_ARCHITECTURES
 
 
-def get_distro_base_from_core_base(base: str, build_base: str | None = None):
+def get_distro_base_from_core_base(
+    base: str,
+    build_base: str | None = None,
+) -> _distro.DistroBase:
     if base == "bare":
         if build_base is None:
             raise _errors.NeedBuildBaseError(base)

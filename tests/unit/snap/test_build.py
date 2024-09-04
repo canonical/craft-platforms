@@ -140,10 +140,16 @@ def test_get_distro_base_from_core_base_success(base, expected):
     ],
 )
 def test_get_platforms_snap_build_plan_success(
-    base, build_base, expected_base, platforms, expected_archs,
+    base,
+    build_base,
+    expected_base,
+    platforms,
+    expected_archs,
 ):
     build_plan = _build.get_platforms_snap_build_plan(
-        base, platforms=platforms, build_base=build_base,
+        base,
+        platforms=platforms,
+        build_base=build_base,
     )
 
     for build_item in build_plan:
@@ -260,9 +266,12 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
 )
 def test_build_plans_default_architectures(base, build_base, expected_archs):
     actual = _build.get_platforms_snap_build_plan(
-        base=base, build_base=build_base, platforms=None,
+        base=base,
+        build_base=build_base,
+        platforms=None,
     )
-    actual_archs = [item.build_for[0] for item in actual]
+    actual_archs = [item.build_for for item in actual]
+    pytest_check.equal(actual_archs, list(expected_archs))
     for info in actual:
         pytest_check.equal(info.build_on, info.build_for)
         pytest_check.is_in(info.build_for, expected_archs)

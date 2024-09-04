@@ -152,7 +152,7 @@ class InvalidBaseError(CraftPlatformsError, ValueError):
         resolution: str | None = None,
         docs_url: str | None = None,
         build_base: bool = False,
-    ):
+    ) -> None:
         self.base = base
         if resolution is None:
             resolution = "Ensure the base matches the <distro>@<series> pattern and is a supported series."
