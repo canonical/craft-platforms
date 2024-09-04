@@ -23,6 +23,7 @@ import typing
 @typing.runtime_checkable
 class CraftError(typing.Protocol):
     """A protocol for determining whether an object is a craft error."""
+
     args: typing.Collection[str]
     details: str | None
     resolution: str | None
@@ -77,9 +78,20 @@ class CraftPlatformsError(Exception):
                 and self.doc_slug == other.doc_slug
             )
         if isinstance(other, CraftError) and isinstance(other, Exception):
-            if self.args != other.args or self.details != other.details or self.resolution != other.resolution:
+            if (
+                self.args != other.args
+                or self.details != other.details
+                or self.resolution != other.resolution
+            ):
                 return False
-            for attr in ("message", "docs_url", "docs_slug", "logpath_report", "reportable", "retcode"):
+            for attr in (
+                "message",
+                "docs_url",
+                "docs_slug",
+                "logpath_report",
+                "reportable",
+                "retcode",
+            ):
                 if hasattr(other, attr) and getattr(other, attr) != getattr(self, attr):
                     return False
             return True
@@ -89,7 +101,7 @@ class CraftPlatformsError(Exception):
 class NeedBuildBaseError(CraftPlatformsError):
     """Error when ``base`` requires a ``build_base``, but none is unspecified."""
 
-    def __init__(self, base: str):
+    def __init__(self, base: str) -> None:
         super().__init__(
             message=f"base '{base}' requires a 'build-base', but none is specified",
             resolution="Specify a build-base.",
@@ -100,25 +112,32 @@ class NeedBuildBaseError(CraftPlatformsError):
 class InvalidBaseError(CraftPlatformsError, ValueError):
     """Error when a specified base name is invalid."""
 
-    def __init__(self, base: str, *, resolution: str | None = None, docs_url: str | None = None, build_base: bool = False):
+    def __init__(
+        self,
+        base: str,
+        *,
+        resolution: str | None = None,
+        docs_url: str | None = None,
+        build_base: bool = False,
+    ) -> None:
         self.base = base
         if resolution is None:
             resolution = "Ensure the base matches the <distro>@<series> pattern and is a supported series."
         message = (
             f"build-base '{base}' is unknown or invalid"
-            if build_base else
-            f"base '{base}' is unknown or invalid"
+            if build_base
+            else f"base '{base}' is unknown or invalid"
         )
 
-        super().__init__(message=message,resolution=resolution,docs_url=docs_url)
+        super().__init__(message=message, resolution=resolution, docs_url=docs_url)
 
 
 class InvalidPlatformNameError(CraftPlatformsError, ValueError):
     """Error when a specified platform name is not a Debian architecture."""
 
-    def __init__(self, platform_name: str):
+    def __init__(self, platform_name: str) -> None:
         self.platform_name = platform_name
         super().__init__(
             message=f"platform name {platform_name!r} is not a valid Debian architecture and needs 'build-on' and 'build-for' specified",
-            resolution=f"Specify 'build-on' and 'build-for' values under the {platform_name!r} entry."
+            resolution=f"Specify 'build-on' and 'build-for' values under the {platform_name!r} entry.",
         )

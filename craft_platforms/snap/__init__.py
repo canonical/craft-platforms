@@ -15,4 +15,8 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Snap-specific build information for craft-platforms."""
 
-from ._build import get_default_architectures, get_distro_base_from_core_base, get_platforms_snap_build_plan
+from ._build import (
+    get_default_architectures,
+    get_distro_base_from_core_base,
+    get_platforms_snap_build_plan,
+)

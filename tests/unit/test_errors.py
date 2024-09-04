@@ -16,12 +16,8 @@
 """Unit tests for error classes."""
 
 
-import dataclasses
-
 import pytest
-
 from craft_platforms._errors import CraftPlatformsError
-
 
 FULL_PLATFORMS_ERROR = CraftPlatformsError(
     message="message",
@@ -38,7 +34,12 @@ FULL_PLATFORMS_ERROR = CraftPlatformsError(
 class OtherCraftError(Exception):
     """An exception class that matches the CraftError protocol."""
 
-    def __init__(self, message: str, details: str | None = None, resolution: str | None = None) -> None:
+    def __init__(
+        self,
+        message: str,
+        details: str | None = None,
+        resolution: str | None = None,
+    ) -> None:
         self.details = details
         self.resolution = resolution
         super().__init__(message)
@@ -51,7 +52,12 @@ NON_MATCHING_ERROR.docs_url = "no match"  # pyright: ignore[reportAttributeAcces
 class NonError:
     """A non-exception class that matches the CraftError protocol."""
 
-    def __init__(self, message: str, details: str | None = None, resolution: str | None = None) -> None:
+    def __init__(
+        self,
+        message: str,
+        details: str | None = None,
+        resolution: str | None = None,
+    ) -> None:
         self.args = (message,)
         self.details = details
         self.resolution = resolution
@@ -176,12 +182,16 @@ class NonError:
             ),
             False,
         ),
-        (FULL_PLATFORMS_ERROR, OtherCraftError("message", "details", "resolution"), True),
+        (
+            FULL_PLATFORMS_ERROR,
+            OtherCraftError("message", "details", "resolution"),
+            True,
+        ),
         (FULL_PLATFORMS_ERROR, OtherCraftError("nope", "details", "resolution"), False),
         (FULL_PLATFORMS_ERROR, OtherCraftError("message", "nope", "resolution"), False),
         (FULL_PLATFORMS_ERROR, OtherCraftError("message", "details", "nope"), False),
-        (FULL_PLATFORMS_ERROR, NON_MATCHING_ERROR, False)
-    ]
+        (FULL_PLATFORMS_ERROR, NON_MATCHING_ERROR, False),
+    ],
 )
 def test_platforms_error_equality(this, that, expected):
     assert (this == that) == expected

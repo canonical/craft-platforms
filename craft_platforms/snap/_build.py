@@ -16,8 +16,8 @@
 """Snapcraft-specific platforms information."""
 
 import itertools
-from collections.abc import Sequence
 import re
+from collections.abc import Sequence
 
 from craft_platforms import _architectures, _buildinfo, _distro, _errors, _platforms
 
@@ -58,13 +58,16 @@ DEFAULT_ARCHITECTURES = (
 CORE_BASE_REGEX = re.compile("^core(16|18|[2-9][02468])?$")
 
 
-def get_default_architectures(base):
+def get_default_architectures(base: str) -> Sequence[_architectures.DebianArchitecture]:
     if base in DEFAULT_ARCHITECTURES_BY_BASE:
         return DEFAULT_ARCHITECTURES_BY_BASE[base]
     return DEFAULT_ARCHITECTURES
 
 
-def get_distro_base_from_core_base(base: str, build_base: str | None = None):
+def get_distro_base_from_core_base(
+    base: str,
+    build_base: str | None = None,
+) -> _distro.DistroBase:
     if base == "bare":
         if build_base is None:
             raise _errors.NeedBuildBaseError(base)
@@ -72,7 +75,10 @@ def get_distro_base_from_core_base(base: str, build_base: str | None = None):
             return get_distro_base_from_core_base(build_base)
         except _errors.InvalidBaseError:
             raise _errors.InvalidBaseError(
-                build_base, resolution="Ensure the build-base is a supported base.", docs_url="https://snapcraft.io/docs/base-snaps", build_base=True
+                build_base,
+                resolution="Ensure the build-base is a supported base.",
+                docs_url="https://snapcraft.io/docs/base-snaps",
+                build_base=True,
             ) from None
     if base == "devel":
         if build_base:
@@ -80,7 +86,10 @@ def get_distro_base_from_core_base(base: str, build_base: str | None = None):
                 return get_distro_base_from_core_base(build_base)
             except _errors.InvalidBaseError:
                 raise _errors.InvalidBaseError(
-                    build_base, resolution="Ensure the build-base is a supported base.", docs_url="https://snapcraft.io/docs/base-snaps", build_base=True
+                    build_base,
+                    resolution="Ensure the build-base is a supported base.",
+                    docs_url="https://snapcraft.io/docs/base-snaps",
+                    build_base=True,
                 ) from None
         return _distro.DistroBase("ubuntu", "devel")
 

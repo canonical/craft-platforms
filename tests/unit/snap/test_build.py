@@ -15,11 +15,11 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Unit tests for snap-specific platforms functions."""
 
-from hypothesis import given, strategies
+import craft_platforms
 import pytest
 import pytest_check
-import craft_platforms
 from craft_platforms.snap import _build
+from hypothesis import given, strategies
 
 
 @given(strategies.integers(min_value=16, max_value=98).filter(lambda x: x % 2 == 0))
@@ -32,7 +32,7 @@ def test_core_base_regex_match(version):
         strategies.integers(min_value=99),
         strategies.integers(min_value=16, max_value=98).filter(lambda x: x % 2 != 0),
         strategies.integers(max_value=15),
-    )
+    ),
 )
 def test_core_base_regex_version_non_match(version):
     assert not _build.CORE_BASE_REGEX.match(f"core{version}")
@@ -48,7 +48,7 @@ def test_core_base_regex_non_match(string):
     [
         ("core", True),
         ("core14", False),
-    ]
+    ],
 )
 def test_core_base_regex_match_specials(string, matches):
     assert bool(_build.CORE_BASE_REGEX.match(string)) == matches
@@ -65,7 +65,7 @@ def test_core_base_regex_match_specials(string, matches):
         ("core24", craft_platforms.DistroBase("ubuntu", "24.04")),
         ("core26", craft_platforms.DistroBase("ubuntu", "26.04")),
         ("devel", craft_platforms.DistroBase("ubuntu", "devel")),
-    ]
+    ],
 )
 def test_get_distro_base_from_core_base_success(base, expected):
     assert _build.get_distro_base_from_core_base(base) == expected
@@ -91,7 +91,7 @@ def test_get_distro_base_from_core_base_success(base, expected):
             ("devel", f"core{n}", craft_platforms.DistroBase("ubuntu", f"{n}.04"))
             for n in (16, 18, 20, 22, 24, 26)
         ),
-    ]
+    ],
 )
 @pytest.mark.parametrize(
     ("platforms", "expected_archs"),
@@ -140,9 +140,17 @@ def test_get_distro_base_from_core_base_success(base, expected):
     ],
 )
 def test_get_platforms_snap_build_plan_success(
-    base, build_base, expected_base, platforms, expected_archs
+    base,
+    build_base,
+    expected_base,
+    platforms,
+    expected_archs,
 ):
-    build_plan = _build.get_platforms_snap_build_plan(base, platforms=platforms, build_base=build_base)
+    build_plan = _build.get_platforms_snap_build_plan(
+        base,
+        platforms=platforms,
+        build_base=build_base,
+    )
 
     for build_item in build_plan:
         with pytest_check.check():
@@ -254,16 +262,16 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
         ("core20", None, _build.CORE20_DEFAULT_ARCHITECTURES),
         ("core22", None, _build.DEFAULT_ARCHITECTURES),
         ("core24", None, _build.DEFAULT_ARCHITECTURES),
-    ]
+    ],
 )
 def test_build_plans_default_architectures(base, build_base, expected_archs):
     actual = _build.get_platforms_snap_build_plan(
-        base=base, build_base=build_base, platforms=None
+        base=base,
+        build_base=build_base,
+        platforms=None,
     )
-    actual_archs = [
-        item.build_for[0] for item in actual
-    ]
+    actual_archs = [item.build_for for item in actual]
+    pytest_check.equal(actual_archs, list(expected_archs))
     for info in actual:
         pytest_check.equal(info.build_on, info.build_for)
         pytest_check.is_in(info.build_for, expected_archs)
-
