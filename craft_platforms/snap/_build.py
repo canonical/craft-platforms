@@ -15,7 +15,6 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Snapcraft-specific platforms information."""
 
-import itertools
 import re
 import typing
 from collections.abc import Sequence
@@ -171,44 +170,8 @@ def get_platforms_snap_build_plan(
     if platforms is None:
         # If no platforms are specified, build for all default architectures without
         # an option of cross-compiling.
-        return [
-            _buildinfo.BuildInfo(
-                platform=arch.value,
-                build_on=arch,
-                build_for=arch,
-                build_base=distro_base,
-            )
-            for arch in get_default_architectures(build_base or base)
-        ]
-    build_plan: list[_buildinfo.BuildInfo] = []
-    for platform_name, platform in platforms.items():
-        if platform is None:
-            # This is a workaround for Python 3.10.
-            # In python 3.12+ we can just check:
-            # `if platform_name not in _architectures.DebianArchitecture`
-            try:
-                architecture = _architectures.DebianArchitecture(platform_name)
-            except ValueError:
-                raise _errors.InvalidPlatformNameError(platform_name) from None
-            build_plan.append(
-                _buildinfo.BuildInfo(
-                    platform=platform_name,
-                    build_on=architecture,
-                    build_for=architecture,
-                    build_base=distro_base,
-                ),
-            )
-        else:
-            for build_on, build_for in itertools.product(
-                platform["build-on"],
-                platform["build-for"],
-            ):
-                build_plan.append(
-                    _buildinfo.BuildInfo(
-                        platform=platform_name,
-                        build_on=_architectures.DebianArchitecture(build_on),
-                        build_for=_architectures.DebianArchitecture(build_for),
-                        build_base=distro_base,
-                    ),
-                )
-    return build_plan
+        platforms = {
+            architecture.value: None
+            for architecture in get_default_architectures(build_base or base)
+        }
+    return _platforms.get_platforms_build_plan(distro_base, platforms)
