@@ -21,7 +21,7 @@ from typing import Annotated
 
 import annotated_types
 
-from craft_platforms import _architectures, _buildinfo, _distro
+from craft_platforms import _architectures, _buildinfo, _distro, _errors
 
 PlatformDict = typing.TypedDict(
     "PlatformDict",
@@ -52,7 +52,7 @@ def get_platforms_build_plan(
             try:
                 architecture = _architectures.DebianArchitecture(platform_name)
             except ValueError:
-                raise ValueError(
+                raise _errors.InvalidPlatformNameError(
                     f"Platform name {platform_name!r} is not a valid Debian architecture. "
                     "Specify a build-on and build-for.",
                 ) from None
@@ -73,7 +73,11 @@ def get_platforms_build_plan(
                     _buildinfo.BuildInfo(
                         platform=platform_name,
                         build_on=_architectures.DebianArchitecture(build_on),
-                        build_for=_architectures.DebianArchitecture(build_for),
+                        build_for=(
+                            "all"
+                            if build_for == "all"
+                            else _architectures.DebianArchitecture(build_for)
+                        ),
                         build_base=distro_base,
                     ),
                 )
