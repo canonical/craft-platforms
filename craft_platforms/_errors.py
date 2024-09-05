@@ -98,7 +98,7 @@ class CraftPlatformsError(Exception):
         return NotImplemented
 
 
-class NeedBuildBaseError(CraftPlatformsError):
+class NeedBuildBaseError(CraftPlatformsError, ValueError):
     """Error when ``base`` requires a ``build_base``, but none is unspecified."""
 
     def __init__(self, base: str) -> None:
@@ -149,6 +149,7 @@ class InvalidBaseError(CraftPlatformsError, ValueError):
         self,
         base: str,
         *,
+        message: str | None = None,
         resolution: str | None = None,
         docs_url: str | None = None,
         build_base: bool = False,
@@ -156,10 +157,15 @@ class InvalidBaseError(CraftPlatformsError, ValueError):
         self.base = base
         if resolution is None:
             resolution = "Ensure the base matches the <distro>@<series> pattern and is a supported series."
-        message = (
-            f"build-base '{base}' is unknown or invalid"
-            if build_base
-            else f"base '{base}' is unknown or invalid"
-        )
+        if not message:
+            message = (
+                f"build-base '{base}' is unknown or invalid"
+                if build_base
+                else f"base '{base}' is unknown or invalid"
+            )
 
         super().__init__(message=message, resolution=resolution, docs_url=docs_url)
+
+
+class RequiresBaseError(CraftPlatformsError, ValueError):
+    """Error when a base is required in this configuration."""
