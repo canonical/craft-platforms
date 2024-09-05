@@ -73,7 +73,11 @@ def get_platforms_build_plan(
                     _buildinfo.BuildInfo(
                         platform=platform_name,
                         build_on=_architectures.DebianArchitecture(build_on),
-                        build_for=_architectures.DebianArchitecture(build_for),
+                        build_for=(
+                            "all"
+                            if build_for == "all"
+                            else _architectures.DebianArchitecture(build_for)
+                        ),
                         build_base=distro_base,
                     ),
                 )

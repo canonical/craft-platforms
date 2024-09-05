@@ -141,3 +141,25 @@ class InvalidPlatformNameError(CraftPlatformsError, ValueError):
             message=f"platform name {platform_name!r} is not a valid Debian architecture and needs 'build-on' and 'build-for' specified",
             resolution=f"Specify 'build-on' and 'build-for' values under the {platform_name!r} entry.",
         )
+
+
+class InvalidPlatformError(CraftPlatformsError, ValueError):
+    """Error when a specified platform is invalid."""
+
+    def __init__(
+        self,
+        platform_name: str,
+        *,
+        details: str | None = None,
+        resolution: str,
+        docs_url: str | None = None,
+        doc_slug: str | None = None,
+    ) -> None:
+        self.platform_name = platform_name
+        super().__init__(
+            message=f"platform {platform_name!r} is invalid",
+            details=details,
+            resolution=resolution,
+            docs_url=docs_url,
+            doc_slug=doc_slug,
+        )

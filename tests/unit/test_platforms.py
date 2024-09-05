@@ -3,24 +3,23 @@
 # Copyright 2024 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
-# under the terms of the GNU Lesser General Public License version 3, as
-# published by the Free Software Foundation.
+# under the terms of the GNU General Public License version 3, as published
+# by the Free Software Foundation.
 #
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
-# SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU Lesser General Public License for more details.
+# SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
 #
-# You should have received a copy of the GNU Lesser General Public License along
+# You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Tests for rockcraft builds."""
+"""Unit tests for generic platforms build planner."""
 
 import itertools
 
 import craft_platforms
 import pytest
 import pytest_check
-from craft_platforms import rock
 
 SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", "devel")
 
@@ -47,15 +46,15 @@ SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", 
 @pytest.mark.parametrize(
     ("platforms", "platform_archs"),
     [
-        *[
+        *(
             pytest.param(
                 {architecture.value: None},
                 {architecture.value: [(architecture.value, architecture.value)]},
                 id=f"implicit-{architecture.value}",
             )
             for architecture in craft_platforms.DebianArchitecture
-        ],
-        *[
+        ),
+        *(
             pytest.param(
                 {
                     architecture.value: {
@@ -67,8 +66,8 @@ SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", 
                 id=f"explicit-{architecture.value}",
             )
             for architecture in craft_platforms.DebianArchitecture
-        ],
-        *[
+        ),
+        *(
             pytest.param(
                 {
                     "my-platform": {
@@ -87,7 +86,15 @@ SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", 
                 id=f"build-on-any-for-{build_for_arch.value}",
             )
             for build_for_arch in craft_platforms.DebianArchitecture
-        ],
+        ),
+        *(
+            pytest.param(
+                {"my-platform": {"build-on": [arch.value], "build-for": ["all"]}},
+                {"my-platform": [(arch, "all")]},
+                id=f"on-{arch.value}-for-all",
+            )
+            for arch in craft_platforms.DebianArchitecture
+        ),
     ],
 )
 def test_build_plans_success(
@@ -98,7 +105,7 @@ def test_build_plans_success(
     platform_archs,
 ):
     """Shallow test for success on a large number of platform items."""
-    build_plan = rock.get_rock_build_plan(
+    build_plan = craft_platforms.get_platforms_build_plan(
         base=base,
         build_base=build_base,
         platforms=platforms,
@@ -214,11 +221,37 @@ def test_build_plans_success(
             ],
             id="multiple-builds",
         ),
+        *(
+            pytest.param(
+                f"ubuntu@{base}.04",
+                None,
+                {
+                    "anywhere": {
+                        "build-on": ["amd64", "arm64", "riscv64"],
+                        "build-for": ["all"],
+                    },
+                },
+                [
+                    craft_platforms.BuildInfo(
+                        "anywhere",
+                        arch,
+                        "all",
+                        craft_platforms.DistroBase("ubuntu", f"{base}.04"),
+                    )
+                    for arch in (
+                        craft_platforms.DebianArchitecture.AMD64,
+                        craft_platforms.DebianArchitecture.ARM64,
+                        craft_platforms.DebianArchitecture.RISCV64,
+                    )
+                ],
+            )
+            for base in (20, 22, 24, 26, 28)
+        ),
     ],
 )
 def test_build_plans_in_depth(base, build_base, platforms, expected):
     """Test the exact build plan for a set of items."""
-    actual = rock.get_rock_build_plan(
+    actual = craft_platforms.get_platforms_build_plan(
         base=base,
         build_base=build_base,
         platforms=platforms,
@@ -238,7 +271,7 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
 )
 def test_build_plans_bad_base(base, error_msg):
     with pytest.raises(ValueError, match=error_msg):
-        rock.get_rock_build_plan(base, {"amd64": None})
+        craft_platforms.get_platforms_build_plan(base, {"amd64": None})
 
 
 @pytest.mark.parametrize(
@@ -254,13 +287,8 @@ def test_build_plans_bad_base(base, error_msg):
             "'my machine' is not a valid DebianArchitecture",
             id="invalid-architecture-name",
         ),
-        pytest.param(
-            {"my machine": {"build-on": ["amd64"], "build-for": ["all"]}},
-            "platform 'my machine' is invalid",
-            id="all",
-        ),
     ],
 )
 def test_build_plans_bad_architecture(platforms, error_msg):
     with pytest.raises(ValueError, match=error_msg):
-        rock.get_rock_build_plan("ubuntu@24.04", platforms)
+        craft_platforms.get_platforms_build_plan("ubuntu@24.04", platforms)
