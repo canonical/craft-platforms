@@ -43,8 +43,12 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install tools
+        shell: bash
         run: |
           make setup
+          if [[ ${{ matrix.platform }} == "ubuntu-latest" ]]; then
+            sudo apt-get install libxslt1-dev libxml2-dev
+          fi
       - name: Set up Python
         id: setup-python
         uses: actions/setup-python@v5
