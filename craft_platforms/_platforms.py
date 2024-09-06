@@ -82,4 +82,14 @@ def get_platforms_build_plan(
                     ),
                 )
 
+    build_for_archs = {info.build_for for info in build_plan}
+    if "all" in build_for_archs:
+        platforms_with_all = {
+            info.platform for info in build_plan if info.build_for == "all"
+        }
+        if len(platforms_with_all) > 1:
+            raise _errors.AllSinglePlatformError(platforms_with_all)
+        if len(build_for_archs) > 1:
+            raise _errors.AllOnlyBuildError(platforms_with_all)
+
     return build_plan
