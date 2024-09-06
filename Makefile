@@ -15,9 +15,7 @@ help: ## Show this help.
 setup: ## Set up a development environment
 ifeq ($(OS),Linux)
 	sudo snap install codespell ruff shellcheck
-	sudo snap install --classic --beta astral-uv
-	sudo snap alias astral-uv.uv uv
-	sudo snap alias astral-uv.uvx uvx
+	sudo snap install --classic astral-uv
 else ifeq ($(OS),Windows_NT)
 	pipx install uv
 	choco install shellcheck
@@ -97,16 +95,3 @@ test-unit: ## Run unit tests
 .PHONY: test-integration
 test-integration:  ## Run integration tests
 	uv run pytest --cov=craft_platforms --cov-config=pyproject.toml --cov-report=xml:.coverage.integration.xml --junit-xml=.results.integration.xml tests/integration
-
-.PHONY: start-snap-install
-start-snap-install:
-	snap install --no-wait codespell
-	snap install --no-wait ruff
-	snap install --no-wait shellcheck
-	snap install --no-wait --classic astral-uv --beta
-
-.PHONY: finish-snap-install
-finish-snap-install:
-	snap watch --last=install
-	snap alias astral-uv.uv uv
-	snap alias astral-uv.uvx uvx
