@@ -149,6 +149,12 @@ def test_get_distro_base_from_core_base_success(base, build_base, expected):
             craft_platforms.InvalidBaseError,
             "base 'core22' cannot use a build-base",
         ),
+        (
+            "devel",
+            None,
+            craft_platforms.InvalidBaseError,
+            "base 'devel' is unknown or invalid",
+        ),
     ],
 )
 def test_get_distro_base_from_core_base_error(

@@ -59,7 +59,9 @@ CORE_BASE_REGEX = re.compile("^core(?P<major>16|18|[2-9][02468])?(?P<extra>-[a-z
 
 SNAP_TYPES_WITHOUT_BASE = ("base", "kernel", "snapd")
 
-BASE_SNAPS_DOC_URL = "https://canonical-snapcraft.readthedocs-hosted.com/en/stable/reference/bases/"
+BASE_SNAPS_DOC_URL = (
+    "https://canonical-snapcraft.readthedocs-hosted.com/en/stable/reference/bases/"
+)
 
 
 def get_default_architectures(base: str) -> Sequence[_architectures.DebianArchitecture]:
