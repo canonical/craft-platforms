@@ -62,6 +62,7 @@ jobs:
             uv sync --python=${{ matrix.python-version }} --reinstall --resolution=${{ matrix.resolution }}
             make test-${{ matrix.class }}
             echo "::endgroup::"
+          done
         env:
           PYTEST_ADDOPTS: "--no-header -vv -rN"
       - name: Upload code coverage
