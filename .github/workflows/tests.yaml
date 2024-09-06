@@ -45,7 +45,7 @@ jobs:
         id: cache-uv
         with:
           path: ${{ env.UV_CACHE_DIR }}
-          key: ${{ runner.os }}-uv
+          key: ${{ runner.os }}-uv-${{ matrix.class }}-${{ matrix.resolution }}
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
