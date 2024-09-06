@@ -71,7 +71,7 @@ jobs:
         if: success() || failure()
         uses: actions/upload-artifact@v4
         with:
-          name: results-${{ matrix.class }}-${{ matrix.python-version }}-${{ matrix.platform }}
+          name: results-${{ matrix.class }}-${{ matrix.python-version }}-${{ matrix.platform }}-${{ matrix.resolution }}
           path: |
             ./.results.*.xml
             ./.coverage.*.xml
