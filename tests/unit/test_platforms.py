@@ -290,7 +290,7 @@ def test_build_plans_bad_base(base, error_msg):
         pytest.param(
             {"all": {"build-on": ["amd64"], "build-for": ["all", "amd64"]}},
             "build-for: all must be the only build-for architecture",
-            id="all-and-amd64"
+            id="all-and-amd64",
         ),
         pytest.param(
             {
@@ -298,7 +298,7 @@ def test_build_plans_bad_base(base, error_msg):
                 "that": {"build-on": ["amd64"], "build-for": ["all"]},
             },
             r"build-for: all requires exactly one platform definition \(2 provided\)",
-            id="all-and-amd64"
+            id="all-and-amd64",
         ),
     ],
 )

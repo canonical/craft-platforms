@@ -15,10 +15,10 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Error classes for craft-platforms."""
 
-from collections.abc import Collection, Iterable
 import dataclasses
 import os
 import typing
+from collections.abc import Collection, Iterable
 
 
 @typing.runtime_checkable
@@ -100,7 +100,7 @@ class CraftPlatformsError(Exception):
 
 
 class BuildForAllError(CraftPlatformsError, ValueError):
-    """Errors related to build-for: all"""
+    """Errors related to build-for: all."""
 
 
 class AllOnlyBuildError(BuildForAllError):
@@ -116,6 +116,7 @@ class AllOnlyBuildError(BuildForAllError):
             details=f"build-for: all defined in platforms: {bfa_platforms}",
             resolution="Provide only one platform with only build-for: all or remove 'all' from build-for options.",
         )
+
 
 class AllSinglePlatformError(BuildForAllError):
     """Error when multiple build-for architectures are defined, but one is 'all'."""
