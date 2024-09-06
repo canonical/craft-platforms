@@ -71,7 +71,7 @@ def get_default_architectures(base: str) -> Sequence[_architectures.DebianArchit
 
 
 def get_distro_base_from_core_base(base: str) -> _distro.DistroBase:
-    """Get a DistroBase from the existing snap"""
+    """Get a DistroBase from the existing snap."""
     if base == "core":
         return _distro.DistroBase("ubuntu", "16.04")
     if match := CORE_BASE_REGEX.match(base):
@@ -118,14 +118,16 @@ def get_snap_base(
             return _distro.DistroBase("ubuntu", "devel")
         if CORE_BASE_REGEX.match(build_base):
             raise _errors.InvalidBaseError(
-                build_base, build_base=True,
-                message=f"cannot specify a core 'build-base' alongside a 'base'",
+                build_base,
+                build_base=True,
+                message="cannot specify a core 'build-base' alongside a 'base'",
                 docs_url=BASE_SNAPS_DOC_URL,
             )
         if snap_type != "kernel":
             raise _errors.InvalidBaseError(
-                build_base, build_base=True,
-                message=f"non-kernel snaps cannot use 'base: coreXY' and arbitrary build-bases",
+                build_base,
+                build_base=True,
+                message="non-kernel snaps cannot use 'base: coreXY' and arbitrary build-bases",
                 docs_url=BASE_SNAPS_DOC_URL,
             )
         return _distro.DistroBase.from_str(build_base)
@@ -174,7 +176,7 @@ def get_platforms_snap_build_plan(
     distro_base = get_snap_base(base=base, build_base=build_base, snap_type=snap_type)
     if not platforms:
         platforms = {
-            arch: None for arch in
-            get_default_architectures(base or build_base or "default")
+            arch: None
+            for arch in get_default_architectures(base or build_base or "default")
         }
     return _platforms.get_platforms_build_plan(distro_base, platforms)
