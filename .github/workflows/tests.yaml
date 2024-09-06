@@ -58,8 +58,10 @@ jobs:
         shell: bash
         run: |
           for python_version in 3.10 3.11 3.12 3.13; do
-            echo "::group::Python $python_version"
+            echo "::group::Python $python_version (install)"
             uv sync --python=$python_version --reinstall --resolution=${{ matrix.resolution }}
+            echo "::endgroup::"
+            echo "::group::Python $python_version (test)"
             make test-${{ matrix.class }}
             echo "::endgroup::"
           done
