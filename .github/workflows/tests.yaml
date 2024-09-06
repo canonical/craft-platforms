@@ -38,7 +38,14 @@ jobs:
             class: unit
             resolution: lowest
     runs-on: ${{ matrix.platform }}
+    env:
+      UV_CACHE_DIR: ${{ runner.temp }}/.cache/uv
     steps:
+      - uses: actions/cache@v4
+        id: cache-uv
+        with:
+          path: ${{ env.UV_CACHE_DIR }}
+          key: ${{ runner.os }}-uv
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
