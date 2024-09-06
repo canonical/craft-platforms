@@ -15,11 +15,14 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Unit tests for snap-specific platforms functions."""
 
+import itertools
 from typing import Literal
 
 import craft_platforms
 import pytest
 import pytest_check
+from craft_platforms._distro import DistroBase
+from craft_platforms import _errors
 from craft_platforms.snap import _build
 from hypothesis import given, strategies
 
@@ -67,6 +70,9 @@ PLATFORMS_AND_EXPECTED_ARCHES = [
     ],
 ]
 
+SNAP_TYPES_WITH_BASE = ["gadget", "app", None, "some-future-type"]
+SNAP_TYPES = [*SNAP_TYPES_WITH_BASE, *_build.SNAP_TYPES_WITHOUT_BASE]
+
 
 @given(strategies.integers(min_value=16, max_value=98).filter(lambda x: x % 2 == 0))
 def test_core_base_regex_match(version):
@@ -90,81 +96,147 @@ def test_core_base_regex_non_match(string):
 
 
 @pytest.mark.parametrize(
-    ("string", "matches"),
+    ("base", "expected"),
     [
-        ("core", True),
-        ("core14", False),
+        ("core", craft_platforms.DistroBase("ubuntu", "16.04")),
+        ("devel", craft_platforms.DistroBase("ubuntu", "devel")),
+        *(
+            (f"core{n}", craft_platforms.DistroBase("ubuntu", f"{n}.04"))
+            for n in range(16, 99, 2)
+        ),
+        *(
+            (f"ubuntu@{n}.04", craft_platforms.DistroBase("ubuntu", f"{n}.04"))
+            for n in range(16, 99, 2)
+        ),
     ],
 )
-def test_core_base_regex_match_specials(string, matches):
-    assert bool(_build.CORE_BASE_REGEX.match(string)) == matches
+def test_get_distro_base_from_core_base_success(base, expected):
+    assert _build.get_distro_base_from_core_base(base) == expected
+
+
+@pytest.mark.parametrize("base", ["bare", "flared"])
+def test_get_distro_base_from_core_base_error(base: str):
+    with pytest.raises(ValueError):
+        _build.get_distro_base_from_core_base(base)
 
 
 @pytest.mark.parametrize(
     ("base", "build_base", "expected"),
     [
-        ("core", None, craft_platforms.DistroBase("ubuntu", "16.04")),
-        ("core16", None, craft_platforms.DistroBase("ubuntu", "16.04")),
-        ("core18", None, craft_platforms.DistroBase("ubuntu", "18.04")),
-        ("core20", None, craft_platforms.DistroBase("ubuntu", "20.04")),
-        ("core22", None, craft_platforms.DistroBase("ubuntu", "22.04")),
-        ("core22-desktop", "core22", craft_platforms.DistroBase("ubuntu", "22.04")),
-        ("core24", None, craft_platforms.DistroBase("ubuntu", "24.04")),
-        ("core24-desktop", "core24", craft_platforms.DistroBase("ubuntu", "24.04")),
-        ("core26", None, craft_platforms.DistroBase("ubuntu", "26.04")),
+        ("core", None, DistroBase("ubuntu", "16.04")),
         *(
-            ("bare", f"core{n}", craft_platforms.DistroBase("ubuntu", f"{n}.04"))
-            for n in (18, 20, 22, 24)
+            (f"core{n}", None, DistroBase("ubuntu", f"{n}.04"))
+            for n in range(16, 99, 2)
         ),
-    ],
+        ("core", "devel", DistroBase("ubuntu", "devel")),
+        *(
+            (f"core{n}", "devel", DistroBase("ubuntu", "devel"))
+            for n in range(16, 99, 2)
+        ),
+        *(
+            ("bare", f"core{n}", DistroBase("ubuntu", f"{n}.04"))
+            for n in range(16, 99, 2)
+        ),
+        *(
+            ("core22-desktop", f"core{n}", DistroBase("ubuntu", f"{n}.04"))
+            for n in range(16, 99, 2)
+        ),
+        *(
+            ("some-arbitrary-base-name", f"core{n}", DistroBase("ubuntu", f"{n}.04"))
+            for n in range(16, 99, 2)
+        ),
+        *(
+            ("some-arbitrary-base-name", f"debian@{n}", DistroBase("debian", str(n)))
+            for n in range(2, 12)
+        ),
+        ("bare", "ubuntu@23.10", DistroBase("ubuntu", "23.10")),
+        ("core24-alex", "core22", DistroBase("ubuntu", "22.04")),
+        ("core24-alex", "devel", DistroBase("ubuntu", "devel")),
+        ("arbitrary-base-name", "opensuse@15", DistroBase("opensuse", "15")),
+    ]
 )
-def test_get_distro_base_from_core_base_success(base, build_base, expected):
-    assert _build.get_distro_base_from_core_base(base, build_base) == expected
+@pytest.mark.parametrize("snap_type", SNAP_TYPES)
+def test_get_snap_base_general_success(base, build_base, snap_type, expected):
+    assert _build.get_snap_base(base=base, build_base=build_base, snap_type=snap_type) == expected
+
 
 
 @pytest.mark.parametrize(
-    ("base", "build_base", "exc_class", "exc_match"),
+    ("base", "build_base", "snap_type", "expected"),
     [
-        (
-            "bare",
-            "devel",
-            craft_platforms.InvalidBaseError,
-            "build-base 'devel' is not valid if base is 'bare'",
-        ),
-        (
-            "core22-desktop",
-            None,
-            craft_platforms.NeedBuildBaseError,
-            "base 'core22-desktop' requires a 'build-base'",
-        ),
-        (
-            "bare",
-            None,
-            craft_platforms.NeedBuildBaseError,
-            "base 'bare' requires a 'build-base'",
-        ),
-        (
-            "core22",
-            "core22",
-            craft_platforms.InvalidBaseError,
-            "base 'core22' cannot use a build-base",
-        ),
-        (
-            "devel",
-            None,
-            craft_platforms.InvalidBaseError,
-            "base 'devel' is unknown or invalid",
-        ),
-    ],
+        ("core24", "ubuntu@24.04", "kernel", DistroBase("ubuntu", "24.04")),
+        ("arbitrary", "debian@11", "kernel", DistroBase("debian", "11")),
+    ]
 )
-def test_get_distro_base_from_core_base_error(
-    base: str,
-    build_base: str,
-    exc_class: type[Exception],
-    exc_match: str,
-):
-    with pytest.raises(exc_class, match=exc_match):
-        _build.get_distro_base_from_core_base(base, build_base)
+def test_get_snap_base_examples_success(base, build_base, snap_type, expected):
+    assert _build.get_snap_base(base=base, build_base=build_base, snap_type=snap_type) == expected
+
+
+@pytest.mark.parametrize("snap_type", SNAP_TYPES_WITH_BASE)
+@pytest.mark.parametrize(
+    ("base", "match"),
+    [
+        pytest.param(
+            "bare",
+            "must declare a 'build-base' if 'base' does not match 'coreXY'",
+            id="bare",
+        ),
+        pytest.param(
+            "some-arbitrary-base",
+            "must declare a 'build-base' if 'base' does not match 'coreXY'",
+            id="some-arbitrary-base",
+        ),
+        pytest.param(
+            None,
+            "snaps of type [a-zN'-]+ require a 'base'",
+            id="no-base",
+        ),
+    ]
+)
+def test_get_snap_base_no_build_base_requires_base_error(base, snap_type, match):
+    with pytest.raises(_errors.CraftPlatformsError, match=match):
+        _build.get_snap_base(base=base, build_base=None, snap_type=snap_type)
+
+
+@pytest.mark.parametrize("snap_type", _build.SNAP_TYPES_WITHOUT_BASE)
+@pytest.mark.parametrize(
+    ("base", "match"),
+    [
+        pytest.param(
+            "bare",
+            "must declare a 'build-base' if 'base' does not match 'coreXY'",
+            id="bare",
+        ),
+        pytest.param(
+            "some-arbitrary-base",
+            "must declare a 'build-base' if 'base' does not match 'coreXY'",
+            id="some-arbitrary-base",
+        ),
+        pytest.param(
+            None,
+            "'[a-z]+' snaps require a 'build-base' if no 'base' is declared",
+            id="no-base",
+        ),
+    ]
+)
+def test_get_snap_base_no_build_base_ether_or(base, snap_type, match):
+    with pytest.raises(_errors.CraftPlatformsError, match=match):
+        _build.get_snap_base(base=base, build_base=None, snap_type=snap_type)
+
+
+@pytest.mark.parametrize(
+    ("base", "build_base", "snap_type", "match"),
+    [
+        (None, "devel", "kernel", "non-base snaps require a 'base' if 'build-base' is 'devel"),
+        (None, "flared", "base", "build-base 'flared' is unknown or invalid"),
+        ("core24", "ubuntu@24.04", "blah", "non-kernel snaps cannot use 'base: coreXY' and arbitrary build-bases"),
+
+    ]
+)
+def test_get_snap_base_specific_errors(base, build_base, snap_type, match):
+    with pytest.raises(_errors.CraftPlatformsError, match=match):
+        _build.get_snap_base(base=base, build_base=build_base, snap_type=snap_type)
+
 
 
 @pytest.mark.parametrize(
@@ -243,19 +315,17 @@ def test_get_platforms_snap_build_plan_success(
     ("platforms", "expected_archs"),
     PLATFORMS_AND_EXPECTED_ARCHES,
 )
-@pytest.mark.parametrize("snap_type", ["base", "kernel"])
-def test_get_platforms_snap_build_plan_base_or_kernel_snap_success(
+def test_get_platforms_snap_build_plan_base_snap_success(
     build_base: str,
     expected_base: craft_platforms.DistroBase,
     platforms: craft_platforms.Platforms | None,
     expected_archs: dict[str, list[str]],
-    snap_type: Literal["base", "kernel"],
 ):
     build_plan = _build.get_platforms_snap_build_plan(
         base=None,
         platforms=platforms,
         build_base=build_base,
-        snap_type=snap_type,
+        snap_type="base",
     )
 
     for build_item in build_plan:
@@ -271,16 +341,16 @@ def test_get_platforms_snap_build_plan_base_or_kernel_snap_success(
     ("base", "build_base", "error_cls", "error_match"),
     [
         (
-            "bare",
-            "devel",
+            "core24",
+            "ubuntu@24.04",
             craft_platforms.InvalidBaseError,
-            "build-base 'devel' is not valid if base is 'bare'",
+            "non-kernel snaps cannot use 'base: coreXY' and arbitrary build-bases",
         ),
         (
             None,
             "devel",
             craft_platforms.RequiresBaseError,
-            "snap type 'app' requires a 'base' field",
+            "snaps of type None require a 'base'",
         ),
     ],
 )

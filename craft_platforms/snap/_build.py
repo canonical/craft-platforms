@@ -45,7 +45,7 @@ DEFAULT_ARCHITECTURES_BY_BASE = {
     "core20": CORE20_DEFAULT_ARCHITECTURES,
 }
 
-# The default architectures for the current and future releases.
+# The default architectures if not otherwise specified for a base.
 DEFAULT_ARCHITECTURES = (
     _architectures.DebianArchitecture.AMD64,
     _architectures.DebianArchitecture.ARM64,
@@ -55,7 +55,7 @@ DEFAULT_ARCHITECTURES = (
     _architectures.DebianArchitecture.S390X,
 )
 
-CORE_BASE_REGEX = re.compile("^core(?P<major>16|18|[2-9][02468])?(?P<extra>-[a-z]+)?$")
+CORE_BASE_REGEX = re.compile("^core(?P<version>16|18|[2-9][02468])?$")
 
 SNAP_TYPES_WITHOUT_BASE = ("base", "kernel", "snapd")
 
@@ -70,63 +70,81 @@ def get_default_architectures(base: str) -> Sequence[_architectures.DebianArchit
     return DEFAULT_ARCHITECTURES
 
 
-def get_distro_base_from_core_base(
-    base: str,
-    build_base: str | None = None,
+def get_distro_base_from_core_base(base: str) -> _distro.DistroBase:
+    """Get a DistroBase from the existing snap"""
+    if base == "core":
+        return _distro.DistroBase("ubuntu", "16.04")
+    if match := CORE_BASE_REGEX.match(base):
+        version = match.group("version")
+        return _distro.DistroBase("ubuntu", f"{version}.04")
+    return _distro.DistroBase.from_str(base)
+
+
+def get_snap_base(
+    *, base: str | None, build_base: str | None, snap_type: str | None
 ) -> _distro.DistroBase:
-    if base == "bare":
-        if build_base == "devel":
-            raise _errors.InvalidBaseError(
-                base,
-                message="build-base 'devel' is not valid if base is 'bare'",
-                resolution="Ensure the build-base is a supported base.",
+    if not base:
+        if snap_type not in SNAP_TYPES_WITHOUT_BASE:
+            raise _errors.RequiresBaseError(
+                f"snaps of type {snap_type!r} require a 'base'",
+                resolution="Declare a 'base' in 'snapcraft.yaml'",
                 docs_url=BASE_SNAPS_DOC_URL,
             )
-        if build_base is None:
-            raise _errors.NeedBuildBaseError(base)
+        if build_base == "devel" and snap_type != "base":
+            raise _errors.RequiresBaseError(
+                "non-base snaps require a 'base' if 'build-base' is 'devel",
+                resolution="Declare a 'base' in 'snapcraft.yaml'",
+                docs_url=BASE_SNAPS_DOC_URL,
+            )
+        if not build_base:
+            raise _errors.RequiresBaseError(
+                f"{snap_type!r} snaps require a 'build-base' if no 'base' is declared",
+                resolution="Declare a 'build-base' in 'snapcraft.yaml'",
+                docs_url=BASE_SNAPS_DOC_URL,
+            )
         try:
             return get_distro_base_from_core_base(build_base)
-        except _errors.InvalidBaseError:
+        except ValueError:
             raise _errors.InvalidBaseError(
                 build_base,
-                resolution="Ensure the build-base is a supported base.",
-                docs_url=BASE_SNAPS_DOC_URL,
                 build_base=True,
-            ) from None
-    if not (matches := CORE_BASE_REGEX.match(base)):
+                resolution="Provide a valid 'build-base'",
+                docs_url=BASE_SNAPS_DOC_URL,
+            )
+    if CORE_BASE_REGEX.match(base):
+        if not build_base:
+            return get_distro_base_from_core_base(base)
+        if build_base == "devel":
+            return _distro.DistroBase("ubuntu", "devel")
+        if CORE_BASE_REGEX.match(build_base):
+            raise _errors.InvalidBaseError(
+                build_base, build_base=True,
+                message=f"cannot specify a core 'build-base' alongside a 'base'",
+                docs_url=BASE_SNAPS_DOC_URL,
+            )
+        if snap_type != "kernel":
+            raise _errors.InvalidBaseError(
+                build_base, build_base=True,
+                message=f"non-kernel snaps cannot use 'base: coreXY' and arbitrary build-bases",
+                docs_url=BASE_SNAPS_DOC_URL,
+            )
+        return _distro.DistroBase.from_str(build_base)
+    if not build_base:
         raise _errors.InvalidBaseError(
             base,
-            resolution="Ensure the base is a supported base.",
+            message="must declare a 'build-base' if 'base' does not match 'coreXY'",
+            resolution="Provide a 'build-base'.",
             docs_url=BASE_SNAPS_DOC_URL,
         )
-    major_release = matches.group("major")
-    extra = matches.group("extra")
-    if extra and not build_base:
-        raise _errors.NeedBuildBaseError(base)
-    if not extra and build_base not in ("devel", None):
-        raise _errors.InvalidBaseError(
-            base,
-            build_base=True,
-            message=f"base {base!r} cannot use a build-base",
-            resolution="Remove the 'build-base' key.",
-            docs_url=BASE_SNAPS_DOC_URL,
-        )
-    if (
-        build_base
-        and (build_base_matches := CORE_BASE_REGEX.match(build_base))
-        and build_base_matches.group("extra")
-    ):
+    try:
+        return get_distro_base_from_core_base(build_base)
+    except ValueError:
         raise _errors.InvalidBaseError(
             build_base,
             build_base=True,
-            resolution="Ensure the build-base is only the core base.",
+            resolution="Ensure the build-base is supported.",
             docs_url=BASE_SNAPS_DOC_URL,
         )
-    if build_base == "devel":
-        return _distro.DistroBase("ubuntu", "devel")
-    if base in ("core", "core16"):
-        return _distro.DistroBase("ubuntu", "16.04")
-    return _distro.DistroBase("ubuntu", f"{major_release}.04")
 
 
 @typing.overload
@@ -153,31 +171,10 @@ def get_platforms_snap_build_plan(
     snap_type: str | None = None,
 ) -> Sequence[_buildinfo.BuildInfo]:
     """Generate the build plan for a platforms-based charm."""
-    distro_base = None
-    if base is None:
-        if snap_type in SNAP_TYPES_WITHOUT_BASE:
-            if (base, build_base) == (None, "devel"):
-                distro_base = _distro.DistroBase("ubuntu", "devel")
-            base, build_base = build_base, None
-        else:
-            raise _errors.RequiresBaseError(
-                f"snap type {(snap_type or 'app')!r} requires a 'base' field",
-                resolution="Add a 'base' field to the snap definition.",
-                docs_url="https://snapcraft.io/docs/base-snaps",
-            )
-        if base is None:
-            raise _errors.RequiresBaseError(
-                f"snap type {snap_type!r} requires a 'build-base' field if no 'base' is declared",
-                resolution="Add a 'build-base' field to the snap definition.",
-                docs_url="https://snapcraft.io/docs/base-snaps#heading--base-snap",
-            )
-    if not distro_base:
-        distro_base = get_distro_base_from_core_base(base, build_base)
-    if platforms is None:
-        # If no platforms are specified, build for all default architectures without
-        # an option of cross-compiling.
+    distro_base = get_snap_base(base=base, build_base=build_base, snap_type=snap_type)
+    if not platforms:
         platforms = {
-            architecture.value: None
-            for architecture in get_default_architectures(build_base or base)
+            arch: None for arch in
+            get_default_architectures(base or build_base or "default")
         }
     return _platforms.get_platforms_build_plan(distro_base, platforms)
