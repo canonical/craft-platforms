@@ -31,15 +31,11 @@ jobs:
     strategy:
       matrix:
         class: [unit, integration]
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
         platform: [ubuntu-latest, windows-latest, macos-latest]
         resolution: [highest]
         include:
-          - python-version: "3.13"
-            python-suffix: "-dev"
           - platform: ubuntu-latest
             class: unit
-            python-version: "3.10"
             resolution: lowest
     runs-on: ${{ matrix.platform }}
     steps:
@@ -53,13 +49,19 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}${{ matrix.python-suffix }}
-      - name: Configure virtualenv with ${{ matrix.resolution }} package versions
+          python-version: |
+            3.10
+            3.11
+            3.12
+            3.13-dev
+      - name: Configure venv and test
+        shell: bash
         run: |
-          uv sync --python=${{ matrix.python-version }} --reinstall --resolution=${{ matrix.resolution }}
-      - name: Test
-        run: |
-          make test-${{ matrix.class }}
+          for python_version in 3.10 3.11 3.12 3.13; do
+            echo "::group::Python $python_version"
+            uv sync --python=${{ matrix.python-version }} --reinstall --resolution=${{ matrix.resolution }}
+            make test-${{ matrix.class }}
+            echo "::endgroup::"
         env:
           PYTEST_ADDOPTS: "--no-header -vv -rN"
       - name: Upload code coverage
