@@ -32,6 +32,7 @@ constraint-dependencies = [
     "build>=0.1.0",
     "iniconfig>=1.1.0",
     "lxml>=5.0",
+    "pyparsing>=3.0.0",
     "pyproject-hooks>=1.0.0",
     "pyyaml>=5.0",
     "markdown>=3.0",
