@@ -39,12 +39,12 @@ jobs:
             resolution: lowest
     runs-on: ${{ matrix.platform }}
     env:
-      UV_CACHE_DIR: ${{ runner.temp }}/.cache/uv
+      UV_CACHE_DIR: ${{ github.workspace }}/.cache/uv
     steps:
       - uses: actions/cache@v4
         id: cache-uv
         with:
-          path: ${{ runner.temp }}/.cache/uv
+          path: ${{ env.UV_CACHE_DIR }}
           key: ${{ runner.os }}-uv
       - uses: actions/checkout@v4
         with:
