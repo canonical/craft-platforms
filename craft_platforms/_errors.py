@@ -102,10 +102,12 @@ class NeedBuildBaseError(CraftPlatformsError, ValueError):
     """Error when ``base`` requires a ``build_base``, but none is unspecified."""
 
     def __init__(self, base: str) -> None:
+        # Workaround for Windows...
+        EX_DATAERR = getattr(os, "EX_DATAERR", 65)
         super().__init__(
             message=f"base '{base}' requires a 'build-base', but none is specified",
             resolution="Specify a build-base.",
-            retcode=os.EX_DATAERR,
+            retcode=EX_DATAERR,
         )
 
 
