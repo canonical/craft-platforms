@@ -27,7 +27,6 @@ dev = [
     "pytest-mock~=3.12",
 ]
 lint = [
-    "black~=24.1",
     "yamllint~=1.34",
 ]
 types = [
@@ -72,9 +71,6 @@ git_describe_command = "git describe --dirty --long --match '[0-9]*.[0-9]*.[0-9]
 [tool.setuptools.packages.find]
 include = ["*craft*"]
 namespaces = false
-
-[tool.black]
-target-version = ["py310"]
 
 [tool.codespell]
 ignore-words-list = "buildd,crate,keyserver,comandos,ro,dedent,dedented"
@@ -220,7 +216,6 @@ lint.select = [  # Base linting rule selections.
     "RUF001", "RUF002", "RUF003",  # Ambiguous unicode characters
     "RUF005",  # Encourages unpacking rather than concatenation
     "RUF008",  # Do not use mutable default values for dataclass attributes
-    "RUF011",  # Don't use static keys in dict comprehensions.
     "RUF013",  # Prohibit implicit Optionals (PEP 484)
     "RUF100",  # #noqa directive that doesn't flag anything
     "RUF200",  # If ruff fails to parse pyproject.toml...
@@ -240,6 +235,9 @@ lint.ignore = [
 
     # Ignored due to common usage in current code
     "TRY003",  # Avoid specifying long messages outside the exception class
+
+    # Interfere with the formatter.
+    "COM812", "ISC001",
 ]
 
 [tool.ruff.lint.flake8-annotations]
