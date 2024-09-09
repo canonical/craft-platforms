@@ -287,6 +287,19 @@ def test_build_plans_bad_base(base, error_msg):
             "'my machine' is not a valid DebianArchitecture",
             id="invalid-architecture-name",
         ),
+        pytest.param(
+            {"all": {"build-on": ["amd64"], "build-for": ["all", "amd64"]}},
+            "build-for: all must be the only build-for architecture",
+            id="all-and-amd64",
+        ),
+        pytest.param(
+            {
+                "this": {"build-on": ["amd64"], "build-for": ["all"]},
+                "that": {"build-on": ["amd64"], "build-for": ["all"]},
+            },
+            r"build-for: all requires exactly one platform definition \(2 provided\)",
+            id="all-and-amd64",
+        ),
     ],
 )
 def test_build_plans_bad_architecture(platforms, error_msg):

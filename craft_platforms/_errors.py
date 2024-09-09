@@ -18,6 +18,7 @@
 import dataclasses
 import os
 import typing
+from collections.abc import Collection, Iterable
 
 # Workaround for Windows...
 EX_DATAERR = getattr(os, "EX_DATAERR", 65)
@@ -99,6 +100,40 @@ class CraftPlatformsError(Exception):
                     return False
             return True
         return NotImplemented
+
+
+class BuildForAllError(CraftPlatformsError, ValueError):
+    """Errors related to build-for: all."""
+
+
+class AllOnlyBuildError(BuildForAllError):
+    """Error when multiple build-for architectures are defined, but one is 'all'."""
+
+    def __init__(
+        self,
+        platforms: Iterable[str],
+    ) -> None:
+        bfa_platforms = ",".join(platforms)
+        super().__init__(
+            message="build-for: all must be the only build-for architecture",
+            details=f"build-for: all defined in platforms: {bfa_platforms}",
+            resolution="Provide only one platform with only build-for: all or remove 'all' from build-for options.",
+        )
+
+
+class AllSinglePlatformError(BuildForAllError):
+    """Error when multiple build-for architectures are defined, but one is 'all'."""
+
+    def __init__(
+        self,
+        platforms: Collection[str],
+    ) -> None:
+        bfa_platforms = ",".join(platforms)
+        super().__init__(
+            message=f"build-for: all requires exactly one platform definition ({len(platforms)} provided)",
+            details=f"build-for: all defined in platforms: {bfa_platforms}",
+            resolution="Provide only one platform with only build-for: all or remove 'all' from build-for options.",
+        )
 
 
 class NeedBuildBaseError(CraftPlatformsError, ValueError):

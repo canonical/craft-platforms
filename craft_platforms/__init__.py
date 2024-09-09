@@ -23,10 +23,12 @@ from ._distro import BaseName, DistroBase, is_ubuntu_like
 from ._errors import (
     CraftError,
     CraftPlatformsError,
-    NeedBuildBaseError,
+    AllOnlyBuildError,
+    AllSinglePlatformError,
     InvalidBaseError,
     InvalidPlatformNameError,
     InvalidPlatformError,
+    NeedBuildBaseError,
     RequiresBaseError,
 )
 from ._platforms import Platforms, get_platforms_build_plan
@@ -56,9 +58,11 @@ __all__ = [
     "is_ubuntu_like",
     "CraftError",
     "CraftPlatformsError",
-    "NeedBuildBaseError",
+    "AllOnlyBuildError",
+    "AllSinglePlatformError",
     "InvalidBaseError",
     "InvalidPlatformNameError",
     "InvalidPlatformError",
     "RequiresBaseError",
+    "NeedBuildBaseError",
 ]
