@@ -17,7 +17,7 @@
 
 from collections.abc import Sequence
 
-from craft_platforms import _buildinfo, _platforms
+from craft_platforms import _buildinfo, _errors, _platforms
 
 
 def get_rock_build_plan(
@@ -31,4 +31,11 @@ def get_rock_build_plan(
     support for 'build-for: ["all"]' (#23).
     """
     # rockcraft uses the default build planner
+    for name, platform in platforms.items():
+        if platform and "all" in platform.get("build-for", []):
+            raise _errors.InvalidPlatformError(
+                name,
+                details="Rockcraft cannot build platform-independent images.",
+                resolution="Replace 'build-for: [all]' with a valid architecture",
+            )
     return _platforms.get_platforms_build_plan(base, platforms, build_base)

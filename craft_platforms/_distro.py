@@ -159,6 +159,9 @@ class DistroBase:
         """
         return cls(distribution=distribution.id(), series=distribution.version())
 
+    def __str__(self) -> str:
+        return f"{self.distribution}@{self.series}"
+
 
 def is_ubuntu_like(distribution: distro.LinuxDistribution | None = None) -> bool:
     """Determine whether the given distribution is Ubuntu or Ubuntu-like.

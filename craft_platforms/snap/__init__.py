@@ -1,3 +1,5 @@
+# This file is part of craft-platforms.
+#
 # Copyright 2024 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
@@ -11,26 +13,10 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Build info."""
+"""Snap-specific build information for craft-platforms."""
 
-import dataclasses
-from typing import Literal
-
-from craft_platforms import _architectures, _distro
-
-
-@dataclasses.dataclass
-class BuildInfo:
-    """Platform build information."""
-
-    platform: str
-    """The platform name."""
-
-    build_on: _architectures.DebianArchitecture
-    """The architecture to build on."""
-
-    build_for: _architectures.DebianArchitecture | Literal["all"]
-    """The architecture to build for."""
-
-    build_base: _distro.DistroBase
-    """The base to build on."""
+from ._build import (
+    get_default_architectures,
+    get_distro_base_from_core_base,
+    get_platforms_snap_build_plan,
+)
