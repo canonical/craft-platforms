@@ -2,6 +2,18 @@
 Changelog
 *********
 
+0.3.0 (2024-Sep-09)
+-------------------
+
+Features
+========
+
+- Add 'build-for: [all]' support to generic build planner
+- Add support for Snapcraft build plans.
+
+For a complete list of commits, check out the `0.3.0`_ release on GitHub.
+
+
 0.2.0 (2024-Aug-29)
 -------------------
 
@@ -35,6 +47,7 @@ New Features
 For a complete list of commits, check out the `0.1.0`_ release on GitHub.
 
 
+.. _0.3.0: https://github.com/canonical/craft-platforms/releases/tag/0.3.0
 .. _0.2.0: https://github.com/canonical/craft-platforms/releases/tag/0.2.0
 .. _0.1.1: https://github.com/canonical/craft-platforms/releases/tag/0.1.1
 .. _0.1.0: https://github.com/canonical/craft-platforms/releases/tag/0.1.0
