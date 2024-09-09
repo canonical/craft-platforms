@@ -8,7 +8,7 @@ Changelog
 Features
 ========
 
-- Add 'build-for: [all]' support to generic build planner
+- Add 'build-for: [all]' support to generic build planner.
 - Add support for Snapcraft build plans.
 
 For a complete list of commits, check out the `0.3.0`_ release on GitHub.
