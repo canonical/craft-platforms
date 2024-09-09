@@ -18,15 +18,18 @@
 from ._architectures import DebianArchitecture
 from ._buildinfo import BuildInfo
 from . import charm, rock
+from . import snap
 from ._distro import BaseName, DistroBase, is_ubuntu_like
 from ._errors import (
     CraftError,
     CraftPlatformsError,
     AllOnlyBuildError,
     AllSinglePlatformError,
-    NeedBuildBaseError,
+    InvalidBaseError,
     InvalidPlatformNameError,
     InvalidPlatformError,
+    NeedBuildBaseError,
+    RequiresBaseError,
 )
 from ._platforms import Platforms, get_platforms_build_plan
 
@@ -48,6 +51,7 @@ __all__ = [
     "BuildInfo",
     "charm",
     "rock",
+    "snap",
     "get_platforms_build_plan",
     "BaseName",
     "DistroBase",
@@ -56,7 +60,9 @@ __all__ = [
     "CraftPlatformsError",
     "AllOnlyBuildError",
     "AllSinglePlatformError",
-    "NeedBuildBaseError",
+    "InvalidBaseError",
     "InvalidPlatformNameError",
     "InvalidPlatformError",
+    "RequiresBaseError",
+    "NeedBuildBaseError",
 ]

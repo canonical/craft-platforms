@@ -20,6 +20,9 @@ import os
 import typing
 from collections.abc import Collection, Iterable
 
+# Workaround for Windows...
+EX_DATAERR = getattr(os, "EX_DATAERR", 65)
+
 
 @typing.runtime_checkable
 class CraftError(typing.Protocol):
@@ -133,14 +136,14 @@ class AllSinglePlatformError(BuildForAllError):
         )
 
 
-class NeedBuildBaseError(CraftPlatformsError):
+class NeedBuildBaseError(CraftPlatformsError, ValueError):
     """Error when ``base`` requires a ``build_base``, but none is unspecified."""
 
     def __init__(self, base: str) -> None:
         super().__init__(
             message=f"base '{base}' requires a 'build-base', but none is specified",
             resolution="Specify a build-base.",
-            retcode=os.EX_DATAERR,
+            retcode=EX_DATAERR,
         )
 
 
@@ -175,3 +178,32 @@ class InvalidPlatformError(CraftPlatformsError, ValueError):
             docs_url=docs_url,
             doc_slug=doc_slug,
         )
+
+
+class InvalidBaseError(CraftPlatformsError, ValueError):
+    """Error when a specified base name is invalid."""
+
+    def __init__(
+        self,
+        base: str,
+        *,
+        message: str | None = None,
+        resolution: str | None = None,
+        docs_url: str | None = None,
+        build_base: bool = False,
+    ) -> None:
+        self.base = base
+        if resolution is None:
+            resolution = "Ensure the base matches the <distro>@<series> pattern and is a supported series."
+        if not message:
+            message = (
+                f"build-base '{base}' is unknown or invalid"
+                if build_base
+                else f"base '{base}' is unknown or invalid"
+            )
+
+        super().__init__(message=message, resolution=resolution, docs_url=docs_url)
+
+
+class RequiresBaseError(CraftPlatformsError, ValueError):
+    """Error when a base is required in this configuration."""

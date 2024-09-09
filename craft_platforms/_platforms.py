@@ -37,12 +37,15 @@ Platforms = dict[_architectures.DebianArchitecture | str, PlatformDict | None]
 
 
 def get_platforms_build_plan(
-    base: str,
+    base: str | _distro.DistroBase,
     platforms: Platforms,
     build_base: str | None = None,
 ) -> Sequence[_buildinfo.BuildInfo]:
     """Generate the build plan for a platforms-based artefact."""
-    distro_base = _distro.DistroBase.from_str(build_base or base)
+    if isinstance(base, _distro.DistroBase):
+        distro_base = base
+    else:
+        distro_base = _distro.DistroBase.from_str(build_base or base)
     build_plan: list[_buildinfo.BuildInfo] = []
 
     for platform_name, platform in platforms.items():
