@@ -34,8 +34,11 @@ class BaseName(typing.Protocol):
     language used in craft-providers.
     """
 
-    name: str
-    version: str
+    @property
+    def name(self) -> str: ...
+
+    @property
+    def version(self) -> str: ...
 
 
 def _get_version_tuple(version_str: str) -> tuple[int | str, ...]:

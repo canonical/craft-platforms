@@ -31,7 +31,7 @@ from ._errors import (
     NeedBuildBaseError,
     RequiresBaseError,
 )
-from ._platforms import Platforms, get_platforms_build_plan
+from ._platforms import PlatformDict, Platforms, get_platforms_build_plan
 
 try:
     from ._version import (
@@ -53,6 +53,8 @@ __all__ = [
     "rock",
     "snap",
     "get_platforms_build_plan",
+    "PlatformDict",
+    "Platforms",
     "BaseName",
     "DistroBase",
     "is_ubuntu_like",
