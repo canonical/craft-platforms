@@ -17,8 +17,7 @@
 
 from ._architectures import DebianArchitecture
 from ._buildinfo import BuildInfo
-from . import charm, rock
-from . import snap
+from . import charm, rock, snap
 from ._distro import BaseName, DistroBase, is_ubuntu_like
 from ._errors import (
     CraftError,

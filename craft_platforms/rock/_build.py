@@ -22,15 +22,19 @@ from craft_platforms import _buildinfo, _errors, _platforms
 
 def get_rock_build_plan(
     base: str,
-    platforms: _platforms.Platforms,
+    *,
     build_base: str | None = None,
+    platforms: _platforms.Platforms,
 ) -> Sequence[_buildinfo.BuildInfo]:
     """Generate the build plan for a rock.
 
-    This may diverge from the parent BuildInfo class when the parent gains
-    support for 'build-for: ["all"]' (#23).
+    This function uses the default build planner, but filters it to prevent the use of
+    ``build-for: all``
+
+    :param base: the rock base (e.g. ``'ubuntu@24.04'``)
+    :param platforms: the platforms structure in ``rockcraft.yaml``
+    :param build_base: the build base, if provided in ``rockcraft.yaml``.
     """
-    # rockcraft uses the default build planner
     for name, platform in platforms.items():
         if platform and "all" in platform.get("build-for", []):
             raise _errors.InvalidPlatformError(

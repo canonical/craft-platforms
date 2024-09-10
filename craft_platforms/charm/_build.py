@@ -16,17 +16,21 @@
 """Charmcraft-specific platforms information."""
 
 import itertools
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 
 from craft_platforms import _architectures, _buildinfo, _distro, _platforms
 
-DEFAULT_ARCHITECTURES = (
+DEFAULT_ARCHITECTURES: Collection[_architectures.DebianArchitecture] = (
     _architectures.DebianArchitecture.AMD64,
     _architectures.DebianArchitecture.ARM64,
     _architectures.DebianArchitecture.PPC64EL,
     _architectures.DebianArchitecture.RISCV64,
     _architectures.DebianArchitecture.S390X,
 )
+"""Default architectures for building a charm
+
+If no platforms are defined, the charm will be built on and for these architectures.
+"""
 
 
 def get_platforms_charm_build_plan(

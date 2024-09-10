@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Charm-specific build information for craft-platforms."""
+"""Charm-specific module for craft-platforms."""
 
 from ._build import DEFAULT_ARCHITECTURES, get_platforms_charm_build_plan
 
