@@ -4,8 +4,9 @@ Reference
 *********
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
+   package
    changelog
 
 Indices and tables

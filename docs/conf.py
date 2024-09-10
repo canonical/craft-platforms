@@ -16,19 +16,19 @@
 
 import datetime
 
-project = "Starbase"
+project = "craft-platforms"
 author = "Canonical"
 
 copyright = "2023-%s, %s" % (datetime.date.today().year, author)
 
 # region Configuration for canonical-sphinx
-ogp_site_url = "https://canonical-starbase.readthedocs-hosted.com/"
+ogp_site_url = "https://canonical-craft-platforms.readthedocs-hosted.com/"
 ogp_site_name = project
 ogp_image = "https://assets.ubuntu.com/v1/253da317-image-document-ubuntudocs.svg"
 
 html_context = {
-    "product_page": "github.com/canonical/starbase",
-    "github_url": "https://github.com/canonical/starbase",
+    "product_page": "github.com/canonical/craft-platforms",
+    "github_url": "https://github.com/canonical/craft-platforms",
 }
 
 extensions = [
@@ -41,14 +41,17 @@ extensions = [
 
 extensions.extend(
     [
+        # "sphinx_toolbox.more_autodoc",
+        "sphinx_toolbox.more_autodoc.variables",
+        "sphinx.ext.autodoc",  # Must be loaded after more_autodoc
+        "sphinx.ext.napoleon",
+        "sphinx_autodoc_typehints",
         "sphinx.ext.intersphinx",
         "sphinx.ext.viewcode",
         "sphinx.ext.coverage",
         "sphinx.ext.doctest",
         "sphinx-pydantic",
         "sphinx_toolbox",
-        "sphinx_toolbox.more_autodoc",
-        "sphinx.ext.autodoc",  # Must be loaded after more_autodoc
     ]
 )
 
@@ -62,13 +65,37 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
 }
 
+# Type annotations config
+# add_module_names = True
+
 # Type hints configuration
 set_type_checking_flag = True
 typehints_fully_qualified = False
 always_document_param_types = True
+typehints_document_rtype = True
+
+# Autodoc extension configuration
+# https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#configuration
+autodoc_member_order = "bysource"
+autodoc_default_flags = ["members", "show-inheritance"]
+autodoc_typehints_format = "short"
+
+# sphinx-autodoc-typehints configuration
+# https://github.com/tox-dev/sphinx-autodoc-typehints?tab=readme-ov-file#options
+always_use_bars_union = True
+typehints_use_rtype = False
+typehints_defaults = "comma"
+
+# More-autodoc configuration
+# https://sphinx-toolbox.readthedocs.io/en/stable/extensions/more_autodoc/index.html
+overloads_location = "bottom"
+
+# Napoleon configuration
+# https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
+napoleon_attr_annotations = True
 
 # Github config
 github_username = "canonical"
-github_repository = "starbase"
+github_repository = "craft-platforms"
 
 # endregion
