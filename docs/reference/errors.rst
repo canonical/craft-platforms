@@ -1,4 +1,4 @@
-.. _erorrs_reference:
+.. _errors_reference:
 
 Error classes
 *************
