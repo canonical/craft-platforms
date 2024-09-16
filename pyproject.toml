@@ -28,7 +28,7 @@ docs = [
 
 [tool.uv]
 constraint-dependencies = [
-    # The constraints below ore because older versions won't install with uv
+    # The constraints below are because older versions won't install with uv
     "build>=0.1.0",
     "iniconfig>=1.1.0",
     "lxml>=5.0",
