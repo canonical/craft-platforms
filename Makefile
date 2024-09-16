@@ -82,7 +82,7 @@ lint-ruff:  ## Lint with ruff
 
 .PHONY: lint-shellcheck
 lint-shellcheck:
-	sh -c 'git ls-files | file --mime-type -Nnf- | grep shellscript | cut -f1 -d: | xargs -r shellcheck'
+	sh -c 'git ls-files | file --mime-type -Nnf- | grep shellscript | rev | cut -d: -f2- | rev | xargs -r shellcheck'
 
 .PHONY: lint-yaml
 lint-yaml:  ## Lint YAML files with yamllint
