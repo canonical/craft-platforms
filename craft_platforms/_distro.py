@@ -89,14 +89,27 @@ class DistroBase:
 
     def __eq__(self, other: object, /) -> bool | NotImplementedType:
         if isinstance(other, DistroBase):
-            return (
-                self.distribution == other.distribution and self.series == other.series
+            other_distro = other.distribution
+            other_series = other.series
+        elif isinstance(other, BaseName):
+            other_distro = other.name
+            other_series = other.version
+        elif isinstance(other, tuple):
+            other_distro = other[0]
+            other_series = other[1]
+        else:
+            return NotImplemented
+
+        if self.distribution != other_distro:
+            return False
+
+        # The series is allowed to be more specific on one side.
+        return all(
+            this_part == other_part
+            for this_part, other_part in zip(
+                self.series.split("."), other_series.split(".")
             )
-        if isinstance(other, BaseName):
-            return self.distribution == other.name and self.series == other.version
-        if isinstance(other, tuple):
-            return bool(self.distribution == other[0] and self.series == other[1])
-        return NotImplemented
+        )
 
     def __lt__(self, other: BaseName | tuple[str, str]) -> bool:
         self._ensure_bases_comparable(other)

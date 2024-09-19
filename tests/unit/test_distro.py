@@ -62,7 +62,8 @@ DEVEL = craft_platforms.DistroBase("ubuntu", "devel")
 BUSTER = craft_platforms.DistroBase("debian", "10")
 BOOKWORM = craft_platforms.DistroBase("debian", "12")
 ALMA_EIGHT = craft_platforms.DistroBase("almalinux", "8.10")
-ALMA_NINE = craft_platforms.DistroBase("almalinux", "9.4")
+ALMA_NINE = craft_platforms.DistroBase("almalinux", "9")
+ALMA_NINE_FOUR = craft_platforms.DistroBase("almalinux", "9.4")
 
 ALL_UBUNTU = [DAPPER, BIONIC, FOCAL, JAMMY, NOBLE, ORACULAR, DEVEL]
 ALL_DEBIAN = [BUSTER, BOOKWORM]
@@ -88,11 +89,12 @@ ALL_DISTROS = [*ALL_UBUNTU, *ALL_DEBIAN, *ALL_ALMA]
             )
             for distro in ALL_DISTROS
         ],
+        (ALMA_NINE, ALMA_NINE_FOUR, True),
     ],
 )
 def test_distro_base_equality(base, other, expected):
-    actual = base == other
-    assert actual == expected
+    assert (base == other) == expected
+    assert (other == base) == expected  # Ensure equality works both ways
 
 
 @pytest.mark.parametrize(
