@@ -27,15 +27,13 @@ jobs:
         uses: webiny/action-conventional-commits@v1.3.0
         with:
           allowed-commit-types: "build,chore,ci,docs,feat,fix,perf,refactor,style,test"
-  test:
+  unit:
     strategy:
       matrix:
-        class: [unit, integration]
-        platform: [ubuntu-latest, windows-latest, macos-latest]
+        platform: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04, windows-latest, macos-latest]
         resolution: [highest]
         include:
           - platform: ubuntu-latest
-            class: unit
             resolution: lowest
     runs-on: ${{ matrix.platform }}
     env:
@@ -45,7 +43,7 @@ jobs:
         id: cache-uv
         with:
           path: ${{ env.UV_CACHE_DIR }}
-          key: ${{ runner.os }}-uv-${{ matrix.class }}-${{ matrix.resolution }}
+          key: ${{ matrix.platform }}-uv-${{ matrix.resolution }}
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -53,9 +51,6 @@ jobs:
         shell: bash
         run: |
           make setup
-          if [[ ${{ matrix.platform }} == "ubuntu-latest" ]]; then
-            sudo apt-get install libxslt1-dev libxml2-dev
-          fi
       - name: Set up Python
         id: setup-python
         uses: actions/setup-python@v5
@@ -73,7 +68,7 @@ jobs:
             uv sync --python=$python_version --reinstall --resolution=${{ matrix.resolution }}
             echo "::endgroup::"
             echo "::group::Python $python_version (test)"
-            make test-${{ matrix.class }}
+            make test-unit
             echo "::endgroup::"
           done
         env:
@@ -81,13 +76,67 @@ jobs:
       - name: Upload code coverage
         uses: codecov/codecov-action@v4
         with:
-          name: coverage-${{ matrix.class }}-${{ matrix.python-version }}-${{ matrix.platform }}
+          name: coverage-unit-${{ matrix.python-version }}-${{ matrix.platform }}
           files: .coverage*.xml
       - name: Upload test results
         if: success() || failure()
         uses: actions/upload-artifact@v4
         with:
-          name: results-${{ matrix.class }}-${{ matrix.python-version }}-${{ matrix.platform }}-${{ matrix.resolution }}
+          name: results-unit-${{ matrix.python-version }}-${{ matrix.platform }}-${{ matrix.resolution }}
+          path: |
+            ./.results.*.xml
+            ./.coverage.*.xml
+  integration:
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, windows-latest, macos-latest]
+        resolution: [highest]
+        include:
+          - platform: ubuntu-latest
+            resolution: lowest
+    runs-on: ${{ matrix.platform }}
+    env:
+      UV_CACHE_DIR: ${{ github.workspace }}/.cache/uv
+    steps:
+      - uses: actions/cache@v4
+        id: cache-uv
+        with:
+          path: ${{ env.UV_CACHE_DIR }}
+          key: ${{ matrix.platform }}-uv-${{ matrix.resolution }}
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install tools
+        shell: bash
+        run: |
+          make setup
+      - name: Set up Python
+        if: ${{ runner.os != 'Linux' }}
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Configure venv and test
+        shell: bash
+        run: |
+          echo "::group::sync"
+          uv sync --reinstall --resolution=${{ matrix.resolution }}
+          echo "::endgroup::"
+          echo "::group::Python $python_version (test)"
+          make test-integration
+          echo "::endgroup::"
+        env:
+          PYTEST_ADDOPTS: "--no-header -vv -rN"
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v4
+        with:
+          name: coverage-integration-${{ matrix.python-version }}-${{ matrix.platform }}
+          files: .coverage*.xml
+      - name: Upload test results
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-integration-${{ matrix.python-version }}-${{ matrix.platform }}-${{ matrix.resolution }}
           path: |
             ./.results.*.xml
             ./.coverage.*.xml
