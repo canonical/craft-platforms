@@ -250,7 +250,7 @@ lint.ignore = [
     # Ignored due to common usage in current code
     "TRY003",  # Avoid specifying long messages outside the exception class
 
-    # Interfere with the formatter.
+    # Conflict with ruff format
     "COM812", "ISC001",
 ]
 
