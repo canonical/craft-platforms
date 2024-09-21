@@ -83,6 +83,15 @@ wheels = [
 ]
 
 [[package]]
+name = "attrs"
+version = "24.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/fc/0f/aafca9af9315aee06a89ffde799a10a582fe8de76c563ee80bbcdc08b3fb/attrs-24.2.0.tar.gz", hash = "sha256:5cfb1b9148b5b086569baec03f20d7b6bf3bcacc9a42bebf87ffaaca362f6346", size = 792678 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6a/21/5b6702a7f963e95456c0de2d495f67bf5fd62840ac655dc451586d23d39a/attrs-24.2.0-py3-none-any.whl", hash = "sha256:81921eb96de3191c8258c199618104dd27ac608d9366f5e35d011eae1867ede2", size = 63001 },
+]
+
+[[package]]
 name = "autodocsumm"
 version = "0.2.13"
 source = { registry = "https://pypi.org/simple" }
@@ -348,7 +357,7 @@ toml = [
 
 [[package]]
 name = "craft-platforms"
-version = "0.2.0.post21+gc58fabb.d20240906"
+version = "0.3.0.post5+ga1156eb.d20240921"
 source = { editable = "." }
 dependencies = [
     { name = "annotated-types" },
@@ -369,12 +378,16 @@ docs = [
 dev = [
     { name = "build" },
     { name = "coverage", extra = ["toml"] },
+    { name = "hypothesis" },
     { name = "mypy", extra = ["reports"] },
     { name = "pyright" },
     { name = "pytest" },
     { name = "pytest-check" },
     { name = "pytest-cov" },
     { name = "pytest-mock" },
+    { name = "types-colorama" },
+    { name = "types-pygments" },
+    { name = "types-setuptools" },
     { name = "yamllint" },
 ]
 
@@ -384,8 +397,8 @@ requires-dist = [
     { name = "canonical-sphinx", marker = "extra == 'docs'", specifier = "~=0.1" },
     { name = "distro", specifier = ">=1.6.0" },
     { name = "sphinx-autobuild", marker = "extra == 'docs'", specifier = "~=2024.2" },
-    { name = "sphinx-lint", marker = "extra == 'docs'", specifier = "==0.9.1" },
-    { name = "sphinx-pydantic", marker = "extra == 'docs'", specifier = "==0.1.1" },
+    { name = "sphinx-lint", marker = "extra == 'docs'", specifier = "~=1.0.0" },
+    { name = "sphinx-pydantic", marker = "extra == 'docs'", specifier = "~=0.1.1" },
     { name = "sphinx-toolbox", marker = "extra == 'docs'", specifier = "~=3.5" },
     { name = "typing-extensions", specifier = ">=4.0.0" },
 ]
@@ -394,12 +407,16 @@ requires-dist = [
 dev = [
     { name = "build", specifier = ">=1.2.1" },
     { name = "coverage", extras = ["toml"], specifier = "~=7.4" },
-    { name = "mypy", extras = ["reports"], specifier = "~=1.11.0" },
-    { name = "pyright", specifier = "==1.1.378" },
+    { name = "hypothesis", specifier = ">=6.108" },
+    { name = "mypy", extras = ["reports"], specifier = "~=1.11" },
+    { name = "pyright", specifier = "==1.1.381" },
     { name = "pytest", specifier = "~=8.0" },
     { name = "pytest-check", specifier = "~=2.3" },
     { name = "pytest-cov", specifier = "~=5.0" },
     { name = "pytest-mock", specifier = "~=3.12" },
+    { name = "types-colorama" },
+    { name = "types-pygments" },
+    { name = "types-setuptools" },
     { name = "yamllint", specifier = "~=1.34" },
 ]
 
@@ -539,6 +556,20 @@ wheels = [
 ]
 
 [[package]]
+name = "hypothesis"
+version = "6.112.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "attrs" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11'" },
+    { name = "sortedcontainers" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a3/cf/21929f0c6a73c0607e6230d8a4c0cbdbd11216c3be6579e7a0f8565ae232/hypothesis-6.112.1.tar.gz", hash = "sha256:b070d7a1bb9bd84706c31885c9aeddc138e2b36a9c112a91984f49501c567856", size = 406705 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5f/25/f1fb5b3ec58ed3c6014385672d4298e2f0c7291bfcd9ffd06627a641470d/hypothesis-6.112.1-py3-none-any.whl", hash = "sha256:93631b1498b20d2c205ed304cbd41d50e9c069d78a9c773c1324ca094c5e30ce", size = 467475 },
+]
+
+[[package]]
 name = "idna"
 version = "3.8"
 source = { registry = "https://pypi.org/simple" }
@@ -561,7 +592,7 @@ name = "importlib-metadata"
 version = "8.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp" },
+    { name = "zipp", marker = "python_full_version < '3.13'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c0/bd/fa8ce65b0a7d4b6d143ec23b0f5fd3f7ab80121078c465bc02baeaab22dc/importlib_metadata-8.4.0.tar.gz", hash = "sha256:9a547d3bc3608b025f93d403fdd1aae741c24fbb8314df4b155675742ce303c5", size = 54320 }
 wheels = [
@@ -1047,14 +1078,14 @@ wheels = [
 
 [[package]]
 name = "pyright"
-version = "1.1.378"
+version = "1.1.381"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "nodeenv" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3d/f0/e8aa5555410d88f898bef04da2102b0a9bf144658c98d34872e91621ced2/pyright-1.1.378.tar.gz", hash = "sha256:78a043be2876d12d0af101d667e92c7734f3ebb9db71dccc2c220e7e7eb89ca2", size = 17486 }
+sdist = { url = "https://files.pythonhosted.org/packages/10/f4/8e2374423280cfb221a8eba3cb13d39276a05e592fea36bc06d5feb18c33/pyright-1.1.381.tar.gz", hash = "sha256:314cf0c1351c189524fb10c7ac20688ecd470e8cc505c394d642c9c80bf7c3a5", size = 17488 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/38/c6/f0d4bc20c13b20cecfbf13c699477c825e45767f1dc5068137323f86e495/pyright-1.1.378-py3-none-any.whl", hash = "sha256:8853776138b01bc284da07ac481235be7cc89d3176b073d2dba73636cb95be79", size = 18222 },
+    { url = "https://files.pythonhosted.org/packages/2f/c0/fec7607edc2459816c49815cd5dac67b28c702ed497102118cdc2757cc8d/pyright-1.1.381-py3-none-any.whl", hash = "sha256:5dc0aa80a265675d36abab59c674ae01dbe476714f91845b61b841d34aa99081", size = 18221 },
 ]
 
 [[package]]
@@ -1323,6 +1354,15 @@ wheels = [
 ]
 
 [[package]]
+name = "sortedcontainers"
+version = "2.4.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e8/c4/ba2f8066cceb6f23394729afe52f3bf7adec04bf9ed2c820b39e19299111/sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88", size = 30594 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/32/46/9cb0e58b2deb7f82b84065f37f3bffeb12413f947f9388e4cac22c4621ce/sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0", size = 29575 },
+]
+
+[[package]]
 name = "soupsieve"
 version = "2.6"
 source = { registry = "https://pypi.org/simple" }
@@ -1452,15 +1492,15 @@ sdist = { url = "https://files.pythonhosted.org/packages/9c/3f/559d054f977596c55
 
 [[package]]
 name = "sphinx-lint"
-version = "0.9.1"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "polib" },
     { name = "regex" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ad/98/ae9d0b97fb9340e7dd9b1f709fad9a41201c73e9a0f9c4c933a0449f8e56/sphinx_lint-0.9.1.tar.gz", hash = "sha256:185cee19ff1129549c45e15a3b25404daeb47c54d15112dda589cedad82957aa", size = 33277 }
+sdist = { url = "https://files.pythonhosted.org/packages/cf/46/f2dad36a4076e9ce88498b25b3f0de82eb7d341ea0ef715cd6c48005bcef/sphinx_lint-1.0.0.tar.gz", hash = "sha256:6eafdb44172ce526f405bf36c713eb246f1340ec2d667e7298e2487ed76decd2", size = 33574 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/30/94/96123989e93449fe4ecd329bc74e554126c8c4a3034abe3c32bd9d98c237/sphinx_lint-0.9.1-py3-none-any.whl", hash = "sha256:df34271ab65ce43676cbd90726f4dea5cd200b43b01448b2aee8f06e609edcbb", size = 20019 },
+    { url = "https://files.pythonhosted.org/packages/31/d2/a130ffba531af7cbbb0e7ad24c7d577d3de0b797437f61d3a7234ed6d836/sphinx_lint-1.0.0-py3-none-any.whl", hash = "sha256:6117a0f340b2dc73eadfc57db7531d4477e0929f92a0c1a2f61e6edbc272f0bc", size = 20163 },
 ]
 
 [[package]]
@@ -1671,6 +1711,46 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c0/3f/d7af728f075fb08564c5949a9c95e44352e23dee646869fa104a3b2060a3/tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f", size = 15164 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/97/75/10a9ebee3fd790d20926a90a2547f0bf78f371b2f13aa822c759680ca7b9/tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc", size = 12757 },
+]
+
+[[package]]
+name = "types-colorama"
+version = "0.4.15.20240311"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/59/73/0fb0b9fe4964b45b2a06ed41b60c352752626db46aa0fb70a49a9e283a75/types-colorama-0.4.15.20240311.tar.gz", hash = "sha256:a28e7f98d17d2b14fb9565d32388e419f4108f557a7d939a66319969b2b99c7a", size = 5608 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b7/83/6944b4fa01efb2e63ac62b791a8ddf0fee358f93be9f64b8f152648ad9d3/types_colorama-0.4.15.20240311-py3-none-any.whl", hash = "sha256:6391de60ddc0db3f147e31ecb230006a6823e81e380862ffca1e4695c13a0b8e", size = 5840 },
+]
+
+[[package]]
+name = "types-docutils"
+version = "0.21.0.20240907"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e8/d1/29a516f8f42540a65dfa18df0dbf05e669554f09fa002bf9e07c896db9a2/types-docutils-0.21.0.20240907.tar.gz", hash = "sha256:5dd2aa5e2e06fcfa090020bc4115479b4dd28da3329ab708563ee29894bd3c0d", size = 20273 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/37/ba/f9ad4e16e77774c3a8f1799572b61cd74360185f992f6ac09f641314f2d5/types_docutils-0.21.0.20240907-py3-none-any.whl", hash = "sha256:9c8ed6d90583944af00f6b5fa3aecc2101e20672f6b1a4a299c6bf7d1e47084d", size = 28034 },
+]
+
+[[package]]
+name = "types-pygments"
+version = "2.18.0.20240506"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "types-docutils" },
+    { name = "types-setuptools" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f0/ed/0a70203637650ecaa74731faf441d128edb908ed6ca184013bfc498283ba/types-Pygments-2.18.0.20240506.tar.gz", hash = "sha256:4b4c37812c87bbde687dbf27adf5bac593745a321e57f678dbc311571ba2ac9d", size = 13516 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4a/52/1a740a823dcfbe7fe7c44c2ff83528df2c2b5b6e93c299e8db7bf4205c1b/types_Pygments-2.18.0.20240506-py3-none-any.whl", hash = "sha256:11c90bc1737c9af55e5569558b88df7c2233e12325cb516215f722271444e91d", size = 20775 },
+]
+
+[[package]]
+name = "types-setuptools"
+version = "75.1.0.20240917"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/48/91/c1168caa2a5ba14c01b146b516fab2d8646887cb5db7e78e13b9c6da88d2/types-setuptools-75.1.0.20240917.tar.gz", hash = "sha256:12f12a165e7ed383f31def705e5c0fa1c26215dd466b0af34bd042f7d5331f55", size = 42585 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/40/4c/a4c87d86ba18ff00773ab8591c79c23a6938293ab3e2cec2b2eb4ca5b644/types_setuptools-75.1.0.20240917-py3-none-any.whl", hash = "sha256:06f78307e68d1bbde6938072c57b81cf8a99bc84bd6dc7e4c5014730b097dc0c", size = 65516 },
 ]
 
 [[package]]
