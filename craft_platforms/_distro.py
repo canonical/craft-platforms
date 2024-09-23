@@ -41,7 +41,7 @@ class BaseName(typing.Protocol):
     def version(self) -> str: ...
 
 
-def _get_version_tuple(version_str: str) -> tuple[int | str, ...]:
+def _get_series_tuple(version_str: str) -> tuple[int | str, ...]:
     """Convert a version string into a version tuple."""
     parts = typing.cast(list[str | int], version_str.split("."))
     # Try converting each part to an integer, leaving as a string if not doable.
@@ -51,7 +51,16 @@ def _get_version_tuple(version_str: str) -> tuple[int | str, ...]:
     return tuple(parts)
 
 
-def _get_version(base: DistroBase | BaseName | tuple[str, str]) -> str:
+def _get_distro(base: DistroBase | BaseName | tuple[str, str]) -> str:
+    """Get the distribution of a base."""
+    if isinstance(base, DistroBase):
+        return base.distribution
+    if isinstance(base, BaseName):
+        return base.name
+    return base[0]
+
+
+def _get_series(base: DistroBase | BaseName | tuple[str, str]) -> str:
     """Get the version of a base."""
     if isinstance(base, DistroBase):
         return base.series
@@ -76,27 +85,16 @@ class DistroBase:
         :param other: Another distribution base.
         :raises: ValueError if the distribution bases are not comparable.
         """
-        if isinstance(other, DistroBase):
-            other_distro = other.distribution
-        elif isinstance(other, BaseName):
-            other_distro = other.name
-        else:
-            other_distro = other[0]
+        other_distro = _get_distro(other)
         if self.distribution != other_distro:
             raise ValueError(
                 f"Different distributions ({self.distribution} and {other_distro}) do not have comparable versions.",
             )
 
     def __eq__(self, other: object, /) -> bool | NotImplementedType:
-        if isinstance(other, DistroBase):
-            other_distro = other.distribution
-            other_series = other.series
-        elif isinstance(other, BaseName):
-            other_distro = other.name
-            other_series = other.version
-        elif isinstance(other, tuple):
-            other_distro = other[0]
-            other_series = other[1]
+        if isinstance(other, DistroBase | BaseName | tuple):
+            other_distro = _get_distro(other)
+            other_series = _get_series(other)
         else:
             return NotImplemented
 
@@ -113,38 +111,38 @@ class DistroBase:
 
     def __lt__(self, other: BaseName | tuple[str, str]) -> bool:
         self._ensure_bases_comparable(other)
-        other_version = _get_version(other)
+        other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
             return self.series != "devel" and other_version == "devel"
-        self_version_tuple = _get_version_tuple(self.series)
-        other_version_tuple = _get_version_tuple(other_version)
+        self_version_tuple = _get_series_tuple(self.series)
+        other_version_tuple = _get_series_tuple(other_version)
         return self_version_tuple < other_version_tuple
 
     def __le__(self, other: BaseName | tuple[str, str]) -> bool:
         self._ensure_bases_comparable(other)
-        other_version = _get_version(other)
+        other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
             return other_version == "devel"
-        self_version_tuple = _get_version_tuple(self.series)
-        other_version_tuple = _get_version_tuple(other_version)
+        self_version_tuple = _get_series_tuple(self.series)
+        other_version_tuple = _get_series_tuple(other_version)
         return self_version_tuple <= other_version_tuple
 
     def __gt__(self, other: BaseName | tuple[str, str]) -> bool:
         self._ensure_bases_comparable(other)
-        other_version = _get_version(other)
+        other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
             return other_version != "devel"
-        self_version_tuple = _get_version_tuple(self.series)
-        other_version_tuple = _get_version_tuple(other_version)
+        self_version_tuple = _get_series_tuple(self.series)
+        other_version_tuple = _get_series_tuple(other_version)
         return self_version_tuple > other_version_tuple
 
     def __ge__(self, other: BaseName | tuple[str, str]) -> bool:
         self._ensure_bases_comparable(other)
-        other_version = _get_version(other)
+        other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
             return self.series == "devel"
-        self_version_tuple = _get_version_tuple(self.series)
-        other_version_tuple = _get_version_tuple(_get_version(other))
+        self_version_tuple = _get_series_tuple(self.series)
+        other_version_tuple = _get_series_tuple(_get_series(other))
         return self_version_tuple >= other_version_tuple
 
     @classmethod
