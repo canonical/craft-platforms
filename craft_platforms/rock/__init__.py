@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Rock-specific build information for craft-platforms."""
+"""Rock-specific module for craft-platforms."""
 
 from ._build import get_rock_build_plan
 

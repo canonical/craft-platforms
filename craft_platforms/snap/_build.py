@@ -45,7 +45,6 @@ DEFAULT_ARCHITECTURES_BY_BASE = {
     "core20": CORE20_DEFAULT_ARCHITECTURES,
 }
 
-# The default architectures if not otherwise specified for a base.
 DEFAULT_ARCHITECTURES = (
     _architectures.DebianArchitecture.AMD64,
     _architectures.DebianArchitecture.ARM64,
@@ -65,13 +64,23 @@ BASE_SNAPS_DOC_URL = (
 
 
 def get_default_architectures(base: str) -> Sequence[_architectures.DebianArchitecture]:
+    """Get the default architectures for a given snap base.
+
+    :param base: the snap base as a string (e.g. ``core24``)
+    :returns: A sequence of of DebianArchitecture objects containing the default
+        set of architectures to use if none are defined for this base.
+    """
     if base in DEFAULT_ARCHITECTURES_BY_BASE:
         return DEFAULT_ARCHITECTURES_BY_BASE[base]
     return DEFAULT_ARCHITECTURES
 
 
 def get_distro_base_from_core_base(base: str) -> _distro.DistroBase:
-    """Get a DistroBase from the existing snap."""
+    """Get a DistroBase from a 'coreXX' base number.
+
+    :param base: a string containing the base value
+    :returns: A generic base object for the given snap base.
+    """
     if base == "core":
         return _distro.DistroBase("ubuntu", "16.04")
     if match := CORE_BASE_REGEX.match(base):
@@ -83,6 +92,11 @@ def get_distro_base_from_core_base(base: str) -> _distro.DistroBase:
 def get_snap_base(
     *, base: str | None, build_base: str | None, snap_type: str | None
 ) -> _distro.DistroBase:
+    """Get the DistroBase for a snap based on its type, base and build_base.
+
+    The rules here are defined in ST119, but this only implements "timeless"
+    rules.
+    """
     if not base:
         if snap_type not in SNAP_TYPES_WITHOUT_BASE:
             raise _errors.RequiresBaseError(
@@ -153,26 +167,31 @@ def get_snap_base(
 def get_platforms_snap_build_plan(
     base: None,
     *,
-    platforms: _platforms.Platforms | None,
     build_base: str | None = None,
     snap_type: typing.Literal["base", "kernel"],
+    platforms: _platforms.Platforms | None,
 ) -> Sequence[_buildinfo.BuildInfo]: ...
 @typing.overload
 def get_platforms_snap_build_plan(
     base: str,
     *,
-    platforms: _platforms.Platforms | None,
     build_base: str | None = None,
     snap_type: str | None = None,
+    platforms: _platforms.Platforms | None,
 ) -> Sequence[_buildinfo.BuildInfo]: ...
 def get_platforms_snap_build_plan(
     base: str | None,
     *,
-    platforms: _platforms.Platforms | None,
     build_base: str | None = None,
     snap_type: str | None = None,
+    platforms: _platforms.Platforms | None,
 ) -> Sequence[_buildinfo.BuildInfo]:
-    """Generate the build plan for a platforms-based charm."""
+    """Generate the build plan for a platforms-based charm.
+
+    :param base: The ``base`` string in ``snapcraft.yaml`` (or ``None`` if not given)
+    :param build_base: The ``build-base`` string in ``snapcraft.yaml`` (or ``None`` if
+        not given)
+    """
     distro_base = get_snap_base(base=base, build_base=build_base, snap_type=snap_type)
     if not platforms:
         platforms = {
