@@ -55,6 +55,13 @@ extensions.extend(
     ]
 )
 
+exclude_patterns = [
+    # Exclude the empty quadrants
+    "tutorials/index.rst",
+    "how-to/index.rst",
+    "explanation/index.rst",
+]
+
 # endregion
 
 # region Options for extensions
