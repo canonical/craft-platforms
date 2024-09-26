@@ -2,6 +2,23 @@
 Changelog
 *********
 
+0.3.1 (2024-Sep-26)
+-------------------
+
+Bug Fixes
+=========
+
+- Make series comparison less strict.
+- Make Platform and PlatformDict public.
+
+Documentation
+=============
+
+- Add basic reference documentation.
+
+For a complete list of commits, check out the `0.3.1`_ release on GitHub.
+
+
 0.3.0 (2024-Sep-09)
 -------------------
 
@@ -47,6 +64,7 @@ New Features
 For a complete list of commits, check out the `0.1.0`_ release on GitHub.
 
 
+.. _0.3.1: https://github.com/canonical/craft-platforms/releases/tag/0.3.1
 .. _0.3.0: https://github.com/canonical/craft-platforms/releases/tag/0.3.0
 .. _0.2.0: https://github.com/canonical/craft-platforms/releases/tag/0.2.0
 .. _0.1.1: https://github.com/canonical/craft-platforms/releases/tag/0.1.1
