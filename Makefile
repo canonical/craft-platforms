@@ -5,6 +5,13 @@ DOCS=docs
 ifneq ($(OS),Windows_NT)
 	OS := $(shell uname)
 endif
+ifneq ($(shell which snap),)
+	TOOL_INSTALLER := sudo $(shell which snap)
+else ifneq ($(shell which brew),)
+	TOOL_INSTALLER := $(shell which brew)
+else
+	TOOL_INSTALLER := uv
+endif
 
 .PHONY: help
 help: ## Show this help.
@@ -13,24 +20,7 @@ help: ## Show this help.
 	@fgrep " ## " $(MAKEFILE_LIST) | fgrep -v grep | awk -F ': .*## ' '{$$1 = sprintf("%-30s", $$1)} 1'
 
 .PHONY: setup
-setup: ## Set up a development environment
-ifeq ($(OS),Linux)
-	sudo snap install codespell ruff shellcheck
-	sudo snap install --classic astral-uv
-	sudo apt-get --yes install libxml2-dev libxslt-dev
-else ifeq ($(OS),Windows_NT)
-	pipx install uv
-	choco install shellcheck
-else ifeq ($(OS),Darwin)
-	bash -c 'curl -LsSf https://astral.sh/uv/install.sh | sh'
-	brew install shellcheck
-endif
-ifneq ($(OS),Linux)
-	uv tool install --upgrade codespell
-	uv tool install --upgrade ruff
-endif
-	uv tool install --upgrade yamllint
-	uv tool update-shell
+setup: setup-uv setup-lint setup-test ## Set up a development environment
 
 .PHONY: setup-precommit
 setup-precommit:  ## Set up pre-commit hooks in this repository.
@@ -98,3 +88,37 @@ test-unit: ## Run unit tests
 .PHONY: test-integration
 test-integration:  ## Run integration tests
 	uv run --frozen pytest --cov=$(PROJECT) --cov-config=pyproject.toml --cov-report=xml:.coverage.integration.xml --junit-xml=.results.integration.xml tests/integration
+
+.PHONY: setup-test
+setup-test: setup-uv # Set up a testing environment, without linters.
+ifneq ($(shell which apt-get),)
+	sudo apt-get --yes install libxml2-dev libxslt-dev
+else ifneq ($(shell which brew),)
+	brew install libxml2 libxslt
+endif
+
+.PHONY: setup-uv
+setup-uv: # Install UV. Mostly useful as an intermediate target.
+ifneq ($(shell which uv),)
+else ifneq ($(shell which snap),)
+	sudo snap install --classic astral-uv
+else ifneq ($(shell which brew),)
+	brew install uv
+else
+	pipx install uv
+endif
+
+.PHONY: setup-lint
+setup-lint: setup-uv  # Set up the necessary linters. Mostly useful for CI
+ifeq ($(shell which ruff),)
+	$(TOOL_INSTALLER) install ruff
+endif
+ifeq ($(shell which codespell),)
+	$(TOOL_INSTALLER) install codespell
+endif
+ifeq ($(shell which shellcheck),)
+	$(TOOL_INSTALLER) install shellcheck
+endif
+ifeq ($(shell which yamllint),)
+	uv tool install --upgrade yamllint
+endif
