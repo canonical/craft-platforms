@@ -1,0 +1,14 @@
+name: QA
+on:
+  push:
+    branches:
+      - "main"
+      - "feature/*"
+      - "hotfix/*"
+      - "release/*"
+      - "renovate/*"
+  pull_request:
+
+jobs:
+  lint:
+    uses: lengau/starflow/.github/workflows/lint.yaml@work/lint-reusable
