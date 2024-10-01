@@ -5,6 +5,7 @@ DOCS=docs
 ifneq ($(OS),Windows_NT)
 	OS := $(shell uname)
 endif
+SNAP_PATH := $(shell which snap)
 
 .PHONY: help
 help: ## Show this help.
@@ -13,31 +14,21 @@ help: ## Show this help.
 	@fgrep " ## " $(MAKEFILE_LIST) | fgrep -v grep | awk -F ': .*## ' '{$$1 = sprintf("%-30s", $$1)} 1'
 
 .PHONY: setup
-setup: ## Set up a development environment
-ifeq ($(OS),Linux)
-	sudo snap install codespell ruff shellcheck
-	sudo snap install --classic astral-uv
-	sudo apt-get --yes install libxml2-dev libxslt-dev
-else ifeq ($(OS),Windows_NT)
-	pipx install uv
-	choco install shellcheck
-else ifeq ($(OS),Darwin)
-	bash -c 'curl -LsSf https://astral.sh/uv/install.sh | sh'
-	brew install shellcheck
-endif
-ifneq ($(OS),Linux)
-	uv tool install --upgrade codespell
-	uv tool install --upgrade ruff
-endif
-	uv tool install --upgrade yamllint
+setup: setup-tests setup-lint ## Set up a development environment
 	uv tool update-shell
+
+.PHONY: setup-tests
+setup-tests: uv ## Set up an environment for tests
+
+.PHONY: setup-lint
+setup-lint: codespell ruff shellcheck yamllint ## Set up an environment for linting
 
 .PHONY: setup-precommit
 setup-precommit:  ## Set up pre-commit hooks in this repository.
 	uvx pre-commit install
 
-.PHONY: autoformat
-autoformat: format-ruff format-codespell  ## Run all automatic formatters
+.PHONY: format
+format: format-ruff format-codespell  ## Run all automatic formatters
 
 .PHONY: lint
 lint: lint-ruff lint-codespell lint-mypy lint-pyright lint-yaml  ## Run all linters
@@ -93,8 +84,49 @@ lint-yaml:  ## Lint YAML files with yamllint
 
 .PHONY: test-unit
 test-unit: ## Run unit tests
-	uv run --frozen pytest --cov=$(PACKAGE) --cov-config=pyproject.toml --cov-report=xml:.coverage.unit.xml --junit-xml=.results.unit.xml tests/unit
+	uv run --frozen pytest --junit-xml=.results.unit.xml tests/unit
+
+.PHONY: coverage
+coverage: ## Run unit tests with coverage
+	uv run --frozen pytest --cov=$(PACKAGE) --cov-config=pyproject.toml --cov-report=xml:.coverage.xml --junit-xml=.results.unit.xml tests/unit
 
 .PHONY: test-integration
 test-integration:  ## Run integration tests
-	uv run --frozen pytest --cov=$(PACKAGE) --cov-config=pyproject.toml --cov-report=xml:.coverage.integration.xml --junit-xml=.results.integration.xml tests/integration
+	uv run --frozen pytest --junit-xml=.results.integration.xml tests/integration
+
+
+# Setups for necessary tools.
+.PHONY: uv
+uv:
+ifneq ($(shell which uv),)
+else ifeq ($(OS),Windows_NT)
+		powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+else ifneq ($(shell which snap),)
+	sudo snap install --classic astral-uv
+else
+	echo curl -LsSf https://astral.sh/uv/install.sh | sh
+endif
+
+uv_tools := codespell ruff
+$(uv_tools): uv
+ifneq ($(shell which $@),)
+else ifneq ($(SNAP_PATH),)
+	sudo snap install $@
+else
+	uv tool install --upgrade $@
+endif
+
+.PHONY: shellcheck
+shellcheck: uv
+ifneq ($(shell which shellcheck),)
+else ifeq ($OS,Windows_NT)
+	choco install shellcheck
+else ifneq ($(SNAP_PATH),)
+	sudo snap install shellcheck
+else ifneq ($(shell which brew),)
+	brew install shellcheck
+endif
+
+.PHONY: yamllint
+yamllint:
+	uv tool install --upgrade yamllint

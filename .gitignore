@@ -143,3 +143,6 @@ dmypy.json
 
 # Visual Studio Code
 .vscode/
+
+# Setup from Makefile
+.make-*
