@@ -18,7 +18,7 @@
 import dataclasses
 import os
 import typing
-from collections.abc import Collection, Iterable
+from typing import Collection, Iterable, Optional
 
 # Workaround for Windows...
 EX_DATAERR = getattr(os, "EX_DATAERR", 65)
@@ -29,28 +29,28 @@ class CraftError(typing.Protocol):
     """A protocol for determining whether an object is a craft error."""
 
     args: typing.Collection[str]
-    details: str | None
-    resolution: str | None
+    details: Optional[str]
+    resolution: Optional[str]
 
 
-@dataclasses.dataclass(kw_only=True)
+@dataclasses.dataclass()
 class CraftPlatformsError(Exception):
     """Signal a program error with a lot of information to report."""
 
-    message: str = dataclasses.field(kw_only=False)
+    message: str
     """The main message to the user about this error."""
 
-    details: str | None = None
+    details: Optional[str] = None
     """The full error details which originated the error situation."""
 
-    resolution: str | None = None
+    resolution: Optional[str] = None
     """An extra line indicating to the user how the error may be fixed or avoided (to be
       shown together with ``message``)."""
 
-    docs_url: str | None = None
+    docs_url: Optional[str] = None
     """An URL to point the user to documentation (to be shown together with ``message``)."""
 
-    doc_slug: str | None = None
+    doc_slug: Optional[str] = None
     """The slug to the user documentation. Needs a base url to form a full address.
       Note that ``docs_url`` has preference if it is set."""
 
@@ -165,10 +165,10 @@ class InvalidPlatformError(CraftPlatformsError, ValueError):
         self,
         platform_name: str,
         *,
-        details: str | None = None,
+        details: Optional[str] = None,
         resolution: str,
-        docs_url: str | None = None,
-        doc_slug: str | None = None,
+        docs_url: Optional[str] = None,
+        doc_slug: Optional[str] = None,
     ) -> None:
         self.platform_name = platform_name
         super().__init__(
@@ -187,9 +187,9 @@ class InvalidBaseError(CraftPlatformsError, ValueError):
         self,
         base: str,
         *,
-        message: str | None = None,
-        resolution: str | None = None,
-        docs_url: str | None = None,
+        message: Optional[str] = None,
+        resolution: Optional[str] = None,
+        docs_url: Optional[str] = None,
         build_base: bool = False,
     ) -> None:
         self.base = base

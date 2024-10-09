@@ -158,7 +158,7 @@ strict = false
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py38"
 src = ["craft_platforms", "tests"]
 extend-exclude = [
     "docs",
@@ -265,6 +265,10 @@ ignore = [
 
     # Ignored due to common usage in current code
     "TRY003",  # Avoid specifying long messages outside the exception class
+
+    # Not for Python 3.8
+    "UP006",
+    "UP007",
 ]
 
 [tool.ruff.lint.flake8-annotations]

@@ -83,11 +83,11 @@ lint-yaml:  ## Lint YAML files with yamllint
 
 .PHONY: test-unit
 test-unit: ## Run unit tests
-	uv run --frozen pytest --cov=$(PACKAGE) --cov-config=pyproject.toml --cov-report=xml:.coverage.unit.xml --junit-xml=.results.unit.xml tests/unit
+	uv run --frozen pytest --cov=$(PROJECT) --cov-config=pyproject.toml --cov-report=xml:.coverage.unit.xml --junit-xml=.results.unit.xml tests/unit
 
 .PHONY: test-integration
 test-integration:  ## Run integration tests
-	uv run --frozen pytest --cov=$(PACKAGE) --cov-config=pyproject.toml --cov-report=xml:.coverage.integration.xml --junit-xml=.results.integration.xml tests/integration
+	uv run --frozen pytest --cov=$(PROJECT) --cov-config=pyproject.toml --cov-report=xml:.coverage.integration.xml --junit-xml=.results.integration.xml tests/integration
 
 .PHONY: setup-test
 setup-test: setup-uv # Set up a testing environment, without linters.
