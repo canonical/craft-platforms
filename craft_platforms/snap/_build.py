@@ -17,7 +17,7 @@
 
 import re
 import typing
-from collections.abc import Sequence
+from typing import Optional, Sequence, Union
 
 from craft_platforms import _architectures, _buildinfo, _distro, _errors, _platforms
 
@@ -90,7 +90,7 @@ def get_distro_base_from_core_base(base: str) -> _distro.DistroBase:
 
 
 def get_snap_base(
-    *, base: str | None, build_base: str | None, snap_type: str | None
+    *, base: Optional[str], build_base: Optional[str], snap_type: Optional[str]
 ) -> _distro.DistroBase:
     """Get the DistroBase for a snap based on its type, base and build_base.
 
@@ -167,24 +167,24 @@ def get_snap_base(
 def get_platforms_snap_build_plan(
     base: None,
     *,
-    build_base: str | None = None,
+    build_base: Optional[str] = None,
     snap_type: typing.Literal["base", "kernel"],
-    platforms: _platforms.Platforms | None,
+    platforms: Union[_platforms.Platforms, None],
 ) -> Sequence[_buildinfo.BuildInfo]: ...
 @typing.overload
 def get_platforms_snap_build_plan(
     base: str,
     *,
-    build_base: str | None = None,
-    snap_type: str | None = None,
-    platforms: _platforms.Platforms | None,
+    build_base: Optional[str] = None,
+    snap_type: Optional[str] = None,
+    platforms: Union[_platforms.Platforms, None],
 ) -> Sequence[_buildinfo.BuildInfo]: ...
 def get_platforms_snap_build_plan(
-    base: str | None,
+    base: Optional[str],
     *,
-    build_base: str | None = None,
-    snap_type: str | None = None,
-    platforms: _platforms.Platforms | None,
+    build_base: Optional[str] = None,
+    snap_type: Optional[str] = None,
+    platforms: Union[_platforms.Platforms, None],
 ) -> Sequence[_buildinfo.BuildInfo]:
     """Generate the build plan for a platforms-based charm.
 
