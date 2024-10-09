@@ -435,7 +435,7 @@ toml = [
 
 [[package]]
 name = "craft-platforms"
-version = "0.3.1.post2+gd243e52.d20241009"
+version = "0.3.1.post1+g52dfd1e.d20241005"
 source = { editable = "." }
 dependencies = [
     { name = "annotated-types" },
@@ -489,7 +489,7 @@ dev = [
     { name = "coverage", extras = ["toml"], specifier = "~=7.4" },
     { name = "hypothesis", specifier = ">=6.108" },
     { name = "mypy", extras = ["reports"], specifier = "~=1.11" },
-    { name = "pyright", specifier = "==1.1.381" },
+    { name = "pyright", specifier = "==1.1.383" },
     { name = "pytest", specifier = "~=8.0" },
     { name = "pytest-check", specifier = "~=2.3" },
     { name = "pytest-cov", specifier = "~=5.0" },
@@ -1329,14 +1329,15 @@ wheels = [
 
 [[package]]
 name = "pyright"
-version = "1.1.381"
+version = "1.1.383"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "nodeenv" },
+    { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/10/f4/8e2374423280cfb221a8eba3cb13d39276a05e592fea36bc06d5feb18c33/pyright-1.1.381.tar.gz", hash = "sha256:314cf0c1351c189524fb10c7ac20688ecd470e8cc505c394d642c9c80bf7c3a5", size = 17488 }
+sdist = { url = "https://files.pythonhosted.org/packages/78/a9/4654d15f4125d8dca6318d7be36a3283a8b3039661291c59bbdd1e576dcf/pyright-1.1.383.tar.gz", hash = "sha256:1df7f12407f3710c9c6df938d98ec53f70053e6c6bbf71ce7bcb038d42f10070", size = 21971 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2f/c0/fec7607edc2459816c49815cd5dac67b28c702ed497102118cdc2757cc8d/pyright-1.1.381-py3-none-any.whl", hash = "sha256:5dc0aa80a265675d36abab59c674ae01dbe476714f91845b61b841d34aa99081", size = 18221 },
+    { url = "https://files.pythonhosted.org/packages/1c/55/40a6559cea209b551c81dcd31cb351a6ffdb5876e7865ee242e269af72d8/pyright-1.1.383-py3-none-any.whl", hash = "sha256:d864d1182a313f45aaf99e9bfc7d2668eeabc99b29a556b5344894fd73cb1959", size = 18577 },
 ]
 
 [[package]]
