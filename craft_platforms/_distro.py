@@ -20,7 +20,7 @@ from __future__ import annotations
 import contextlib
 import dataclasses
 import typing
-from types import NotImplementedType
+from typing import List, Union
 
 import distro
 from typing_extensions import Self
@@ -41,9 +41,9 @@ class BaseName(typing.Protocol):
     def version(self) -> str: ...
 
 
-def _get_series_tuple(version_str: str) -> tuple[int | str, ...]:
+def _get_series_tuple(version_str: str) -> tuple[Union[int, str], ...]:
     """Convert a version string into a version tuple."""
-    parts = typing.cast(list[str | int], version_str.split("."))
+    parts = typing.cast(List[Union[str, int]], version_str.split("."))
     # Try converting each part to an integer, leaving as a string if not doable.
     for idx, part in enumerate(parts):
         with contextlib.suppress(ValueError):
@@ -51,7 +51,7 @@ def _get_series_tuple(version_str: str) -> tuple[int | str, ...]:
     return tuple(parts)
 
 
-def _get_distro(base: DistroBase | BaseName | tuple[str, str]) -> str:
+def _get_distro(base: Union[DistroBase, BaseName] | tuple[str, str]) -> str:
     """Get the distribution of a base."""
     if isinstance(base, DistroBase):
         return base.distribution
@@ -60,7 +60,7 @@ def _get_distro(base: DistroBase | BaseName | tuple[str, str]) -> str:
     return base[0]
 
 
-def _get_series(base: DistroBase | BaseName | tuple[str, str]) -> str:
+def _get_series(base: Union[DistroBase, BaseName] | tuple[str, str]) -> str:
     """Get the version of a base."""
     if isinstance(base, DistroBase):
         return base.series
@@ -78,7 +78,7 @@ class DistroBase:
 
     def _ensure_bases_comparable(
         self,
-        other: DistroBase | BaseName | tuple[str, str],
+        other: Union[DistroBase, BaseName] | tuple[str, str],
     ) -> None:
         """Ensure that these bases are comparable, raising an exception if not.
 
@@ -91,8 +91,8 @@ class DistroBase:
                 f"Different distributions ({self.distribution} and {other_distro}) do not have comparable versions.",
             )
 
-    def __eq__(self, other: object, /) -> bool | NotImplementedType:
-        if isinstance(other, DistroBase | BaseName | tuple):
+    def __eq__(self, other: object, /) -> bool:
+        if isinstance(other, (DistroBase, BaseName, tuple)):
             other_distro = _get_distro(other)
             other_series = _get_series(other)
         else:
@@ -109,7 +109,7 @@ class DistroBase:
             )
         )
 
-    def __lt__(self, other: BaseName | tuple[str, str]) -> bool:
+    def __lt__(self, other: Union[BaseName, tuple[str, str]]) -> bool:
         self._ensure_bases_comparable(other)
         other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
@@ -118,7 +118,7 @@ class DistroBase:
         other_version_tuple = _get_series_tuple(other_version)
         return self_version_tuple < other_version_tuple
 
-    def __le__(self, other: BaseName | tuple[str, str]) -> bool:
+    def __le__(self, other: Union[BaseName, tuple[str, str]]) -> bool:
         self._ensure_bases_comparable(other)
         other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
@@ -127,7 +127,7 @@ class DistroBase:
         other_version_tuple = _get_series_tuple(other_version)
         return self_version_tuple <= other_version_tuple
 
-    def __gt__(self, other: BaseName | tuple[str, str]) -> bool:
+    def __gt__(self, other: Union[BaseName, tuple[str, str]]) -> bool:
         self._ensure_bases_comparable(other)
         other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
@@ -136,7 +136,7 @@ class DistroBase:
         other_version_tuple = _get_series_tuple(other_version)
         return self_version_tuple > other_version_tuple
 
-    def __ge__(self, other: BaseName | tuple[str, str]) -> bool:
+    def __ge__(self, other: Union[BaseName, tuple[str, str]]) -> bool:
         self._ensure_bases_comparable(other)
         other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
@@ -177,7 +177,7 @@ class DistroBase:
         return f"{self.distribution}@{self.series}"
 
 
-def is_ubuntu_like(distribution: distro.LinuxDistribution | None = None) -> bool:
+def is_ubuntu_like(distribution: Union[distro.LinuxDistribution, None] = None) -> bool:
     """Determine whether the given distribution is Ubuntu or Ubuntu-like.
 
     :param distribution: Linux distribution info object, or None to use the host system.

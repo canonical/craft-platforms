@@ -16,7 +16,7 @@
 """Charmcraft-specific platforms information."""
 
 import itertools
-from collections.abc import Collection, Sequence
+from typing import Collection, List, Optional, Sequence
 
 from craft_platforms import _architectures, _buildinfo, _distro, _platforms
 
@@ -35,8 +35,8 @@ If no platforms are defined, the charm will be built on and for these architectu
 
 def get_platforms_charm_build_plan(
     base: str,
-    platforms: _platforms.Platforms | None,
-    build_base: str | None = None,
+    platforms: Optional[_platforms.Platforms],
+    build_base: Optional[str] = None,
 ) -> Sequence[_buildinfo.BuildInfo]:
     """Generate the build plan for a platforms-based charm."""
     distro_base = _distro.DistroBase.from_str(build_base or base)
@@ -52,7 +52,7 @@ def get_platforms_charm_build_plan(
             )
             for arch in DEFAULT_ARCHITECTURES
         ]
-    build_plan: list[_buildinfo.BuildInfo] = []
+    build_plan: List[_buildinfo.BuildInfo] = []
     for platform_name, platform in platforms.items():
         if platform is None:
             # This is a workaround for Python 3.10.
