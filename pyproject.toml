@@ -20,7 +20,7 @@ requires-python = ">=3.8"
 
 [project.optional-dependencies]
 docs = [
-    "canonical-sphinx~=0.1",
+    "canonical-sphinx[full]~=0.2",
     "sphinx-autobuild~=2024.2 ; python_version>='3.9'",
     # Use the last version supported on 3.8 if needed
     "sphinx-autobuild ; python_version<'3.9'",
