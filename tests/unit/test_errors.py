@@ -15,6 +15,8 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Unit tests for error classes."""
 
+from typing import Optional
+
 import pytest
 from craft_platforms._errors import CraftPlatformsError
 
@@ -36,8 +38,8 @@ class OtherCraftError(Exception):
     def __init__(
         self,
         message: str,
-        details: str | None = None,
-        resolution: str | None = None,
+        details: Optional[str] = None,
+        resolution: Optional[str] = None,
     ) -> None:
         self.details = details
         self.resolution = resolution
@@ -54,8 +56,8 @@ class NonError:
     def __init__(
         self,
         message: str,
-        details: str | None = None,
-        resolution: str | None = None,
+        details: Optional[str] = None,
+        resolution: Optional[str] = None,
     ) -> None:
         self.args = (message,)
         self.details = details

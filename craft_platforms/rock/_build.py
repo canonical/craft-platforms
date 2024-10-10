@@ -15,7 +15,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Rockcraft-specific platforms information."""
 
-from collections.abc import Sequence
+from typing import Optional, Sequence
 
 from craft_platforms import _buildinfo, _errors, _platforms
 
@@ -23,7 +23,7 @@ from craft_platforms import _buildinfo, _errors, _platforms
 def get_rock_build_plan(
     base: str,
     platforms: _platforms.Platforms,
-    build_base: str | None = None,
+    build_base: Optional[str] = None,
 ) -> Sequence[_buildinfo.BuildInfo]:
     """Generate the build plan for a rock.
 

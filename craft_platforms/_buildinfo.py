@@ -14,7 +14,7 @@
 """Build info."""
 
 import dataclasses
-from typing import Literal
+from typing import Literal, Union
 
 from craft_platforms import _architectures, _distro
 
@@ -29,7 +29,7 @@ class BuildInfo:
     build_on: _architectures.DebianArchitecture
     """The architecture to build on."""
 
-    build_for: _architectures.DebianArchitecture | Literal["all"]
+    build_for: Union[_architectures.DebianArchitecture, Literal["all"]]
     """The architecture to build for."""
 
     build_base: _distro.DistroBase

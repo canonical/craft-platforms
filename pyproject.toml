@@ -10,17 +10,20 @@ classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.12",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.8"
 
 [project.scripts]
 
 [project.optional-dependencies]
 docs = [
     "canonical-sphinx[full]~=0.2",
-    "sphinx-autobuild~=2024.2",
+    "sphinx-autobuild~=2024.2 ; python_version>='3.9'",
+    # Use the last version supported on 3.8 if needed
+    "sphinx-autobuild ; python_version<'3.9'",
     "sphinx-pydantic~=0.1.1",
     "sphinx-toolbox~=3.5",
     "sphinx-lint~=1.0.0",
@@ -120,7 +123,7 @@ exclude_also = [
 ]
 
 [tool.pyright]
-pythonVersion = "3.10"
+pythonVersion = "3.8"
 pythonPlatform = "Linux"
 exclude = [
     "**/.*",
@@ -130,7 +133,7 @@ exclude = [
 ]
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.8"
 exclude = [
     "build",
     "results",
@@ -155,7 +158,7 @@ strict = false
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py38"
 src = ["craft_platforms", "tests"]
 extend-exclude = [
     "docs",
@@ -262,6 +265,10 @@ ignore = [
 
     # Ignored due to common usage in current code
     "TRY003",  # Avoid specifying long messages outside the exception class
+
+    # Not for Python 3.8
+    "UP006",
+    "UP007",
 ]
 
 [tool.ruff.lint.flake8-annotations]

@@ -17,10 +17,10 @@
 
 import itertools
 import typing
-from collections.abc import Sequence
-from typing import Annotated
+from typing import Dict, List, Optional, Sequence, Union
 
 import annotated_types
+from typing_extensions import Annotated
 
 from craft_platforms import _architectures, _buildinfo, _distro, _errors
 
@@ -33,20 +33,20 @@ PlatformDict = typing.TypedDict(
 )
 
 
-Platforms = dict[_architectures.DebianArchitecture | str, PlatformDict | None]
+Platforms = Dict[Union[_architectures.DebianArchitecture, str], Optional[PlatformDict]]
 
 
 def get_platforms_build_plan(
-    base: str | _distro.DistroBase,
+    base: Union[str, _distro.DistroBase],
     platforms: Platforms,
-    build_base: str | None = None,
+    build_base: Optional[str] = None,
 ) -> Sequence[_buildinfo.BuildInfo]:
     """Generate the build plan for a platforms-based artefact."""
     if isinstance(base, _distro.DistroBase):
         distro_base = base
     else:
         distro_base = _distro.DistroBase.from_str(build_base or base)
-    build_plan: list[_buildinfo.BuildInfo] = []
+    build_plan: List[_buildinfo.BuildInfo] = []
 
     for platform_name, platform in platforms.items():
         if platform is None:

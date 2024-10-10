@@ -15,6 +15,8 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Unit tests for snap-specific platforms functions."""
 
+from typing import Dict, List, Optional, Union
+
 import craft_platforms
 import pytest
 import pytest_check
@@ -288,11 +290,11 @@ def test_get_snap_base_specific_errors(base, build_base, snap_type, match):
 @pytest.mark.parametrize("snap_type", ["app", "core", "gadget", "kernel", None])
 def test_get_platforms_snap_build_plan_success(
     base: str,
-    build_base: str | None,
+    build_base: Optional[str],
     expected_base: craft_platforms.DistroBase,
-    platforms: craft_platforms.Platforms | None,
-    expected_archs: dict[str, list[str]],
-    snap_type: str | None,
+    platforms: Union[craft_platforms.Platforms, None],
+    expected_archs: Dict[str, List[str]],
+    snap_type: Optional[str],
 ):
     build_plan = _build.get_platforms_snap_build_plan(
         base,
@@ -328,8 +330,8 @@ def test_get_platforms_snap_build_plan_success(
 def test_get_platforms_snap_build_plan_base_snap_success(
     build_base: str,
     expected_base: craft_platforms.DistroBase,
-    platforms: craft_platforms.Platforms | None,
-    expected_archs: dict[str, list[str]],
+    platforms: Union[craft_platforms.Platforms, None],
+    expected_archs: Dict[str, List[str]],
 ):
     build_plan = _build.get_platforms_snap_build_plan(
         base=None,
