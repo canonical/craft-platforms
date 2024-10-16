@@ -168,7 +168,7 @@ def get_platforms_snap_build_plan(
     base: None,
     *,
     build_base: Optional[str] = None,
-    snap_type: typing.Literal["base", "kernel"],
+    snap_type: typing.Literal["base", "kernel", "snapd"],
     platforms: Union[_platforms.Platforms, None],
 ) -> Sequence[_buildinfo.BuildInfo]: ...
 @typing.overload
@@ -191,6 +191,7 @@ def get_platforms_snap_build_plan(
     :param base: The ``base`` string in ``snapcraft.yaml`` (or ``None`` if not given)
     :param build_base: The ``build-base`` string in ``snapcraft.yaml`` (or ``None`` if
         not given)
+    :param snap_type: One of "base", "kernel", "snapd"
     """
     distro_base = get_snap_base(base=base, build_base=build_base, snap_type=snap_type)
     if not platforms:
