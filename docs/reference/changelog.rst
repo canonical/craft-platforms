@@ -2,6 +2,20 @@
 Changelog
 *********
 
+0.4.0 (2024-10-17)
+------------------
+
+Bug Fixes
+=========
+
+- Correctly validate arguments for Snapcraft build plans.
+
+Features
+========
+
+- Drop minimum required python version from 3.10 to 3.8.
+
+
 0.3.1 (2024-Sep-26)
 -------------------
 
