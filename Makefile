@@ -5,120 +5,206 @@ DOCS=docs
 ifneq ($(OS),Windows_NT)
 	OS := $(shell uname)
 endif
-ifneq ($(shell which snap),)
-	TOOL_INSTALLER := sudo $(shell which snap)
-else ifneq ($(shell which brew),)
-	TOOL_INSTALLER := $(shell which brew)
-else
-	TOOL_INSTALLER := uv
-endif
+
+.DEFAULT_GOAL := help
+
+.ONESHELL:
+
+.SHELLFLAGS = -ec
 
 .PHONY: help
 help: ## Show this help.
-	@printf "%-30s %s\n" "Target" "Description"
-	@printf "%-30s %s\n" "------" "-----------"
-	@fgrep " ## " $(MAKEFILE_LIST) | fgrep -v grep | awk -F ': .*## ' '{$$1 = sprintf("%-30s", $$1)} 1'
+	@printf "%-41s %s\n" "Target" "Description"
+	@printf "%-41s %s\n" "------" "-----------"
+	@fgrep " ##" $(MAKEFILE_LIST) | fgrep -v grep | sed 's/:[^#]*/ /' | awk -F '[: ]*' \
+	'{
+		if ($$2 == "##")
+		{
+			$$1=sprintf("%-40s", $$1);
+			$$2="";
+			print $$0;
+		}
+		else
+		{
+			$$1=sprintf(" └%-38s", $$1);
+			$$2="";
+			print $$0;
+		}
+	}'
+
+---------------- : ## ----------------
 
 .PHONY: setup
-setup: setup-uv setup-lint setup-test ## Set up a development environment
+setup: install-uv setup-precommit ## Set up a development environment
+	uv sync --frozen --all-extras
+
+.PHONY: setup-tests
+setup-tests: install-uv  ##- Set up a testing environment without linters
+	uv sync --frozen
+
+.PHONY: setup-linters
+setup-linters: install-uv install-shellcheck  ##- Set up a linting-only environment
+	uv sync --frozen --no-dev --no-install-workspace --extra lint --extra types
+
+.PHONY: setup-docs
+setup-docs: install-uv  ##- Set up a documentation-only environment
+	uv sync --frozen --no-dev --no-install-workspace --extra docs
 
 .PHONY: setup-precommit
-setup-precommit:  ## Set up pre-commit hooks in this repository.
-	uvx pre-commit install
+setup-precommit: install-uv  ##- Set up pre-commit hooks in this repository.
+ifeq ($(shell command -v pre-commit),)
+	uv tool install pre-commit
+endif
+	pre-commit install
+
+---------------- : ## ----------------
 
 .PHONY: format
 format: format-ruff format-codespell  ## Run all automatic formatters
 
+.PHONY: format-ruff
+format-ruff:  ##- Automatically format with ruff
+	success=true
+	ruff check --fix $(SOURCES) || success=false
+	ruff format $(SOURCES)
+	$$success || exit 1
+
+.PHONY: format-codespell
+format-codespell:  ##- Fix spelling issues with codespell
+	uv run codespell --toml pyproject.toml --write-changes $(SOURCES)
+
+.PHONY: autoformat
+autoformat: format  # Alias for 'format'
+
+---------------- : ## ----------------
+
 .PHONY: lint
-lint: lint-ruff lint-codespell lint-mypy lint-pyright lint-yaml  ## Run all linters
+lint: lint-ruff lint-codespell lint-mypy lint-pyright lint-shellcheck lint-yaml lint-docs  ## Run all linters
+
+.PHONY: lint-ruff
+lint-ruff: install-ruff  ##- Lint with ruff
+	ruff check $(SOURCES)
+	ruff format --diff $(SOURCES)
+
+.PHONY: lint-codespell
+lint-codespell: install-codespell  ##- Check spelling with codespell
+	uv run codespell --toml pyproject.toml $(SOURCES)
+
+.PHONY: lint-mypy
+lint-mypy:  ##- Check types with mypy
+	uv run mypy --show-traceback --show-error-codes $(PROJECT)
+
+.PHONY: lint-pyright
+lint-pyright:  ##- Check types with pyright
+ifneq ($(shell command -v pyright),)
+	pyright --pythonpath .venv/bin/python
+else
+	# Fix for a bug in npm
+	[ -d "/home/ubuntu/.npm/_cacache" ] && chown -R 1000:1000 "/home/ubuntu/.npm" || true
+	uv run pyright
+endif
+
+.PHONY: lint-shellcheck
+lint-shellcheck: install-shellcheck  ##- Lint shell scripts
+	git ls-files | file --mime-type -Nnf- | grep shellscript | cut -f1 -d: | xargs -r shellcheck
+
+.PHONY: lint-yaml
+lint-yaml:  ##- Lint YAML files with yamllint
+	uv run --extra lint yamllint .
+
+.PHONY: lint-docs
+lint-docs:  ##- Lint the documentation
+	uv run --extra docs sphinx-lint --max-line-length 88 --enable all $(DOCS)
+
+---------------- : ## ----------------
 
 .PHONY: test
-test: test-unit test-integration  ## Run all tests with the default python
+test: test-unit test-integration  ## Run all tests
+
+.PHONY: test-unit
+test-unit:  ##- Run unit tests
+	uv run pytest tests/unit
+
+.PHONY: test-integration
+test-integration:  ##- Run integration tests
+	uv run pytest tests/integration
+
+.PHONY: coverage
+coverage:  ## Generate coverage report
+	uv run coverage run --source $(PROJECT) -m pytest tests/unit
+	uv run coverage xml -o coverage.xml
+	uv run coverage report -m
+	uv run coverage html
+
+---------------- : ## ----------------
 
 .PHONY: docs
-docs: ## Build documentation
-	uv run --frozen --extra docs sphinx-build -b html -W docs docs/_build
+docs:  ## Build documentation
+	uv run --extra docs sphinx-build -b html -W docs docs/_build
 
 .PHONY: docs-auto
 docs-auto:  ## Build and host docs with sphinx-autobuild
-	uv run --frozen --extra docs sphinx-autobuild -b html --open-browser --port=8080 --watch $(PROJECT) -W docs docs/_build
+	uv run --extra docs sphinx-autobuild -b html --open-browser --port=8080 --watch $(PROJECT) -W docs docs/_build
 
-.PHONY: format-codespell
-format-codespell:  ## Fix spelling issues with codespell
-	codespell --toml pyproject.toml --write-changes $(SOURCES)
+---------------- : ## ----------------
 
-.PHONY: format-ruff
-format-ruff:  ## Automatically format with ruff
-	ruff format $(SOURCES)
-	ruff check --fix $(SOURCES)
+.PHONY: package
+package: package-pip  ## Build all packages
 
-.PHONY: lint-codespell
-lint-codespell: ## Check spelling with codespell
-	codespell --toml pyproject.toml $(SOURCES)
+.PHONY: package-pip
+package-pip:  ##- Build packages for pip (sdist, wheel)
+	uv run pyproject-build --installer uv .
 
-.PHONY: lint-docs
-lint-docs:  ## Lint the documentation
-	uv run --frozen --extra docs sphinx-lint --enable all $(DOCS)
+---------------- : ## ----------------
 
-.PHONY: lint-mypy
-lint-mypy: ## Check types with mypy
-	uv run mypy --install-types --non-interactive $(PROJECT)
+.PHONY: clean
+clean:  ## Clean up the development environment
+	uv tool run pyclean .
+	rm -rf dist/ build/ docs/_build/ *.snap
 
-.PHONY: lint-pyright
-lint-pyright: ## Check types with pyright
-	uv run pyright $(SOURCES)
+---------------- : ## ----------------
 
-.PHONY: lint-ruff
-lint-ruff:  ## Lint with ruff
-	ruff format --diff $(SOURCES)
-	ruff check $(SOURCES)
+# Below are intermediate targets for setup. They are not included in help as they should
+# not be used independently.
 
-.PHONY: lint-shellcheck
-lint-shellcheck:
-	sh -c 'git ls-files | file --mime-type -Nnf- | grep shellscript | rev | cut -d: -f2- | rev | xargs -r shellcheck'
-
-.PHONY: lint-yaml
-lint-yaml:  ## Lint YAML files with yamllint
-	yamllint .
-
-.PHONY: test-unit
-test-unit: ## Run unit tests
-	uv run --frozen pytest --cov=$(PROJECT) --cov-config=pyproject.toml --cov-report=xml:.coverage.unit.xml --junit-xml=.results.unit.xml tests/unit
-
-.PHONY: test-integration
-test-integration:  ## Run integration tests
-	uv run --frozen pytest --cov=$(PROJECT) --cov-config=pyproject.toml --cov-report=xml:.coverage.integration.xml --junit-xml=.results.integration.xml tests/integration
-
-.PHONY: setup-test
-setup-test: setup-uv # Set up a testing environment, without linters.
-ifneq ($(shell which apt-get),)
-	sudo apt-get --yes install libxml2-dev libxslt-dev
-else ifneq ($(shell which brew),)
-	brew install libxml2 libxslt
-endif
-
-.PHONY: setup-uv
-setup-uv: # Install UV. Mostly useful as an intermediate target.
-ifneq ($(shell which uv),)
-else ifneq ($(shell which snap),)
+.PHONY: install-uv
+install-uv:
+ifneq ($(shell command -v uv),)
+else ifneq ($(shell command -v snap),)
 	sudo snap install --classic astral-uv
-else ifneq ($(shell which brew),)
+else ifneq ($(shell command -v brew),)
 	brew install uv
+else ifeq ($(OS),Windows_NT)
+	powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 else
-	pipx install uv
+	curl -LsSf https://astral.sh/uv/install.sh | sh
 endif
 
-.PHONY: setup-lint
-setup-lint: setup-uv  # Set up the necessary linters. Mostly useful for CI
-ifeq ($(shell which ruff),)
-	$(TOOL_INSTALLER) install ruff
+.PHONY: install-codespell
+install-codespell:
+ifneq ($(shell command -v codespell),)
+else ifneq ($(shell command -v snap),)
+	sudo snap install codespell
+else ifneq ($(shell command -v brew),)
+	make install-uv
+	uv tool install codespell
 endif
-ifeq ($(shell which codespell),)
-	$(TOOL_INSTALLER) install codespell
+
+.PHONY: install-ruff
+install-ruff:
+ifneq ($(shell command -v ruff),)
+else ifneq ($(shell command -v snap),)
+	sudo snap install ruff
+else
+	make install-uv
+	uv tool install ruff
 endif
-ifeq ($(shell which shellcheck),)
-	$(TOOL_INSTALLER) install shellcheck
-endif
-ifeq ($(shell which yamllint),)
-	uv tool install --upgrade yamllint
+
+.PHONY: install-shellcheck
+install-shellcheck:
+ifneq ($(shell command -v shellcheck),)
+else ifneq ($(shell command -v snap),)
+	sudo snap install shellcheck
+else ifneq ($(shell command -v brew),)
+	brew install shellcheck
 endif
