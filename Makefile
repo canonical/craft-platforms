@@ -42,8 +42,8 @@ setup: install-uv setup-precommit ## Set up a development environment
 setup-tests: install-uv  ##- Set up a testing environment without linters
 	uv sync --frozen
 
-.PHONY: setup-linters
-setup-linters: install-uv install-shellcheck  ##- Set up a linting-only environment
+.PHONY: setup-lint
+setup-lint: install-uv install-shellcheck install-ruff install-codespell ##- Set up a linting environment
 	uv sync --frozen --no-dev --no-install-workspace --extra lint --extra types
 
 .PHONY: setup-docs
@@ -160,7 +160,7 @@ package-pip:  ##- Build packages for pip (sdist, wheel)
 .PHONY: clean
 clean:  ## Clean up the development environment
 	uv tool run pyclean .
-	rm -rf dist/ build/ docs/_build/ *.snap
+	rm -rf dist/ build/ docs/_build/ *.snap .coverage*
 
 ---------------- : ## ----------------
 

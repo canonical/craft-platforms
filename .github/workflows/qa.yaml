@@ -11,4 +11,51 @@ on:
 
 jobs:
   lint:
-    uses: lengau/starflow/.github/workflows/lint.yaml@work/lint-reusable
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lengau/starflow/lint@work/CRAFT-3602/test-action
+  unit-tests:
+    strategy:
+      matrix:
+        platform:
+          # We're just using ubuntu-latest since craft-platforms is pure Python.
+          - ubuntu-latest  # amd64?
+          - [noble, arm64]  # Self-hosted Ubuntu Noble runner to test arm64
+          - windows-latest
+          - macos-15  # arm64
+          - macos-13  # amd64
+    runs-on: ${{ matrix.platform }}
+    env:
+      UV_PYTHON: ${{ matrix.python }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lengau/starflow/test-python@work/CRAFT-3602/test-action
+        with:
+          python-versions: 3.8 3.9 3.10 3.11 3.12 3.13
+  integration-tests:
+    strategy:
+      matrix:
+        platform:
+          - ubuntu-latest
+          - windows-latest
+          - macos-15  # arm64
+          - macos-13  # amd64
+    runs-on: ${{ matrix.platform }}
+    env:
+      UV_PYTHON: ${{ matrix.python }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lengau/starflow/test-python@work/CRAFT-3602/test-action
+        with:
+          python-versions: 3.8 3.10 3.12
+          target: test-integration
+  lowest-tests:  # Run unit and integration tests on the oldest Python available with UV
+    runs-on: ubuntu-latest
+    env:
+      UV_RESOLUTION: lowest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lengau/starflow/test-python@work/CRAFT-3602/test-action
+        with:
+          python-versions: "3.8"
