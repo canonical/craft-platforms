@@ -36,8 +36,8 @@ endif
 setup-precommit:  ## Set up pre-commit hooks in this repository.
 	uvx pre-commit install
 
-.PHONY: autoformat
-autoformat: format-ruff format-codespell  ## Run all automatic formatters
+.PHONY: format
+format: format-ruff format-codespell  ## Run all automatic formatters
 
 .PHONY: lint
 lint: lint-ruff lint-codespell lint-mypy lint-pyright lint-yaml  ## Run all linters
