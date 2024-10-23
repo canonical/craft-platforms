@@ -11,9 +11,6 @@ on:
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: lengau/starflow/lint@work/CRAFT-3602/test-workflows
+    uses: lengau/starflow/.github/workflows/lint-python.yaml@work/CRAFT-3602/test-workflows
   test:
     uses: lengau/starflow/.github/workflows/test-python.yaml@work/CRAFT-3602/test-workflows
