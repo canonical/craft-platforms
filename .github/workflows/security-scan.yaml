@@ -10,4 +10,4 @@ on:
 jobs:
   python-scans:
     name: Scan Python project
-    uses: canonical/starflow/.github/workflows/scan-python.yaml@main
+    uses: lengau/starflow/.github/workflows/scan-python.yaml@work/trivy-action
