@@ -17,7 +17,7 @@
 
 import itertools
 import typing
-from typing import Dict, List, Optional, Sequence, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import annotated_types
 from typing_extensions import Annotated
@@ -35,6 +35,42 @@ PlatformDict = typing.TypedDict(
 
 Platforms = Dict[Union[_architectures.DebianArchitecture, str], Optional[PlatformDict]]
 
+
+def get_base_and_name(*, platform_name: str) -> Tuple[Optional[_distro.DistroBase], str]:
+    """Get the platform name and optional base from a platform name."""
+    if ":" in platform_name:
+        base_str, _, name = platform_name.partition(":")
+        base = _distro.DistroBase.from_str(base_str)
+        return base, name
+
+    return None, platform_name
+
+
+# XXX: move to architectures module
+def get_base_and_architecture(
+    *, architecture: str
+) -> Tuple[Optional[_distro.DistroBase], _architectures.DebianArchitecture]:
+    """Get the debian arch and optional base from a build-on or build-for entry."""
+    if ":" in architecture:
+        base_str, _, arch_str = architecture.partition(":")
+        arch = _architectures.DebianArchitecture(arch_str) if arch_str != "all" else "all"
+        base = _distro.DistroBase.from_str(base_str)
+        return base, arch
+
+    return None, _architectures.DebianArchitecture(architecture) if architecture != "all" else "all"
+
+
+def get_latest_base(
+    base: Union[str, _distro.DistroBase],
+    platforms: Platforms,
+    build_base: Optional[str] = None,
+) -> Optional[_distro.DistroBase]:
+    """Get the latest base from the platforms."""
+    bases = {get_base_and_name(platform_name)[0] for platform_name in platforms}
+    if not bases:
+        return None
+
+    return _distro.DistroBase.from_str(max(bases))
 
 def get_platforms_build_plan(
     base: Union[str, _distro.DistroBase],
