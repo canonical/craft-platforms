@@ -2,7 +2,7 @@ settings:
   components:
     - Craft Platforms
   labels:
-    - Triaged
+    - "Status: Triaged"
   # Adds a comment with the JIRA ID
   add_gh_comment: true
   # Reflect changes on JIRA
