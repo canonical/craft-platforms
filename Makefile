@@ -39,7 +39,7 @@ setup: install-uv setup-precommit ## Set up a development environment
 	uv sync --frozen --all-extras
 
 .PHONY: setup-tests
-setup-tests: install-uv  ##- Set up a testing environment without linters
+setup-tests: install-uv install-venv  ##- Set up a testing environment without linters
 	uv sync --frozen
 
 .PHONY: setup-lint
@@ -178,6 +178,12 @@ else ifeq ($(OS),Windows_NT)
 	powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 else
 	curl -LsSf https://astral.sh/uv/install.sh | sh
+endif
+
+.PHONY: install-venv
+install-venv:
+ifneq ($(shell which apt-get),)
+	python3 -m venv --help && sudo apt-get --yes install python3-venv
 endif
 
 .PHONY: install-codespell
