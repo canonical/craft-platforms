@@ -131,7 +131,7 @@ test-integration:  ##- Run integration tests
 
 .PHONY: test-coverage
 test-coverage:  ## Generate coverage report
-	uv run coverage run --source $(PROJECT) -m pytest tests/unit
+	uv run coverage run --source $(PROJECT) -m pytest tests
 	uv run coverage xml -o coverage.xml
 	uv run coverage report -m
 	uv run coverage html
