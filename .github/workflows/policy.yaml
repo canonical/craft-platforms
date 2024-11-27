@@ -4,4 +4,4 @@ on:
 
 jobs:
   policy:
-    uses: lengau/starflow/.github/workflows/policy.yaml@work/CRAFT-3602/test-workflows
+    uses: canonical/starflow/.github/workflows/policy.yaml@main
