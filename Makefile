@@ -71,7 +71,7 @@ format-ruff:  ##- Automatically format with ruff
 
 .PHONY: format-codespell
 format-codespell:  ##- Fix spelling issues with codespell
-	uv run codespell --toml pyproject.toml --write-changes $(SOURCES)
+	codespell --toml pyproject.toml --write-changes $(SOURCES)
 
 .PHONY: autoformat
 autoformat: format  # Alias for 'format'
@@ -183,7 +183,7 @@ endif
 .PHONY: install-venv
 install-venv:
 ifneq ($(shell which apt-get),)
-	python3 -m venv --help && sudo apt-get --yes install python3-venv
+	sudo apt-get --yes install python3-venv
 endif
 
 .PHONY: install-codespell
