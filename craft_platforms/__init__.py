@@ -30,7 +30,13 @@ from ._errors import (
     NeedBuildBaseError,
     RequiresBaseError,
 )
-from ._platforms import PlatformDict, Platforms, get_platforms_build_plan
+from ._platforms import (
+    PlatformDict,
+    Platforms,
+    get_platforms_build_plan,
+    get_base_and_name,
+    get_base_and_architecture,
+)
 
 try:
     from ._version import (
@@ -52,6 +58,8 @@ __all__ = [
     "rock",
     "snap",
     "get_platforms_build_plan",
+    "get_base_and_name",
+    "get_base_and_architecture",
     "PlatformDict",
     "Platforms",
     "BaseName",

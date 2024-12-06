@@ -208,6 +208,136 @@ def test_build_plans_success(
             ],
             id="multiple-builds",
         ),
+        pytest.param(
+            None,
+            None,
+            {
+                "noble": {
+                    "build-on": ["ubuntu@24.04:amd64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                )
+            ],
+            id="multi-base-simple",
+        ),
+        pytest.param(
+            None,
+            None,
+            {"ubuntu@24.04:amd64": None},
+            [
+                craft_platforms.BuildInfo(
+                    "amd64",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                )
+            ],
+            id="multi-base-shorthand",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "ubuntu@22.04:amd64": None,
+                "noble": {
+                    "build-on": ["ubuntu@24.04:amd64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "amd64",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "22.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                )
+            ],
+            id="multi-base-mixed-notation",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "noble": {
+                    "build-on": ["ubuntu@24.04:amd64"],
+                    "build-for": ["ubuntu@24.04:all"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    "all",
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                )
+            ],
+            id="multi-base-all",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "ubuntu@20.04:amd64": None,
+                "jammy": {
+                    "build-on": ["ubuntu@22.04:amd64"],
+                    "build-for": ["ubuntu@22.04:amd64"],
+                },
+                "noble": {
+                    "build-on": ["ubuntu@22.04:amd64"],
+                    "build-for": ["ubuntu@22.04:amd64"],
+                },
+                "noble-cross": {
+                    "build-on": ["ubuntu@24.04:amd64", "ubuntu@24.04:riscv64"],
+                    "build-for": ["ubuntu@24.04:riscv64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "amd64",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "20.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "jammy",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "22.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "22.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "noble-cross",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("riscv64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "noble-cross",
+                    craft_platforms.DebianArchitecture("riscv64"),
+                    craft_platforms.DebianArchitecture("riscv64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                ),
+            ],
+            id="multi-base-complex",
+        ),
     ],
 )
 def test_build_plans_in_depth(base, build_base, platforms, expected):
