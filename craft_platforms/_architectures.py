@@ -19,8 +19,11 @@ from __future__ import annotations
 
 import enum
 import platform
+from typing import Literal, Optional, Tuple, Union
 
 from typing_extensions import Self
+
+from craft_platforms import _distro
 
 
 class DebianArchitecture(str, enum.Enum):
@@ -74,3 +77,24 @@ _ARCH_TRANSLATIONS_PLATFORM_TO_DEB = {
 _ARCH_TRANSLATIONS_DEB_TO_PLATFORM = {
     deb: platform for platform, deb in _ARCH_TRANSLATIONS_PLATFORM_TO_DEB.items()
 }
+
+
+def get_base_and_architecture(
+    *, architecture: str
+) -> Tuple[Optional[_distro.DistroBase], Union[DebianArchitecture, Literal["all"]]]:
+    """Get the debian arch and optional base from an architecture entry.
+
+    The architecture may have an optional base prefixed as '[<base>:]<arch>'.
+
+    :param architecture: The architecture entry.
+
+    :returns: A tuple of the DistroBase and the DebianArchitecture or 'all'.
+    """
+    if ":" in architecture:
+        base_str, _, arch_str = architecture.partition(":")
+        base = _distro.DistroBase.from_str(base_str)
+    else:
+        base = None
+        arch_str = architecture
+
+    return base, DebianArchitecture(arch_str) if arch_str != "all" else "all"

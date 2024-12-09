@@ -305,3 +305,17 @@ def test_build_plans_bad_base(base, error_msg):
 def test_build_plans_bad_architecture(platforms, error_msg):
     with pytest.raises(ValueError, match=error_msg):
         craft_platforms.get_platforms_build_plan("ubuntu@24.04", platforms)
+
+
+@pytest.mark.parametrize(
+    ("given", "expected"),
+    [
+        ("my-platform", (None, "my-platform")),
+        (
+            "ubuntu@24.04:my-platform",
+            (craft_platforms.DistroBase("ubuntu", "24.04"), "my-platform"),
+        ),
+    ],
+)
+def test_get_base_and_name(given, expected):
+    assert craft_platforms.get_base_and_name(platform_name=given) == expected

@@ -208,6 +208,149 @@ def test_build_plans_success(
             ],
             id="multiple-builds",
         ),
+        pytest.param(
+            None,
+            None,
+            {
+                "noble": {
+                    "build-on": ["ubuntu@24.04:amd64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                )
+            ],
+            id="multi-base-simple",
+        ),
+        pytest.param(
+            None,
+            None,
+            {"ubuntu@24.04:amd64": None},
+            [
+                craft_platforms.BuildInfo(
+                    "amd64",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                )
+            ],
+            id="multi-base-shorthand",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                # base and arch in platform name
+                "ubuntu@20.04:amd64": None,
+                # base in platform name
+                "ubuntu@22.04:jammy": {
+                    "build-on": ["amd64"],
+                    "build-for": ["amd64"],
+                },
+                # nothing in platform name
+                "noble": {
+                    "build-on": ["ubuntu@24.04:amd64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "amd64",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "20.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "jammy",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "22.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                ),
+            ],
+            id="multi-base-mixed-notation",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "noble": {
+                    "build-on": ["ubuntu@24.04:amd64"],
+                    "build-for": ["ubuntu@24.04:all"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    "all",
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                )
+            ],
+            id="multi-base-all",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "ubuntu@20.04:amd64": None,
+                "jammy": {
+                    "build-on": ["ubuntu@22.04:amd64"],
+                    "build-for": ["ubuntu@22.04:amd64"],
+                },
+                "noble": {
+                    "build-on": ["ubuntu@22.04:amd64"],
+                    "build-for": ["ubuntu@22.04:amd64"],
+                },
+                "noble-cross": {
+                    "build-on": ["ubuntu@24.04:amd64", "ubuntu@24.04:riscv64"],
+                    "build-for": ["ubuntu@24.04:riscv64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "amd64",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "20.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "jammy",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "22.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "22.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "noble-cross",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("riscv64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "noble-cross",
+                    craft_platforms.DebianArchitecture("riscv64"),
+                    craft_platforms.DebianArchitecture("riscv64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                ),
+            ],
+            id="multi-base-complex",
+        ),
     ],
 )
 def test_build_plans_in_depth(base, build_base, platforms, expected):
@@ -222,17 +365,124 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
 
 
 @pytest.mark.parametrize(
-    ("base", "error_msg"),
+    ("base", "build_base", "platforms", "error_msg"),
     [
-        (
+        pytest.param(
             "invalid-base",
+            None,
+            None,
             "Invalid base string 'invalid-base'. Format should be '<distribution>@<series>'",
+            id="invalid-base",
+        ),
+        pytest.param(
+            None,
+            None,
+            None,
+            "No base, build-base, or platforms are specified.",
+            id="no-base-no-platform",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "my-platform": {
+                    "build-on": ["amd64"],
+                    "build-for": ["amd64"],
+                },
+            },
+            "No base or build-base is specified and no base is specified in the platforms section.",
+            id="no-base-with-platform",
+        ),
+        pytest.param(
+            None,
+            None,
+            {"amd64": None},
+            "No base or build-base is specified and no base is specified in the platforms section.",
+            id="no-base-with-shorthand-platform",
+        ),
+        pytest.param(
+            "ubuntu@24.04",
+            None,
+            {"ubuntu@24.04:amd64": None},
+            "Platform 'ubuntu@24.04:amd64' specifies a base and a top-level base or build-base is specified.",
+            id="base-and-platform-base",
+        ),
+        pytest.param(
+            None,
+            "ubuntu@24.04",
+            {"ubuntu@24.04:amd64": None},
+            "Platform 'ubuntu@24.04:amd64' specifies a base and a top-level base or build-base is specified.",
+            id="build-base-and-platform-base",
+        ),
+        pytest.param(
+            "ubuntu@24.04",
+            None,
+            {
+                "my-platform": {
+                    "build-on": ["ubuntu@24.04:amd64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            "Platform 'my-platform' specifies a base and a top-level base or build-base is specified.",
+            id="base-and-build-on-for-base",
+        ),
+        pytest.param(
+            None,
+            "ubuntu@24.04",
+            {
+                "my-platform": {
+                    "build-on": ["ubuntu@24.04:amd64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            "Platform 'my-platform' specifies a base and a top-level base or build-base is specified.",
+            id="build-base-and-build-on-for-base",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "my-platform": {
+                    "build-on": ["ubuntu@22.04:amd64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            "Platform 'my-platform' has mismatched bases in the 'build-on' and 'build-for' entries.",
+            id="build-on-for-base-mismatch",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "my-platform": {
+                    "build-on": ["ubuntu@22.04:amd64"],
+                    "build-for": ["amd64"],
+                },
+            },
+            "Platform 'my-platform' has mismatched bases in the 'build-on' and 'build-for' entries.",
+            id="build-on-for-base-missing",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "ubuntu@24.04:amd64": {
+                    "build-on": ["ubuntu@24.04:amd64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            "Platform 'ubuntu@24.04:amd64' declares a base in the platform name and in 'build-on' and 'build-for' entries. ",
+            id="platform-base-and-build-on-for-base",
         ),
     ],
 )
-def test_build_plans_bad_base(base, error_msg):
+def test_build_plans_bad_base(base, build_base, platforms, error_msg):
     with pytest.raises(ValueError, match=error_msg):
-        charm.get_platforms_charm_build_plan(base, None)
+        charm.get_platforms_charm_build_plan(
+            base=base,
+            build_base=build_base,
+            platforms=platforms,
+        )
 
 
 @pytest.mark.parametrize(
@@ -247,6 +497,11 @@ def test_build_plans_bad_base(base, error_msg):
             {"my machine": {"build-on": ["my machine"], "build-for": ["amd64"]}},
             "'my machine' is not a valid DebianArchitecture",
             id="invalid-architecture-name",
+        ),
+        pytest.param(
+            {"my machine": {"build-on": ["all"], "build-for": ["amd64"]}},
+            "Platform 'my machine' has an invalid 'build-on' entry of 'all'.",
+            id="build-on-all",
         ),
     ],
 )
