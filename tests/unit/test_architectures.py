@@ -18,7 +18,7 @@
 import platform
 
 import pytest
-from craft_platforms import DebianArchitecture
+from craft_platforms import DebianArchitecture, DistroBase, get_base_and_architecture
 
 
 @pytest.mark.parametrize(
@@ -48,3 +48,18 @@ def test_debian_architecture_to_platform_arch(given, expected):
 def test_debian_architecture_from_host(monkeypatch, machine):
     monkeypatch.setattr(platform, "machine", lambda: machine)
     assert DebianArchitecture.from_host().to_platform_arch() == machine
+
+
+@pytest.mark.parametrize(
+    ("given", "expected"),
+    [
+        (str(DebianArchitecture.AMD64), (None, "amd64")),
+        (str(DebianArchitecture.RISCV64), (None, "riscv64")),
+        ("all", (None, "all")),
+        ("ubuntu@24.04:amd64", (DistroBase("ubuntu", "24.04"), "amd64")),
+        ("ubuntu@24.04:riscv64", (DistroBase("ubuntu", "24.04"), "riscv64")),
+        ("ubuntu@24.04:all", (DistroBase("ubuntu", "24.04"), "all")),
+    ],
+)
+def test_get_base_and_architecture(given, expected):
+    assert get_base_and_architecture(architecture=given) == expected

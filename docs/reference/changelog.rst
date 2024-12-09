@@ -2,6 +2,14 @@
 Changelog
 *********
 
+0.5.0 (2024-12-XX)
+------------------
+
+Features
+========
+
+- Add multi-base support for charm build plans
+
 0.4.0 (2024-10-17)
 ------------------
 
