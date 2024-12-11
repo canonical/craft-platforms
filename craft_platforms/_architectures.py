@@ -79,22 +79,23 @@ _ARCH_TRANSLATIONS_DEB_TO_PLATFORM = {
 }
 
 
-def get_base_and_architecture(
-    *, architecture: str
+def parse_base_and_architecture(
+    *, arch: str
 ) -> Tuple[Optional[_distro.DistroBase], Union[DebianArchitecture, Literal["all"]]]:
     """Get the debian arch and optional base from an architecture entry.
 
     The architecture may have an optional base prefixed as '[<base>:]<arch>'.
 
-    :param architecture: The architecture entry.
+    :param arch: The architecture entry.
 
-    :returns: A tuple of the DistroBase and the DebianArchitecture or 'all'.
+    :returns: A tuple of the DistroBase and the architecture. The architecture is either
+     a DebianArchitecture or 'all'.
     """
-    if ":" in architecture:
-        base_str, _, arch_str = architecture.partition(":")
+    if ":" in arch:
+        base_str, _, arch_str = arch.partition(":")
         base = _distro.DistroBase.from_str(base_str)
     else:
         base = None
-        arch_str = architecture
+        arch_str = arch
 
     return base, DebianArchitecture(arch_str) if arch_str != "all" else "all"

@@ -99,7 +99,7 @@ def get_platforms_build_plan(
     return build_plan
 
 
-def get_base_and_name(
+def parse_base_and_name(
     *, platform_name: str
 ) -> Tuple[Optional[_distro.DistroBase], str]:
     """Get the platform name and optional base from a platform name.

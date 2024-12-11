@@ -50,58 +50,51 @@ def _validate_base_definition(
     if not (platform_name or base or build_base):
         raise ValueError("No base, build-base, or platforms are specified.")
 
-    if platform_name:
-        # validate base defined in the platform name
-        platform_base, _ = _platforms.get_base_and_name(platform_name=platform_name)
+    if not platform_name:
+        return
 
-        if platform_base and (base or build_base):
-            raise ValueError(
-                f"Platform {platform_name!r} specifies a base and a top-level base "
-                "or build-base is specified."
-            )
+    # validate base defined in the platform name
+    platform_base, _ = _platforms.parse_base_and_name(platform_name=platform_name)
 
-        # validate bases defined in build-on and build-for entries
-        if platform:
-            # create a set of all bases defined in the build-on and build-for entries
-            build_on_for_bases = set()
-            for entry in [*platform["build-on"], *platform["build-for"]]:
-                build_on_for_distro_base = _architectures.get_base_and_architecture(
-                    architecture=entry
-                )[0]
-                build_on_for_bases.add(
-                    str(build_on_for_distro_base) if build_on_for_distro_base else None
-                )
+    if platform:
+        # create a set of the bases defined in the build-on and build-for entries
+        bases = set()
+        for entry in [*platform["build-on"], *platform["build-for"]]:
+            distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
+            bases.add(str(distro_base) if distro_base else None)
 
-            if len(build_on_for_bases) == 0:
-                build_on_for_base = None
-            elif len(build_on_for_bases) == 1:
-                # grab the first element
-                build_on_for_base = next(iter(build_on_for_bases))
-            else:
-                raise ValueError(
-                    f"Platform {platform_name!r} has mismatched bases in the 'build-on' "
-                    "and 'build-for' entries."
-                )
-
-            if platform_base and build_on_for_base:
-                raise ValueError(
-                    f"Platform {platform_name!r} declares a base in the platform name "
-                    "and in 'build-on' and 'build-for' entries. "
-                )
-        else:
+        if len(bases) == 0:
+            # an empty set means no bases are defined
             build_on_for_base = None
-
-        if (platform_base or build_on_for_base) and (base or build_base):
+        elif len(bases) == 1:
+            # a set with one element means the same base was defined for all entries
+            build_on_for_base = next(iter(bases))
+        else:
+            # otherwise there are multiple bases defined or some entries missing bases
             raise ValueError(
-                f"Platform {platform_name!r} specifies a base and a top-level base "
-                "or build-base is specified."
+                f"Platform {platform_name!r} has mismatched bases in the 'build-on' "
+                "and 'build-for' entries."
             )
+    else:
+        build_on_for_base = None
 
-        if not (platform_base or build_on_for_base) and not (base or build_base):
-            raise ValueError(
-                "No base or build-base is specified and no base is specified "
-                "in the platforms section."
-            )
+    if platform_base and build_on_for_base:
+        raise ValueError(
+            f"Platform {platform_name!r} declares a base in the platform name "
+            "and in 'build-on' and 'build-for' entries. "
+        )
+
+    if (platform_base or build_on_for_base) and (base or build_base):
+        raise ValueError(
+            f"Platform {platform_name!r} specifies a base and a top-level base "
+            "or build-base is specified."
+        )
+
+    if not (platform_base or build_on_for_base) and not (base or build_base):
+        raise ValueError(
+            "No base or build-base is specified and no base is specified "
+            "in the platforms section."
+        )
 
 
 def _get_base_from_build_data(
@@ -130,15 +123,15 @@ def _get_base_from_build_data(
         return _distro.DistroBase.from_str(base)
 
     if platform_name:
-        platform_base, _ = _platforms.get_base_and_name(platform_name=platform_name)
+        platform_base, _ = _platforms.parse_base_and_name(platform_name=platform_name)
         if platform_base:
             return platform_base
 
         # build-on and build-for entries all have the same base, so we only
         # need to check one of them
         if platform:
-            build_for_base, _ = _architectures.get_base_and_architecture(
-                architecture=platform["build-for"][0]
+            build_for_base, _ = _architectures.parse_base_and_architecture(
+                arch=platform["build-for"][0]
             )
             if build_for_base:
                 return build_for_base
@@ -181,7 +174,7 @@ def get_platforms_charm_build_plan(
             platform=platform,
         )
 
-        _, platform_name_without_base = _platforms.get_base_and_name(
+        _, platform_name_without_base = _platforms.parse_base_and_name(
             platform_name=platform_name
         )
 
@@ -190,9 +183,7 @@ def get_platforms_charm_build_plan(
             # In python 3.12+ we can just check:
             # `if platform_name not in _architectures.DebianArchitecture`
             try:
-                architecture = _architectures.DebianArchitecture(
-                    platform_name_without_base
-                )
+                arch = _architectures.DebianArchitecture(platform_name_without_base)
             except ValueError:
                 raise ValueError(
                     f"Platform name {platform_name!r} is not a valid Debian architecture. "
@@ -202,8 +193,8 @@ def get_platforms_charm_build_plan(
             build_plan.append(
                 _buildinfo.BuildInfo(
                     platform=platform_name_without_base,
-                    build_on=architecture,
-                    build_for=architecture,
+                    build_on=arch,
+                    build_for=arch,
                     build_base=distro_base,
                 ),
             )
@@ -212,16 +203,16 @@ def get_platforms_charm_build_plan(
                 platform["build-on"],
                 platform["build-for"],
             ):
-                build_on_base, build_on_arch = _architectures.get_base_and_architecture(
-                    architecture=build_on
+                _, build_on_arch = _architectures.parse_base_and_architecture(
+                    arch=build_on
                 )
                 if build_on_arch == "all":
                     raise ValueError(
                         f"Platform {platform_name!r} has an invalid 'build-on' entry of 'all'."
                     )
 
-                build_for_base, build_for_arch = (
-                    _architectures.get_base_and_architecture(architecture=build_for)
+                _, build_for_arch = _architectures.parse_base_and_architecture(
+                    arch=build_for
                 )
 
                 build_plan.append(

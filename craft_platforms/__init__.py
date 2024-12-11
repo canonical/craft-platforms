@@ -15,7 +15,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Package base for craft_platforms."""
 
-from ._architectures import DebianArchitecture, get_base_and_architecture
+from ._architectures import DebianArchitecture, parse_base_and_architecture
 from ._buildinfo import BuildInfo
 from . import charm, rock, snap
 from ._distro import BaseName, DistroBase, is_ubuntu_like
@@ -34,7 +34,7 @@ from ._platforms import (
     PlatformDict,
     Platforms,
     get_platforms_build_plan,
-    get_base_and_name,
+    parse_base_and_name,
 )
 
 try:
@@ -53,11 +53,12 @@ __all__ = [
     "__version__",
     "DebianArchitecture",
     "BuildInfo",
+    "parse_base_and_architecture",
     "charm",
     "rock",
     "snap",
     "get_platforms_build_plan",
-    "get_base_and_name",
+    "parse_base_and_name",
     "PlatformDict",
     "Platforms",
     "BaseName",

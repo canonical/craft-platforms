@@ -318,4 +318,4 @@ def test_build_plans_bad_architecture(platforms, error_msg):
     ],
 )
 def test_get_base_and_name(given, expected):
-    assert craft_platforms.get_base_and_name(platform_name=given) == expected
+    assert craft_platforms.parse_base_and_name(platform_name=given) == expected

@@ -18,7 +18,7 @@
 import platform
 
 import pytest
-from craft_platforms import DebianArchitecture, DistroBase, get_base_and_architecture
+from craft_platforms import DebianArchitecture, DistroBase, parse_base_and_architecture
 
 
 @pytest.mark.parametrize(
@@ -62,4 +62,4 @@ def test_debian_architecture_from_host(monkeypatch, machine):
     ],
 )
 def test_get_base_and_architecture(given, expected):
-    assert get_base_and_architecture(architecture=given) == expected
+    assert parse_base_and_architecture(arch=given) == expected
