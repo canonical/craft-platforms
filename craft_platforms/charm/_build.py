@@ -18,7 +18,7 @@
 import itertools
 from typing import Collection, List, Optional, Sequence
 
-from craft_platforms import _architectures, _buildinfo, _distro, _platforms
+from craft_platforms import _architectures, _buildinfo, _distro, _errors, _platforms
 
 DEFAULT_ARCHITECTURES: Collection[_architectures.DebianArchitecture] = (
     _architectures.DebianArchitecture.AMD64,
@@ -48,7 +48,10 @@ def _validate_base_definition(
     :raises ValueError: If the base is not defined correctly in the build data.
     """
     if not (platform_name or base or build_base):
-        raise ValueError("No base, build-base, or platforms are specified.")
+        raise _errors.RequiresBaseError(
+            message="No base, build-base, or platforms are declared.",
+            resolution="Declare a base or build-base.",
+        )
 
     if not platform_name:
         return
@@ -57,6 +60,17 @@ def _validate_base_definition(
     platform_base, _ = _platforms.parse_base_and_name(platform_name=platform_name)
 
     if platform:
+        if platform_base:
+            raise _errors.InvalidMultiBaseError(
+                message=(
+                    f"Platform {platform_name!r} declares a base in the platform's "
+                    "name and declares 'build-on' and 'build-for' entries."
+                ),
+                resolution=(
+                    "Either remove the base from the platform's name or remove the "
+                    "'build-on' and 'build-for' entries for the platform."
+                ),
+            )
         # create a set of the bases defined in the build-on and build-for entries
         bases = set()
         for entry in [*platform["build-on"], *platform["build-for"]]:
@@ -71,29 +85,36 @@ def _validate_base_definition(
             build_on_for_base = next(iter(bases))
         else:
             # otherwise there are multiple bases defined or some entries missing bases
-            raise ValueError(
-                f"Platform {platform_name!r} has mismatched bases in the 'build-on' "
-                "and 'build-for' entries."
+            raise _errors.InvalidMultiBaseError(
+                message=(
+                    f"Platform {platform_name!r} has mismatched bases in the 'build-on' "
+                    "and 'build-for' entries."
+                ),
+                resolution=(
+                    "Use the same base for all 'build-on' and 'build-for' entries for "
+                    "the platform."
+                ),
             )
     else:
         build_on_for_base = None
 
-    if platform_base and build_on_for_base:
-        raise ValueError(
-            f"Platform {platform_name!r} declares a base in the platform name "
-            "and in 'build-on' and 'build-for' entries. "
-        )
-
     if (platform_base or build_on_for_base) and (base or build_base):
-        raise ValueError(
-            f"Platform {platform_name!r} specifies a base and a top-level base "
-            "or build-base is specified."
+        raise _errors.InvalidMultiBaseError(
+            message=f"Platform {platform_name!r} declares a base and a top-level base "
+            "or build-base is declared.",
+            resolution=(
+                "Remove the base from the platform's name or remove the top-level base "
+                "or build-base."
+            ),
         )
 
     if not (platform_base or build_on_for_base) and not (base or build_base):
-        raise ValueError(
-            "No base or build-base is specified and no base is specified "
-            "in the platforms section."
+        raise _errors.RequiresBaseError(
+            message=(
+                "No base or build-base is declared and no base is declared "
+                "in the platforms section."
+            ),
+            resolution="Declare a base or build-base.",
         )
 
 

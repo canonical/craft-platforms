@@ -29,6 +29,7 @@ from ._errors import (
     InvalidPlatformError,
     NeedBuildBaseError,
     RequiresBaseError,
+    InvalidMultiBaseError,
 )
 from ._platforms import (
     PlatformDict,
@@ -73,4 +74,5 @@ __all__ = [
     "InvalidPlatformError",
     "RequiresBaseError",
     "NeedBuildBaseError",
+    "InvalidMultiBaseError",
 ]

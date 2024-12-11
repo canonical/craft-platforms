@@ -247,12 +247,7 @@ def test_build_plans_success(
             {
                 # base and arch in platform name
                 "ubuntu@20.04:amd64": None,
-                # base in platform name
-                "ubuntu@22.04:jammy": {
-                    "build-on": ["amd64"],
-                    "build-for": ["amd64"],
-                },
-                # nothing in platform name
+                # base and arch in build entries
                 "noble": {
                     "build-on": ["ubuntu@24.04:amd64"],
                     "build-for": ["ubuntu@24.04:amd64"],
@@ -264,12 +259,6 @@ def test_build_plans_success(
                     craft_platforms.DebianArchitecture("amd64"),
                     craft_platforms.DebianArchitecture("amd64"),
                     craft_platforms.DistroBase("ubuntu", "20.04"),
-                ),
-                craft_platforms.BuildInfo(
-                    "jammy",
-                    craft_platforms.DebianArchitecture("amd64"),
-                    craft_platforms.DebianArchitecture("amd64"),
-                    craft_platforms.DistroBase("ubuntu", "22.04"),
                 ),
                 craft_platforms.BuildInfo(
                     "noble",
@@ -375,20 +364,22 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
 
 
 @pytest.mark.parametrize(
-    ("base", "build_base", "platforms", "error_msg"),
+    ("base", "build_base", "platforms", "error_msg", "error_res"),
     [
         pytest.param(
             "invalid-base",
             None,
             None,
             "Invalid base string 'invalid-base'. Format should be '<distribution>@<series>'",
+            None,
             id="invalid-base",
         ),
         pytest.param(
             None,
             None,
             None,
-            "No base, build-base, or platforms are specified.",
+            "No base, build-base, or platforms are declared.",
+            "Declare a base or build-base.",
             id="no-base-no-platform",
         ),
         pytest.param(
@@ -400,28 +391,32 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
                     "build-for": ["amd64"],
                 },
             },
-            "No base or build-base is specified and no base is specified in the platforms section.",
+            "No base or build-base is declared and no base is declared in the platforms section.",
+            "Declare a base or build-base.",
             id="no-base-with-platform",
         ),
         pytest.param(
             None,
             None,
             {"amd64": None},
-            "No base or build-base is specified and no base is specified in the platforms section.",
+            "No base or build-base is declared and no base is declared in the platforms section.",
+            "Declare a base or build-base.",
             id="no-base-with-shorthand-platform",
         ),
         pytest.param(
             "ubuntu@24.04",
             None,
             {"ubuntu@24.04:amd64": None},
-            "Platform 'ubuntu@24.04:amd64' specifies a base and a top-level base or build-base is specified.",
+            "Platform 'ubuntu@24.04:amd64' declares a base and a top-level base or build-base is declared.",
+            "Remove the base from the platform's name or remove the top-level base or build-base.",
             id="base-and-platform-base",
         ),
         pytest.param(
             None,
             "ubuntu@24.04",
             {"ubuntu@24.04:amd64": None},
-            "Platform 'ubuntu@24.04:amd64' specifies a base and a top-level base or build-base is specified.",
+            "Platform 'ubuntu@24.04:amd64' declares a base and a top-level base or build-base is declared.",
+            "Remove the base from the platform's name or remove the top-level base or build-base.",
             id="build-base-and-platform-base",
         ),
         pytest.param(
@@ -433,7 +428,8 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
                     "build-for": ["ubuntu@24.04:amd64"],
                 },
             },
-            "Platform 'my-platform' specifies a base and a top-level base or build-base is specified.",
+            "Platform 'my-platform' declares a base and a top-level base or build-base is declared.",
+            "Remove the base from the platform's name or remove the top-level base or build-base.",
             id="base-and-build-on-for-base",
         ),
         pytest.param(
@@ -445,7 +441,8 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
                     "build-for": ["ubuntu@24.04:amd64"],
                 },
             },
-            "Platform 'my-platform' specifies a base and a top-level base or build-base is specified.",
+            "Platform 'my-platform' declares a base and a top-level base or build-base is declared.",
+            "Remove the base from the platform's name or remove the top-level base or build-base.",
             id="build-base-and-build-on-for-base",
         ),
         pytest.param(
@@ -458,6 +455,7 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
                 },
             },
             "Platform 'my-platform' has mismatched bases in the 'build-on' and 'build-for' entries.",
+            "Use the same base for all 'build-on' and 'build-for' entries for the platform.",
             id="build-on-for-base-mismatch",
         ),
         pytest.param(
@@ -470,6 +468,7 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
                 },
             },
             "Platform 'my-platform' has mismatched bases in the 'build-on' and 'build-for' entries.",
+            "Use the same base for all 'build-on' and 'build-for' entries for the platform.",
             id="build-on-for-base-missing",
         ),
         pytest.param(
@@ -477,22 +476,28 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
             None,
             {
                 "ubuntu@24.04:amd64": {
-                    "build-on": ["ubuntu@24.04:amd64"],
-                    "build-for": ["ubuntu@24.04:amd64"],
+                    "build-on": ["amd64"],
+                    "build-for": ["amd64"],
                 },
             },
-            "Platform 'ubuntu@24.04:amd64' declares a base in the platform name and in 'build-on' and 'build-for' entries. ",
-            id="platform-base-and-build-on-for-base",
+            "Platform 'ubuntu@24.04:amd64' declares a base in the platform's name and declares 'build-on' and 'build-for' entries.",
+            "Either remove the base from the platform's name or remove the 'build-on' and 'build-for' entries for the platform.",
+            id="platform-base-with-entries",
         ),
     ],
 )
-def test_build_plans_bad_base(base, build_base, platforms, error_msg):
-    with pytest.raises(ValueError, match=error_msg):
+def test_build_plans_bad_base(base, build_base, platforms, error_msg, error_res):
+    with pytest.raises(
+        (ValueError, craft_platforms.CraftPlatformsError), match=error_msg
+    ) as err:
         charm.get_platforms_charm_build_plan(
             base=base,
             build_base=build_base,
             platforms=platforms,
         )
+
+    if error_res and isinstance(err.value, craft_platforms.CraftPlatformsError):
+        assert err.value.resolution == error_res
 
 
 @pytest.mark.parametrize(
