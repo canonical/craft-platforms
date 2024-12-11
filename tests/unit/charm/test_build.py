@@ -284,6 +284,10 @@ def test_build_plans_success(
             None,
             None,
             {
+                "jammy": {
+                    "build-on": ["ubuntu@22.04:amd64"],
+                    "build-for": ["ubuntu@22.04:all"],
+                },
                 "noble": {
                     "build-on": ["ubuntu@24.04:amd64"],
                     "build-for": ["ubuntu@24.04:all"],
@@ -291,11 +295,17 @@ def test_build_plans_success(
             },
             [
                 craft_platforms.BuildInfo(
+                    "jammy",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    "all",
+                    craft_platforms.DistroBase("ubuntu", "22.04"),
+                ),
+                craft_platforms.BuildInfo(
                     "noble",
                     craft_platforms.DebianArchitecture("amd64"),
                     "all",
                     craft_platforms.DistroBase("ubuntu", "24.04"),
-                )
+                ),
             ],
             id="multi-base-all",
         ),
