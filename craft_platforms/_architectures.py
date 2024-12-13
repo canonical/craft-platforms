@@ -80,7 +80,7 @@ _ARCH_TRANSLATIONS_DEB_TO_PLATFORM = {
 
 
 def parse_base_and_architecture(
-    *, arch: str
+    arch: str,
 ) -> Tuple[Optional[_distro.DistroBase], Union[DebianArchitecture, Literal["all"]]]:
     """Get the debian arch and optional base from an architecture entry.
 

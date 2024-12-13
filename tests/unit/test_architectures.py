@@ -62,4 +62,4 @@ def test_debian_architecture_from_host(monkeypatch, machine):
     ],
 )
 def test_get_base_and_architecture(given, expected):
-    assert parse_base_and_architecture(arch=given) == expected
+    assert parse_base_and_architecture(given) == expected
