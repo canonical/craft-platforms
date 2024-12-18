@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   source-wheel:
-    runs-on: [self-hosted, jammy]
+    runs-on: [self-hosted]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
           git describe --dirty --long --match '[0-9]*.[0-9]*.[0-9]*' --exclude '*[^0-9.]*'
   pypi:
     needs: ["source-wheel"]
-    runs-on: [self-hosted, jammy]
+    runs-on: [self-hosted]
     if: github.ref_type == 'tag'
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
@@ -60,7 +60,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
   github-release:
     needs: ["source-wheel"]
-    runs-on: [self-hosted, jammy]
+    runs-on: [self-hosted]
     if: github.ref_type == 'tag'
     steps:
       - name: Get pypi artifacts
