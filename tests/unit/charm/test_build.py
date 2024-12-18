@@ -233,7 +233,7 @@ def test_build_plans_success(
             {"ubuntu@24.04:amd64": None},
             [
                 craft_platforms.BuildInfo(
-                    "amd64",
+                    "ubuntu@24.04:amd64",
                     craft_platforms.DebianArchitecture("amd64"),
                     craft_platforms.DebianArchitecture("amd64"),
                     craft_platforms.DistroBase("ubuntu", "24.04"),
@@ -255,7 +255,7 @@ def test_build_plans_success(
             },
             [
                 craft_platforms.BuildInfo(
-                    "amd64",
+                    "ubuntu@20.04:amd64",
                     craft_platforms.DebianArchitecture("amd64"),
                     craft_platforms.DebianArchitecture("amd64"),
                     craft_platforms.DistroBase("ubuntu", "20.04"),
@@ -318,7 +318,7 @@ def test_build_plans_success(
             },
             [
                 craft_platforms.BuildInfo(
-                    "amd64",
+                    "ubuntu@20.04:amd64",
                     craft_platforms.DebianArchitecture("amd64"),
                     craft_platforms.DebianArchitecture("amd64"),
                     craft_platforms.DistroBase("ubuntu", "20.04"),
