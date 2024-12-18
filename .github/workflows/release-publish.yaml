@@ -23,11 +23,9 @@ jobs:
           # Note: we fetch the tags here instead of using actions/checkout's "fetch-tags"
           # because of https://github.com/actions/checkout/issues/1467
           git fetch --force --tags --depth 1
-      - name: Set up uv with caching
-        id: setup-uv
-        uses: astral-sh/setup-uv@v4
-        with:
-          enable-cache: true
+      - name: Set up uv
+        run: |
+          sudo snap install --classic astral-uv
       - name: Build packages
         run: |
           uv build
