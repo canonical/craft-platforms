@@ -31,9 +31,14 @@ PlatformDict = typing.TypedDict(
         "build-for": Annotated[Sequence[str], annotated_types.Len(1)],
     },
 )
+"""The platforms where an artifact is built and where the resulting artifact runs."""
 
 
 Platforms = Dict[Union[_architectures.DebianArchitecture, str], Optional[PlatformDict]]
+"""A mapping of platforms names to ``PlatformDicts``.
+
+A ``PlatformDict`` is not required if the platform name is a supported Debian architecture.
+"""
 
 
 def get_platforms_build_plan(
