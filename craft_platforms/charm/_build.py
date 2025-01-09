@@ -27,7 +27,7 @@ DEFAULT_ARCHITECTURES: Collection[_architectures.DebianArchitecture] = (
     _architectures.DebianArchitecture.RISCV64,
     _architectures.DebianArchitecture.S390X,
 )
-"""Default architectures for building a charm
+"""Default architectures for building a charm.
 
 If no platforms are defined, the charm will be built on and for these architectures.
 """
@@ -166,7 +166,32 @@ def get_platforms_charm_build_plan(
     platforms: Optional[_platforms.Platforms],
     build_base: Optional[str] = None,
 ) -> Sequence[_buildinfo.BuildInfo]:
-    """Generate the build plan for a platforms-based charm."""
+    """Generate the build plan for a platforms-based charm.
+
+    Platforms-based charms are charms that don't use the deprecated ``bases``
+    field in their ``charmcraft.yaml``.
+
+    Multi-base recipes are supported. A multi-base recipe defines the base
+    within the ``platform`` field instead of defining ``base`` and
+    ``build-base``. For each platform, the base is either prefixed to the
+    platform name or prefixed to every ``build-on`` and ``build-for` entry.
+    In both cases, the prefixed base is delimited with a colon (``<base>:``).
+
+    :param base: The run-time environment for the charm, formatted  as
+      ``distribution@series``. If the ``build-base`` is unset, then the ``base``
+      determines the build environment.
+    :param build_base: The build environment to using when building the charm,
+      formatted as ``distribution@series``.
+    :param platforms: The mapping of platform names to ``PlatformDicts``. If
+      the ``base`` and ``build-base`` are unset, then the base must be defined
+      in the platforms.
+
+    :raises ValueError: If the build plan can't be created due to invalid base
+      and platform definitions.
+
+    :returns: A build plan describing the environments where the charm can build
+      and where the charm can run.
+    """
     if platforms is None:
         distro_base = _get_base_from_build_data(
             base=base,
