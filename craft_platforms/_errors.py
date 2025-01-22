@@ -207,3 +207,7 @@ class InvalidBaseError(CraftPlatformsError, ValueError):
 
 class RequiresBaseError(CraftPlatformsError, ValueError):
     """Error when a base is required in this configuration."""
+
+
+class InvalidMultiBaseError(CraftPlatformsError, ValueError):
+    """Error when a multi-base configuration is invalid."""

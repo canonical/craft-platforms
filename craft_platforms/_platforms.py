@@ -17,7 +17,7 @@
 
 import itertools
 import typing
-from typing import Dict, List, Optional, Sequence, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import annotated_types
 from typing_extensions import Annotated
@@ -31,9 +31,14 @@ PlatformDict = typing.TypedDict(
         "build-for": Annotated[Sequence[str], annotated_types.Len(1)],
     },
 )
+"""The platforms where an artifact is built and where the resulting artifact runs."""
 
 
 Platforms = Dict[Union[_architectures.DebianArchitecture, str], Optional[PlatformDict]]
+"""A mapping of platforms names to ``PlatformDicts``.
+
+A ``PlatformDict`` is not required if the platform name is a supported Debian architecture.
+"""
 
 
 def get_platforms_build_plan(
@@ -97,3 +102,22 @@ def get_platforms_build_plan(
             raise _errors.AllOnlyBuildError(platforms_with_all)
 
     return build_plan
+
+
+def parse_base_and_name(platform_name: str) -> Tuple[Optional[_distro.DistroBase], str]:
+    """Get the platform name and optional base from a platform name.
+
+    The platform name may have an optional base prefix as '[<base>:]<platform>'.
+
+    :param platform_name: The name of the platform.
+
+    :returns: A tuple of the DistroBase and the platform name.
+    """
+    if ":" in platform_name:
+        base_str, _, name = platform_name.partition(":")
+        base = _distro.DistroBase.from_str(base_str)
+    else:
+        base = None
+        name = platform_name
+
+    return base, name
