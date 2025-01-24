@@ -144,7 +144,7 @@ docs:  ## Build documentation
 
 .PHONY: docs-auto
 docs-auto:  ## Build and host docs with sphinx-autobuild
-	uv run --extra docs sphinx-autobuild -b html --open-browser --port=8080 --watch $(PROJECT) -W docs docs/_build
+	uv run --extra docs sphinx-autobuild -b html --open-browser --port=8080 --watch $(PROJECT) --ignore "*.kate-swp" docs docs/_build
 
 ---------------- : ## ----------------
 
