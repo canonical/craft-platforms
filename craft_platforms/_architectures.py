@@ -102,5 +102,5 @@ def parse_base_and_architecture(
 
     try:
         return base, DebianArchitecture(arch_str) if arch_str != "all" else "all"
-    except ValueError as err:
-        raise ValueError(f"{arch_str!r} is not a valid architecture.") from err
+    except ValueError:
+        raise ValueError(f"{arch_str!r} is not a valid Debian architecture.") from None
