@@ -90,6 +90,8 @@ def parse_base_and_architecture(
 
     :returns: A tuple of the DistroBase and the architecture. The architecture is either
      a DebianArchitecture or 'all'.
+
+    :raises ValueError: If the architecture or base is invalid.
     """
     if ":" in arch:
         base_str, _, arch_str = arch.partition(":")
@@ -98,4 +100,7 @@ def parse_base_and_architecture(
         base = None
         arch_str = arch
 
-    return base, DebianArchitecture(arch_str) if arch_str != "all" else "all"
+    try:
+        return base, DebianArchitecture(arch_str) if arch_str != "all" else "all"
+    except ValueError as err:
+        raise ValueError(f"{arch_str!r} is not a valid architecture.") from err

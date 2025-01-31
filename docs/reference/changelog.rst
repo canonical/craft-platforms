@@ -2,6 +2,11 @@
 Changelog
 *********
 
+X.Y.Z (2025-MM-DD)
+------------------
+
+- Improve presentation of invalid architecture error messages.
+
 0.5.0 (2024-12-18)
 ------------------
 

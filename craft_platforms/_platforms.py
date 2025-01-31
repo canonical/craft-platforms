@@ -112,6 +112,8 @@ def parse_base_and_name(platform_name: str) -> Tuple[Optional[_distro.DistroBase
     :param platform_name: The name of the platform.
 
     :returns: A tuple of the DistroBase and the platform name.
+
+    :raises ValueError: If the base is invalid.
     """
     if ":" in platform_name:
         base_str, _, name = platform_name.partition(":")
