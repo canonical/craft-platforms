@@ -317,5 +317,14 @@ def test_build_plans_bad_architecture(platforms, error_msg):
         ),
     ],
 )
-def test_get_base_and_name(given, expected):
+def test_parse_base_and_name(given, expected):
     assert craft_platforms.parse_base_and_name(given) == expected
+
+
+def test_parse_base_and_name_invalid_base():
+    expected = (
+        "Invalid base string 'unknown'. Format should be '<distribution>@<series>'"
+    )
+
+    with pytest.raises(ValueError, match=expected):
+        craft_platforms.parse_base_and_name("unknown:my-platform")
