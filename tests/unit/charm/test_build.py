@@ -510,7 +510,7 @@ def test_build_plans_bad_base(base, build_base, platforms, error_msg, error_res)
         ),
         pytest.param(
             {"my machine": {"build-on": ["my machine"], "build-for": ["amd64"]}},
-            "'my machine' is not a valid DebianArchitecture",
+            "'my machine' is not a valid Debian architecture",
             id="invalid-architecture-name",
         ),
         pytest.param(
