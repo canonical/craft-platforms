@@ -40,6 +40,9 @@ class DebianArchitecture(str, enum.Enum):
     def __str__(self) -> str:
         return self.value
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}({self.value!r})"
+
     @classmethod
     def from_machine(cls, arch: str) -> Self:
         """Get a DebianArchitecture value from the given platform arch.
