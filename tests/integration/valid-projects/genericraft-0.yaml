@@ -1,0 +1,9 @@
+description: A generic craft project file.
+base: ubuntu@4.10
+build-base: devel
+
+platforms:
+  i386:
+
+_build_plan:
+  - "BuildInfo(platform='i386', build_on=DebianArchitecture('i386'), build_for=DebianArchitecture('i386'), build_base=DistroBase(distribution='ubuntu', series='devel'))"
