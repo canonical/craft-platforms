@@ -9,6 +9,8 @@ Features
 ========
 
 - Improve presentation of invalid architecture error messages.
+- Add a generic ``get_build_plan`` function that takes the application name and the
+  basic project file dictionary and returns a build plan.
 
 0.5.0 (2024-12-18)
 ------------------

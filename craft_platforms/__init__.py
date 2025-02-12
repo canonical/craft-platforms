@@ -16,6 +16,7 @@
 """Package base for craft_platforms."""
 
 from ._architectures import DebianArchitecture, parse_base_and_architecture
+from ._build import get_build_plan
 from ._buildinfo import BuildInfo
 from . import charm, rock, snap
 from ._distro import BaseName, DistroBase, is_ubuntu_like
@@ -53,6 +54,7 @@ except ImportError:  # pragma: no cover
 __all__ = [
     "__version__",
     "DebianArchitecture",
+    "get_build_plan",
     "BuildInfo",
     "parse_base_and_architecture",
     "charm",

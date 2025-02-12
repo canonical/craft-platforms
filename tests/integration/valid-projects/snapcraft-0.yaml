@@ -1,0 +1,20 @@
+name: hello-try
+base: core24
+version: "0.1"
+summary: snapcraft try spread test
+description: snapcraft try spread test
+
+grade: stable
+confinement: strict
+
+parts:
+  hello-part:
+    plugin: nil
+
+_build_plan:
+  - "BuildInfo(platform=DebianArchitecture('amd64'), build_on=DebianArchitecture('amd64'), build_for=DebianArchitecture('amd64'), build_base=DistroBase(distribution='ubuntu', series='24.04'))"
+  - "BuildInfo(platform=DebianArchitecture('arm64'), build_on=DebianArchitecture('arm64'), build_for=DebianArchitecture('arm64'), build_base=DistroBase(distribution='ubuntu', series='24.04'))"
+  - "BuildInfo(platform=DebianArchitecture('armhf'), build_on=DebianArchitecture('armhf'), build_for=DebianArchitecture('armhf'), build_base=DistroBase(distribution='ubuntu', series='24.04'))"
+  - "BuildInfo(platform=DebianArchitecture('ppc64el'), build_on=DebianArchitecture('ppc64el'), build_for=DebianArchitecture('ppc64el'), build_base=DistroBase(distribution='ubuntu', series='24.04'))"
+  - "BuildInfo(platform=DebianArchitecture('riscv64'), build_on=DebianArchitecture('riscv64'), build_for=DebianArchitecture('riscv64'), build_base=DistroBase(distribution='ubuntu', series='24.04'))"
+  - "BuildInfo(platform=DebianArchitecture('s390x'), build_on=DebianArchitecture('s390x'), build_for=DebianArchitecture('s390x'), build_base=DistroBase(distribution='ubuntu', series='24.04'))"
