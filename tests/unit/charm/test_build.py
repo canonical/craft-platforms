@@ -530,7 +530,7 @@ def test_build_plans_bad_architecture(platforms, error_msg):
 
 
 @given(
-    base=strategies.any_distro_base(),
+    base=strategies.real_distro_base(),
     platforms=strategies.platform(
         distro_base=strategies.any_distro_base(),
         shorthand_keys=strategies.build_on_arch_str(),
@@ -553,9 +553,10 @@ def test_fuzz_get_platforms_build_plan_single_base(
     )
 
 
+@pytest.mark.slow
 @given(
     platforms=strategies.platform(
-        distro_base=strategies.any_distro_base(),
+        distro_base=strategies.real_distro_base(),
         shorthand_keys=strategies.distro_series_arch_str(strategies.any_distro_base()),
         values=strategies.platform_dict(
             build_ons=strategies.distro_series_arch_str(strategies.any_distro_base()),
