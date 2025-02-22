@@ -20,6 +20,9 @@ import itertools
 import craft_platforms
 import pytest
 import pytest_check
+from craft_platforms.test import strategies
+from hypothesis import given
+from hypothesis import strategies as hp_strat
 
 SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", "devel")
 
@@ -305,6 +308,30 @@ def test_build_plans_bad_base(base, error_msg):
 def test_build_plans_bad_architecture(platforms, error_msg):
     with pytest.raises(ValueError, match=error_msg):
         craft_platforms.get_platforms_build_plan("ubuntu@24.04", platforms)
+
+
+@pytest.mark.slow
+@given(
+    base=strategies.any_distro_base(),
+    # The generic build planner does not currently support multi-arch values.
+    platforms=strategies.platform(
+        distro_base=hp_strat.nothing(),
+        shorthand_keys=strategies.build_on_arch_str(),
+        values=strategies.platform_dict(
+            build_ons=strategies.build_on_arch_str(),
+            build_fors=strategies.build_for_arch_str(),
+        ),
+    ),
+    build_base=hp_strat.one_of(hp_strat.none(), strategies.any_distro_base()),
+)
+def test_fuzz_get_platforms_build_plan(
+    base: craft_platforms.DistroBase,
+    platforms: craft_platforms.Platforms,
+    build_base: craft_platforms.DistroBase,
+):
+    build_base_str = str(build_base) if build_base else None
+    craft_platforms.get_platforms_build_plan(base, platforms, build_base_str)
+    craft_platforms.get_platforms_build_plan(str(base), platforms, build_base_str)
 
 
 @pytest.mark.parametrize(

@@ -28,6 +28,12 @@ docs = [
     "sphinx-toolbox~=3.5",
     "sphinx-lint~=1.0.0",
 ]
+test = [
+    # Extra packages that are needed when using items from the craft-platforms.test
+    # module.
+    "pytest~=8.0",
+    "hypothesis~=6.108",
+]
 
 [tool.uv]
 constraint-dependencies = [

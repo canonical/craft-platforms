@@ -21,6 +21,9 @@ import craft_platforms
 import distro
 import pytest
 import pytest_check
+from craft_platforms.test import strategies
+from hypothesis import given
+from hypothesis import strategies as hp_strat
 
 CENTOS_7 = """\
 NAME="CentOS Linux"
@@ -263,3 +266,36 @@ def test_from_str(distro_string, expected):
 def test_from_str_error():
     with pytest.raises(ValueError, match="Invalid base string 'invalid-base'.*"):
         craft_platforms.DistroBase.from_str("invalid-base")
+
+
+@given(base=strategies.any_distro_base())
+def test_fuzz_distrobase_equality(base: craft_platforms.DistroBase):
+    assert base == base  # noqa: PLR0124
+    assert base >= base  # noqa: PLR0124
+    assert base <= base  # noqa: PLR0124
+    assert not (base > base)  # noqa: PLR0124
+    assert not (base < base)  # noqa: PLR0124
+
+
+@given(
+    distro=hp_strat.text(hp_strat.characters(blacklist_characters="@")),
+    series=hp_strat.text(hp_strat.characters(blacklist_characters="@")),
+)
+def test_fuzz_distrobase(distro: str, series: str):
+    base = craft_platforms.DistroBase(distribution=distro, series=series)
+    assert base.distribution == distro
+    assert base.series == series
+    assert str(base) == f"{distro}@{series}"
+    assert base == craft_platforms.DistroBase.from_str(f"{distro}@{series}")
+
+
+@given(hp_strat.builds(distro.LinuxDistribution))
+def test_fuzz_distrobase_from_linux_distribution(
+    distribution: distro.LinuxDistribution,
+):
+    craft_platforms.DistroBase.from_linux_distribution(distribution)
+
+
+@given(hp_strat.builds(distro.LinuxDistribution))
+def test_fuzz_is_ubuntu_like(distribution):
+    craft_platforms.is_ubuntu_like(distribution)

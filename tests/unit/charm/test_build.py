@@ -16,11 +16,15 @@
 """Tests for charmcraft builds."""
 
 import itertools
+from typing import Optional
 
 import craft_platforms
 import pytest
 import pytest_check
 from craft_platforms import charm
+from craft_platforms.test import strategies
+from hypothesis import given
+from hypothesis import strategies as hp_strat
 
 SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", "devel")
 
@@ -523,3 +527,46 @@ def test_build_plans_bad_base(base, build_base, platforms, error_msg, error_res)
 def test_build_plans_bad_architecture(platforms, error_msg):
     with pytest.raises(ValueError, match=error_msg):
         charm.get_platforms_charm_build_plan("ubuntu@24.04", platforms)
+
+
+@given(
+    base=strategies.any_distro_base(),
+    platforms=strategies.platform(
+        distro_base=strategies.any_distro_base(),
+        shorthand_keys=strategies.build_on_arch_str(),
+        values=strategies.platform_dict(
+            build_ons=strategies.build_on_arch_str(),
+            build_fors=strategies.build_for_arch_str(),
+        ),
+    ),
+    build_base=hp_strat.one_of(hp_strat.none(), strategies.any_distro_base()),
+)
+def test_fuzz_get_platforms_build_plan_single_base(
+    base: craft_platforms.DistroBase,
+    platforms: craft_platforms.Platforms,
+    build_base: Optional[craft_platforms.DistroBase],
+):
+    craft_platforms.charm.get_platforms_charm_build_plan(
+        base=str(base),
+        platforms=platforms,
+        build_base=str(build_base) if build_base else None,
+    )
+
+
+@given(
+    platforms=strategies.platform(
+        distro_base=strategies.any_distro_base(),
+        shorthand_keys=strategies.distro_series_arch_str(strategies.any_distro_base()),
+        values=strategies.platform_dict(
+            build_ons=strategies.distro_series_arch_str(strategies.any_distro_base()),
+            build_fors=strategies.distro_series_arch_str(strategies.any_distro_base()),
+        ).filter(
+            lambda p: {p["build-for"][0].partition(":")[0]}
+            == {on.partition(":")[0] for on in p["build-on"]}
+        ),
+    ),
+)
+def test_fuzz_get_platforms_build_plan_multi_base(
+    platforms: craft_platforms.Platforms,
+):
+    craft_platforms.charm.get_platforms_charm_build_plan(None, platforms)
