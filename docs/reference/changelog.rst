@@ -2,6 +2,15 @@
 Changelog
 *********
 
+0.7.0 (2025-MM-DD)
+------------------
+
+Features
+========
+
+- Add a module of :doc:`/reference/testing/strategies` to assist when testing code that
+  uses craft-platforms.
+
 0.6.0 (2025-02-11)
 ------------------
 

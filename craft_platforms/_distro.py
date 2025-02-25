@@ -109,7 +109,7 @@ class DistroBase:
             )
         )
 
-    def __lt__(self, other: Union[BaseName, tuple[str, str]]) -> bool:
+    def __lt__(self, other: Union[Self, BaseName, tuple[str, str]]) -> bool:
         self._ensure_bases_comparable(other)
         other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
@@ -118,7 +118,7 @@ class DistroBase:
         other_version_tuple = _get_series_tuple(other_version)
         return self_version_tuple < other_version_tuple
 
-    def __le__(self, other: Union[BaseName, tuple[str, str]]) -> bool:
+    def __le__(self, other: Union[Self, BaseName, tuple[str, str]]) -> bool:
         self._ensure_bases_comparable(other)
         other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
@@ -127,7 +127,7 @@ class DistroBase:
         other_version_tuple = _get_series_tuple(other_version)
         return self_version_tuple <= other_version_tuple
 
-    def __gt__(self, other: Union[BaseName, tuple[str, str]]) -> bool:
+    def __gt__(self, other: Union[Self, BaseName, tuple[str, str]]) -> bool:
         self._ensure_bases_comparable(other)
         other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
@@ -136,7 +136,7 @@ class DistroBase:
         other_version_tuple = _get_series_tuple(other_version)
         return self_version_tuple > other_version_tuple
 
-    def __ge__(self, other: Union[BaseName, tuple[str, str]]) -> bool:
+    def __ge__(self, other: Union[Self, BaseName, tuple[str, str]]) -> bool:
         self._ensure_bases_comparable(other)
         other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":

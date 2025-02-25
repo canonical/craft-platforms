@@ -8,6 +8,7 @@ Reference
 
    package
    changelog
+   testing/index
 
 Indices and tables
 ==================

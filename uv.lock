@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.8"
 resolution-markers = [
     "python_full_version >= '3.13'",
@@ -18,6 +19,7 @@ constraints = [
     { name = "pyproject-hooks", specifier = ">=1.0.0" },
     { name = "pyyaml", specifier = ">=5.0" },
     { name = "regex", specifier = ">=2021.11.10" },
+    { name = "setuptools", specifier = ">=69.0" },
     { name = "sphinx-basic-ng", specifier = ">=1.0.0b1" },
     { name = "tornado", specifier = ">=6.4.2" },
     { name = "webencodings", specifier = ">=0.4.0" },
@@ -545,6 +547,11 @@ docs = [
     { name = "sphinx-pydantic" },
     { name = "sphinx-toolbox" },
 ]
+test = [
+    { name = "hypothesis", version = "6.113.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "hypothesis", version = "6.124.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+    { name = "pytest" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -571,6 +578,8 @@ requires-dist = [
     { name = "annotated-types", specifier = ">=0.3.0" },
     { name = "canonical-sphinx", extras = ["full"], marker = "extra == 'docs'", specifier = "~=0.2" },
     { name = "distro", specifier = ">=1.6.0" },
+    { name = "hypothesis", marker = "extra == 'test'", specifier = "~=6.108" },
+    { name = "pytest", marker = "extra == 'test'", specifier = "~=8.0" },
     { name = "sphinx-autobuild", marker = "python_full_version >= '3.9' and extra == 'docs'", specifier = "~=2024.2" },
     { name = "sphinx-autobuild", marker = "python_full_version < '3.9' and extra == 'docs'" },
     { name = "sphinx-lint", marker = "extra == 'docs'", specifier = "~=1.0.0" },
@@ -578,6 +587,7 @@ requires-dist = [
     { name = "sphinx-toolbox", marker = "extra == 'docs'", specifier = "~=3.5" },
     { name = "typing-extensions", specifier = ">=4.0.0" },
 ]
+provides-extras = ["docs", "test"]
 
 [package.metadata.requires-dev]
 dev = [
