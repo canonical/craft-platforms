@@ -44,7 +44,7 @@ setup-tests: install-uv install-venv  ##- Set up a testing environment without l
 
 .PHONY: setup-lint
 setup-lint: install-uv install-shellcheck install-ruff install-codespell ##- Set up a linting environment
-	uv sync --frozen --no-dev --no-install-workspace --extra lint --extra types
+	uv sync --frozen --no-install-workspace
 
 .PHONY: setup-docs
 setup-docs: install-uv  ##- Set up a documentation-only environment
@@ -110,7 +110,7 @@ lint-shellcheck: install-shellcheck  ##- Lint shell scripts
 
 .PHONY: lint-yaml
 lint-yaml:  ##- Lint YAML files with yamllint
-	uv run --extra lint yamllint .
+	uv run yamllint .
 
 .PHONY: lint-docs
 lint-docs:  ##- Lint the documentation
