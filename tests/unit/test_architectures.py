@@ -19,6 +19,8 @@ import platform
 
 import pytest
 from craft_platforms import DebianArchitecture, DistroBase, parse_base_and_architecture
+from craft_platforms.test import strategies
+from hypothesis import given
 
 
 @pytest.mark.parametrize(
@@ -61,5 +63,32 @@ def test_debian_architecture_from_host(monkeypatch, machine):
         ("ubuntu@24.04:all", (DistroBase("ubuntu", "24.04"), "all")),
     ],
 )
-def test_get_base_and_architecture(given, expected):
+def test_parse_base_and_architecture(given, expected):
     assert parse_base_and_architecture(given) == expected
+
+
+def test_parse_base_and_architecture_invalid_arch():
+    expected = "'unknown' is not a valid Debian architecture."
+
+    with pytest.raises(ValueError, match=expected):
+        parse_base_and_architecture("unknown")
+
+
+def test_parse_base_and_architecture_invalid_base():
+    expected = (
+        "Invalid base string 'unknown'. Format should be '<distribution>@<series>'"
+    )
+
+    with pytest.raises(ValueError, match=expected):
+        parse_base_and_architecture("unknown:riscv64")
+
+
+@given(
+    base=strategies.any_distro_base(),
+    arch=strategies.build_for_arch_str(),
+)
+def test_fuzz_parse_base_and_architecture(base, arch):
+    out_base, out_arch = parse_base_and_architecture(f"{base}:{arch}")
+
+    assert out_base == base
+    assert out_arch == arch

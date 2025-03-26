@@ -2,6 +2,25 @@
 Changelog
 *********
 
+0.7.0 (2025-MM-DD)
+------------------
+
+Features
+========
+
+- Add a module of :doc:`/reference/testing/strategies` to assist when testing code that
+  uses craft-platforms.
+
+0.6.0 (2025-02-11)
+------------------
+
+Features
+========
+
+- Improve presentation of invalid architecture error messages.
+- Add a generic ``get_build_plan`` function that takes the application name and the
+  basic project file dictionary and returns a build plan.
+
 0.5.0 (2024-12-18)
 ------------------
 

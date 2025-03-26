@@ -70,6 +70,7 @@ exclude_patterns = [
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
+    "hypothesis": ("https://hypothesis.readthedocs.io/en/latest", None),
 }
 
 # Type annotations config
