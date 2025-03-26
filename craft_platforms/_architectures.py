@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import enum
 import platform
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal, NamedTuple, Optional, Tuple, Union
 
 from typing_extensions import Self
 
@@ -64,6 +64,36 @@ class DebianArchitecture(str, enum.Enum):
         :returns: A string matching what platform.machine() or uname -m would return.
         """
         return _ARCH_TRANSLATIONS_DEB_TO_PLATFORM.get(self.value, self.value)
+
+    def to_go(self) -> GoArchitecture:
+        """Convert this architecture value to a Go architecture."""
+        return GoArchitecture[self.name]
+
+
+class GoArchitectureValue(NamedTuple):
+    """A value for a single Go architecture."""
+
+    arch: str
+    variant: str | None = None
+
+
+class GoArchitecture(enum.Enum):
+    """An architecture for Go.
+
+    The names of these values are Debian architecture names; the values are Go arches.
+    """
+
+    AMD64 = GoArchitectureValue("amd64")
+    ARM64 = GoArchitectureValue("arm64", "v8")
+    ARMHF = GoArchitectureValue("arm", "v7")
+    I386 = GoArchitectureValue("386")
+    PPC64EL = GoArchitectureValue("ppc64le")
+    RISCV64 = GoArchitectureValue("riscv64")
+    S390X = GoArchitectureValue("s390x")
+
+    def to_debian(self) -> DebianArchitecture:
+        """Convert this go architecture to a Debian architecture."""
+        return DebianArchitecture[self.name]
 
 
 # architecture translations from the platform syntax to the deb/snap syntax

@@ -195,8 +195,7 @@ def get_platforms_snap_build_plan(
     """
     distro_base = get_snap_base(base=base, build_base=build_base, snap_type=snap_type)
     if not platforms:
-        platforms = {
-            arch: None
-            for arch in get_default_architectures(base or build_base or "default")
-        }
+        platforms = dict.fromkeys(
+            get_default_architectures(base or build_base or "default")
+        )
     return _platforms.get_platforms_build_plan(distro_base, platforms)
