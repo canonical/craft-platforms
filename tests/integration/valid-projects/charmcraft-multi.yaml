@@ -33,7 +33,6 @@ parts:
     plugin: charm
     source: .
 
-
 _build_plan:
   - "BuildInfo(platform='ubuntu@20.04:amd64', build_on=DebianArchitecture('amd64'), build_for=DebianArchitecture('amd64'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
   - "BuildInfo(platform='ubuntu@20.04:riscv64', build_on=DebianArchitecture('riscv64'), build_for=DebianArchitecture('riscv64'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
