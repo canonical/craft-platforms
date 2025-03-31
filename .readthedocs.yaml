@@ -7,17 +7,26 @@ version: 2
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
+  builder: dirhtml
   configuration: docs/conf.py
+
+# Optionally build your docs in additional formats such as PDF
+# formats:
+#  - pdf
+#  - epub
 
 build:
   os: ubuntu-24.04
   tools:
     python: "3.8"
-
-python:
-  install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - docs
-        - test
+  jobs:
+    post_checkout:
+      - git fetch --tags --unshallow # Also fetch tags
+    post_system_dependencies:
+      - asdf plugin add uv
+      - asdf install uv latest
+      - asdf global uv latest
+    create_environment:
+      - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
+    install:
+      - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --group docs
