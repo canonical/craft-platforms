@@ -538,21 +538,6 @@ dependencies = [
     { name = "typing-extensions" },
 ]
 
-[package.optional-dependencies]
-docs = [
-    { name = "canonical-sphinx", extra = ["full"] },
-    { name = "sphinx-autobuild", version = "2021.3.14", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
-    { name = "sphinx-autobuild", version = "2024.10.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-    { name = "sphinx-lint" },
-    { name = "sphinx-pydantic" },
-    { name = "sphinx-toolbox" },
-]
-test = [
-    { name = "hypothesis", version = "6.113.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
-    { name = "hypothesis", version = "6.124.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-    { name = "pytest" },
-]
-
 [package.dev-dependencies]
 dev = [
     { name = "build" },
@@ -561,7 +546,6 @@ dev = [
     { name = "hypothesis", version = "6.113.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "hypothesis", version = "6.124.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "mypy", extra = ["reports"] },
-    { name = "pyright" },
     { name = "pytest" },
     { name = "pytest-check" },
     { name = "pytest-cov" },
@@ -572,22 +556,32 @@ dev = [
     { name = "types-setuptools" },
     { name = "yamllint" },
 ]
+docs = [
+    { name = "canonical-sphinx", extra = ["full"] },
+    { name = "sphinx-autobuild", version = "2021.3.14", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "sphinx-autobuild", version = "2024.10.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+    { name = "sphinx-lint" },
+    { name = "sphinx-pydantic" },
+    { name = "sphinx-toolbox" },
+]
+lint = [
+    { name = "yamllint" },
+]
+test = [
+    { name = "hypothesis", version = "6.113.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "hypothesis", version = "6.124.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+    { name = "pytest" },
+]
+types = [
+    { name = "mypy", extra = ["reports"] },
+]
 
 [package.metadata]
 requires-dist = [
     { name = "annotated-types", specifier = ">=0.3.0" },
-    { name = "canonical-sphinx", extras = ["full"], marker = "extra == 'docs'", specifier = "~=0.2" },
     { name = "distro", specifier = ">=1.6.0" },
-    { name = "hypothesis", marker = "extra == 'test'", specifier = "~=6.108" },
-    { name = "pytest", marker = "extra == 'test'", specifier = "~=8.0" },
-    { name = "sphinx-autobuild", marker = "python_full_version >= '3.9' and extra == 'docs'", specifier = "~=2024.2" },
-    { name = "sphinx-autobuild", marker = "python_full_version < '3.9' and extra == 'docs'" },
-    { name = "sphinx-lint", marker = "extra == 'docs'", specifier = "~=1.0.0" },
-    { name = "sphinx-pydantic", marker = "extra == 'docs'", specifier = "~=0.1.1" },
-    { name = "sphinx-toolbox", marker = "extra == 'docs'", specifier = "~=3.5" },
     { name = "typing-extensions", specifier = ">=4.0.0" },
 ]
-provides-extras = ["docs", "test"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -595,7 +589,6 @@ dev = [
     { name = "coverage", extras = ["toml"], specifier = "~=7.4" },
     { name = "hypothesis", specifier = ">=6.108" },
     { name = "mypy", extras = ["reports"], specifier = "~=1.11" },
-    { name = "pyright", specifier = "==1.1.398" },
     { name = "pytest", specifier = "~=8.0" },
     { name = "pytest-check", specifier = "~=2.3" },
     { name = "pytest-cov", specifier = "~=5.0" },
@@ -606,6 +599,20 @@ dev = [
     { name = "types-setuptools" },
     { name = "yamllint", specifier = "~=1.34" },
 ]
+docs = [
+    { name = "canonical-sphinx", extras = ["full"], specifier = "~=0.2" },
+    { name = "sphinx-autobuild", marker = "python_full_version < '3.9'" },
+    { name = "sphinx-autobuild", marker = "python_full_version >= '3.9'", specifier = "~=2024.2" },
+    { name = "sphinx-lint", specifier = "~=1.0.0" },
+    { name = "sphinx-pydantic", specifier = "~=0.1.1" },
+    { name = "sphinx-toolbox", specifier = "~=3.5" },
+]
+lint = [{ name = "yamllint", specifier = "~=1.34" }]
+test = [
+    { name = "hypothesis", specifier = "~=6.108" },
+    { name = "pytest", specifier = "~=8.0" },
+]
+types = [{ name = "mypy", extras = ["reports"], specifier = "~=1.11" }]
 
 [[package]]
 name = "cssutils"
@@ -1448,15 +1455,6 @@ wheels = [
 ]
 
 [[package]]
-name = "nodeenv"
-version = "1.9.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/43/16/fc88b08840de0e0a72a2f9d8c6bae36be573e475a6326ae854bcc549fc45/nodeenv-1.9.1.tar.gz", hash = "sha256:6ec12890a2dab7946721edbfbcd91f3319c6ccc9aec47be7c7e6b7011ee6645f", size = 47437 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d2/1d/1b658dbd2b9fa9c4c9f32accbfc0205d532c8c6194dc0f2a4c0428e7128a/nodeenv-1.9.1-py2.py3-none-any.whl", hash = "sha256:ba11c9782d29c27c70ffbdda2d7415098754709be8a7056d79a737cd901155c9", size = 22314 },
-]
-
-[[package]]
 name = "packaging"
 version = "24.2"
 source = { registry = "https://pypi.org/simple" }
@@ -1641,19 +1639,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e7/82/28175b2414effca1cdac8dc99f76d660e7a4fb0ceefa4b4ab8f5f6742925/pyproject_hooks-1.2.0.tar.gz", hash = "sha256:1e859bd5c40fae9448642dd871adf459e5e2084186e8d2c2a79a824c970da1f8", size = 19228 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bd/24/12818598c362d7f300f18e74db45963dbcb85150324092410c8b49405e42/pyproject_hooks-1.2.0-py3-none-any.whl", hash = "sha256:9e5c6bfa8dcc30091c74b0cf803c81fdd29d94f01992a7707bc97babb1141913", size = 10216 },
-]
-
-[[package]]
-name = "pyright"
-version = "1.1.398"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "nodeenv" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/24/d6/48740f1d029e9fc4194880d1ad03dcf0ba3a8f802e0e166b8f63350b3584/pyright-1.1.398.tar.gz", hash = "sha256:357a13edd9be8082dc73be51190913e475fa41a6efb6ec0d4b7aab3bc11638d8", size = 3892675 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/58/e0/5283593f61b3c525d6d7e94cfb6b3ded20b3df66e953acaf7bb4f23b3f6e/pyright-1.1.398-py3-none-any.whl", hash = "sha256:0a70bfd007d9ea7de1cf9740e1ad1a40a122592cfe22a3f6791b06162ad08753", size = 5780235 },
 ]
 
 [[package]]
