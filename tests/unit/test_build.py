@@ -15,10 +15,9 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Unit tests for build functions."""
 
-import pytest
-from craft_platforms import _build
-
 from unittest.mock import Mock, call
+
+from craft_platforms import _build
 
 
 def test_get_snapcraft_build_plan(monkeypatch):
