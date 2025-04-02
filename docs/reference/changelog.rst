@@ -2,7 +2,7 @@
 Changelog
 *********
 
-0.7.0 (2025-MM-DD)
+0.7.0 (2025-04-02)
 ------------------
 
 Features
@@ -10,6 +10,10 @@ Features
 
 - Add a module of :doc:`/reference/testing/strategies` to assist when testing code that
   uses craft-platforms.
+
+Bug Fixes
+
+- Properly pass snap type to obtain a Snapcraft build plan.
 
 0.6.0 (2025-02-11)
 ------------------
