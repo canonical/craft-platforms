@@ -13,7 +13,7 @@ Features
 
 Bug Fixes
 
-- Properly pass snap type to obtain a Snapcraft build plan.
+- Pass the correct type when obtaining a Snapcraft build plan.
 
 0.6.0 (2025-02-11)
 ------------------
