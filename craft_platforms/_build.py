@@ -48,8 +48,13 @@ def get_build_plan(
     """
     planner = _APP_SPECIFIC_PLANNERS.get(app, get_platforms_build_plan)
 
-    return planner(
-        base=project_data.get("base"),
-        platforms=project_data.get("platforms"),
-        build_base=project_data.get("build-base"),
-    )
+    args = {
+        "base": project_data.get("base"),
+        "platforms": project_data.get("platforms"),
+        "build_base": project_data.get("build-base"),
+    }
+
+    if app == "snapcraft":
+        args["snap_type"] = project_data.get("type")
+
+    return planner(**args)

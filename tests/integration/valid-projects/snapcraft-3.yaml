@@ -1,0 +1,18 @@
+name: core24
+summary: test for build plan with snap type
+description: test for build plan with snap type
+confinement: strict
+type: base
+build-base: core24
+grade: stable
+assumes: [snapd2.55.5]
+
+platforms:
+  amd64:
+
+parts:
+  base:
+    plugin: nil
+
+_build_plan:
+  - "BuildInfo(platform='amd64', build_on=DebianArchitecture('amd64'), build_for=DebianArchitecture('amd64'), build_base=DistroBase(distribution='ubuntu', series='24.04'))"
