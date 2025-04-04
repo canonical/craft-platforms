@@ -12,6 +12,7 @@ Features
   uses craft-platforms.
 
 Bug Fixes
+=========
 
 - Pass the correct type when obtaining a Snapcraft build plan.
 
