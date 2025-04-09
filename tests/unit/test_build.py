@@ -38,11 +38,18 @@ def test_get_snapcraft_build_plan(monkeypatch):
     ]
 
 
+# This should be a set of all apps that should not be concerned with bare bases
+_APPS_WITHOUT_BARE_BASES = {
+    "charmcraft",
+}
+
+
 @pytest.mark.parametrize(
     ("app"),
     [
-        *_build._APP_SPECIFIC_PLANNERS.keys(),
-        "snarfcraft",  # An app with no particular planner
+        *(_build._APP_SPECIFIC_PLANNERS.keys() - _APPS_WITHOUT_BARE_BASES),
+        # An app with no particular planner
+        "snarfcraft",
     ],
 )
 def test_bare_base_no_build_base(app: str) -> None:
