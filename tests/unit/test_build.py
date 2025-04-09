@@ -41,7 +41,7 @@ def test_get_snapcraft_build_plan(monkeypatch):
 @pytest.mark.parametrize(
     ("app"),
     [
-        *_build._APP_SPECIFIC_PLANNERS,
+        *_build._APP_SPECIFIC_PLANNERS.keys(),
         "snarfcraft",  # An app with no particular planner
     ],
 )
