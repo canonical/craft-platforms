@@ -17,7 +17,7 @@
 
 from typing import Any, Callable, Dict, Iterable
 
-from craft_platforms import charm, rock, snap
+from craft_platforms import _errors, charm, rock, snap
 from craft_platforms._buildinfo import BuildInfo
 from craft_platforms._platforms import get_platforms_build_plan
 
@@ -39,6 +39,7 @@ def get_build_plan(
     :param project_data: The raw dictionary of the project's YAML file. Normally this
         is what's output from ``yaml.safe_load()``.
     :returns: An iterable containing each possible BuildInfo for this file.
+    :raises NeedBuildBaseError: If the base is bare and no build base is specified
 
     This function is an abstraction layer over the general build planners, taking
     the application's name and its raw data and returning an exhaustive build plan
@@ -53,6 +54,10 @@ def get_build_plan(
         "platforms": project_data.get("platforms"),
         "build_base": project_data.get("build-base"),
     }
+
+    # Bare bases require a build_base
+    if args["base"] == "bare" and args["build_base"] is None:
+        raise _errors.NeedBuildBaseError(base=args["base"])
 
     if app == "snapcraft":
         args["snap_type"] = project_data.get("type")

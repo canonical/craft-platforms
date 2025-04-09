@@ -17,7 +17,8 @@
 
 from unittest.mock import Mock, call
 
-from craft_platforms import _build
+import pytest
+from craft_platforms import _build, _errors
 
 
 def test_get_snapcraft_build_plan(monkeypatch):
@@ -35,3 +36,23 @@ def test_get_snapcraft_build_plan(monkeypatch):
     assert fake_build_plan.mock_calls == [
         call(base="core22", build_base="core24", platforms={}, snap_type="base")
     ]
+
+
+@pytest.mark.parametrize(
+    ("app"),
+    [
+        *_build._APP_SPECIFIC_PLANNERS,
+        "snarfcraft",  # An app with no particular planner
+    ],
+)
+def test_bare_base_no_build_base(app: str) -> None:
+    """Make sure that an error is raised if base=="bare" but build-base==None"""
+    args = {
+        "base": "bare",
+        "build_base": None,
+        "platforms": {
+            "amd64": None,
+        },
+    }
+    with pytest.raises(_errors.NeedBuildBaseError):
+        _build.get_build_plan(app, project_data=args)
