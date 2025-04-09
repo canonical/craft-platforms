@@ -34,6 +34,9 @@ def get_rock_build_plan(
     :param platforms: the platforms structure in ``rockcraft.yaml``
     :param build_base: the build base, if provided in ``rockcraft.yaml``.
     """
+    if base == "bare" and build_base is None:
+        raise _errors.NeedBuildBaseError(base=base)
+
     for name, platform in platforms.items():
         if platform and "all" in platform.get("build-for", []):
             raise _errors.InvalidPlatformError(

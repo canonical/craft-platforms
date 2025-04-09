@@ -2,6 +2,14 @@
 Changelog
 *********
 
+0.7.1 (2025-MM-DD)
+
+Bug Fixes
+=========
+
+- The "bare" base for Rockcraft was not properly handled. An error will now be raised
+  if "bare" is specified with no "build-base".
+
 0.7.0 (2025-04-02)
 ------------------
 
