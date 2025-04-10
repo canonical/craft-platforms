@@ -33,7 +33,7 @@ def get_rock_build_plan(
     :param base: the rock base (e.g. ``'ubuntu@24.04'``)
     :param platforms: the platforms structure in ``rockcraft.yaml``
     :param build_base: the build base, if provided in ``rockcraft.yaml``.
-    :raises NeedsBuildBaseError: If base is bare and build_base is empty
+    :raises NeedsBuildBaseError: If base is bare and no build base is specified
     """
     # Bare bases require a build_base
     if base == "bare" and build_base is None:
