@@ -20,7 +20,7 @@ import itertools
 import craft_platforms
 import pytest
 import pytest_check
-from craft_platforms import _build, _errors, rock
+from craft_platforms import _errors, rock
 
 SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", "devel")
 
@@ -266,14 +266,7 @@ def test_build_plans_bad_architecture(platforms, error_msg):
         rock.get_rock_build_plan("ubuntu@24.04", platforms)
 
 
-def test_bare_base_no_build_base(app: str) -> None:
+def test_bare_base_no_build_base() -> None:
     """Make sure that an error is raised if base=="bare" but build-base==None"""
-    args = {
-        "base": "bare",
-        "build_base": None,
-        "platforms": {
-            "amd64": None,
-        },
-    }
     with pytest.raises(_errors.NeedBuildBaseError):
-        _build.get_build_plan(app, project_data=args)
+        rock.get_rock_build_plan("bare", platforms={"amd64": None}, build_base=None)
