@@ -8,7 +8,7 @@ Changelog
 Features
 ========
 
-- Legacy rockcraft base strings ``ubuntu:20.04`` and ``ubuntu:22.04`` are supported.
+- Legacy rockcraft base strings ``ubuntu:20.04`` and ``ubuntu:22.04`` are now supported.
 
 0.7.1 (2025-04-10)
 ------------------
