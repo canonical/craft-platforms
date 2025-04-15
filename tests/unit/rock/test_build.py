@@ -42,6 +42,11 @@ SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", 
             )
             for version in SAMPLE_UBUNTU_VERSIONS
         ],
+        # Legacy base strings containing colons
+        ("ubuntu:20.04", None, craft_platforms.DistroBase.from_str("ubuntu@20.04")),
+        ("ubuntu:22.04", None, craft_platforms.DistroBase.from_str("ubuntu@22.04")),
+        ("bare", "ubuntu:20.04", craft_platforms.DistroBase.from_str("ubuntu@20.04")),
+        ("bare", "ubuntu:22.04", craft_platforms.DistroBase.from_str("ubuntu@22.04")),
     ],
 )
 @pytest.mark.parametrize(
