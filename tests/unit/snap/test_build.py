@@ -50,6 +50,19 @@ PLATFORMS_AND_EXPECTED_ARCHES = [
     *[
         pytest.param(
             {
+                architecture.value: {
+                    "build-on": architecture.value,
+                    "build-for": architecture.value,
+                },
+            },
+            {architecture.value: [(architecture.value, architecture.value)]},
+            id=f"explicit-scalar-{architecture.value}",
+        )
+        for architecture in craft_platforms.DebianArchitecture
+    ],
+    *[
+        pytest.param(
+            {
                 "my-platform": {
                     "build-on": [
                         arch.value for arch in craft_platforms.DebianArchitecture
@@ -64,6 +77,26 @@ PLATFORMS_AND_EXPECTED_ARCHES = [
                 ],
             },
             id=f"build-on-any-for-{build_for_arch.value}",
+        )
+        for build_for_arch in craft_platforms.DebianArchitecture
+    ],
+    *[
+        pytest.param(
+            {
+                "my-platform": {
+                    "build-on": [
+                        arch.value for arch in craft_platforms.DebianArchitecture
+                    ],
+                    "build-for": build_for_arch.value,
+                },
+            },
+            {
+                "my-platform": [
+                    (arch.value, build_for_arch.value)
+                    for arch in craft_platforms.DebianArchitecture
+                ],
+            },
+            id=f"build-on-any-for-scalar-{build_for_arch.value}",
         )
         for build_for_arch in craft_platforms.DebianArchitecture
     ],
