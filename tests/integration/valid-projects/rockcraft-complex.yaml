@@ -6,7 +6,18 @@ summary: A rock that bundles a Python project.
 description: A rock that bundles a Python project.
 license: GPL-3.0
 platforms:
+  # Empty platform
   amd64:
+  # Build-on, but no build-for, vectorised build-on
+  armhf:
+    build-on: [arm64, armhf]
+  # Build-on but no build-for, scalar
+  arm64:
+    build-on: amd64
+  # Scalar build-for, vector build-on
+  i386:
+    build-on: [amd64]
+    build-for: i386
   s390x:
     build-on: [s390x, arm64]
     build-for: [s390x]
@@ -29,6 +40,10 @@ parts:
 
 _build_plan:
   - "BuildInfo(platform='amd64', build_on=DebianArchitecture('amd64'), build_for=DebianArchitecture('amd64'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
+  - "BuildInfo(platform='armhf', build_on=DebianArchitecture('arm64'), build_for=DebianArchitecture('armhf'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
+  - "BuildInfo(platform='armhf', build_on=DebianArchitecture('armhf'), build_for=DebianArchitecture('armhf'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
+  - "BuildInfo(platform='arm64', build_on=DebianArchitecture('amd64'), build_for=DebianArchitecture('arm64'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
+  - "BuildInfo(platform='i386', build_on=DebianArchitecture('amd64'), build_for=DebianArchitecture('i386'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
   - "BuildInfo(platform='s390x', build_on=DebianArchitecture('s390x'), build_for=DebianArchitecture('s390x'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
   - "BuildInfo(platform='s390x', build_on=DebianArchitecture('arm64'), build_for=DebianArchitecture('s390x'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
   - "BuildInfo(platform='riscv64', build_on=DebianArchitecture('riscv64'), build_for=DebianArchitecture('riscv64'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
