@@ -76,6 +76,19 @@ SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", 
         *[
             pytest.param(
                 {
+                    architecture.value: {
+                        "build-on": architecture.value,
+                        "build-for": architecture.value,
+                    },
+                },
+                {architecture.value: [(architecture.value, architecture.value)]},
+                id=f"explicit-scalar-{architecture.value}",
+            )
+            for architecture in craft_platforms.DebianArchitecture
+        ],
+        *[
+            pytest.param(
+                {
                     "my-platform": {
                         "build-on": [
                             arch.value for arch in craft_platforms.DebianArchitecture
@@ -90,6 +103,26 @@ SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", 
                     ],
                 },
                 id=f"build-on-any-for-{build_for_arch.value}",
+            )
+            for build_for_arch in craft_platforms.DebianArchitecture
+        ],
+        *[
+            pytest.param(
+                {
+                    "my-platform": {
+                        "build-on": [
+                            arch.value for arch in craft_platforms.DebianArchitecture
+                        ],
+                        "build-for": [build_for_arch.value],
+                    },
+                },
+                {
+                    "my-platform": [
+                        (arch.value, build_for_arch.value)
+                        for arch in craft_platforms.DebianArchitecture
+                    ],
+                },
+                id=f"build-on-any-for-scalar-{build_for_arch.value}",
             )
             for build_for_arch in craft_platforms.DebianArchitecture
         ],

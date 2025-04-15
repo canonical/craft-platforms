@@ -18,7 +18,14 @@
 import itertools
 from typing import Collection, List, Optional, Sequence
 
-from craft_platforms import _architectures, _buildinfo, _distro, _errors, _platforms
+from craft_platforms import (
+    _architectures,
+    _buildinfo,
+    _distro,
+    _errors,
+    _platforms,
+    _utils,
+)
 
 DEFAULT_ARCHITECTURES: Collection[_architectures.DebianArchitecture] = (
     _architectures.DebianArchitecture.AMD64,
@@ -73,7 +80,10 @@ def _validate_base_definition(
             )
         # create a set of the bases defined in the build-on and build-for entries
         bases = set()
-        for entry in [*platform["build-on"], *platform["build-for"]]:
+        for entry in [
+            *_utils.vectorize(platform["build-on"]),
+            *_utils.vectorize(platform["build-for"]),
+        ]:
             distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
             bases.add(str(distro_base) if distro_base else None)
 
@@ -152,7 +162,7 @@ def _get_base_from_build_data(
         # need to check one of them
         if platform:
             build_for_base, _ = _architectures.parse_base_and_architecture(
-                arch=platform["build-for"][0]
+                arch=_utils.vectorize(platform["build-for"])[0]
             )
             if build_for_base:
                 return build_for_base
@@ -244,8 +254,8 @@ def get_platforms_charm_build_plan(
             )
         else:
             for build_on, build_for in itertools.product(
-                platform["build-on"],
-                platform["build-for"],
+                _utils.vectorize(platform["build-on"]),
+                _utils.vectorize(platform["build-for"]),
             ):
                 _, build_on_arch = _architectures.parse_base_and_architecture(
                     arch=build_on

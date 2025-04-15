@@ -15,13 +15,14 @@ platforms:
   ubuntu@22.04:amd64:
   ubuntu@22.04:riscv64:
 
-  # standard syntax
+  # standard syntax - lists
   noble-amd64:
     build-on: ["ubuntu@24.04:amd64"]
     build-for: ["ubuntu@24.04:amd64"]
+  # standard syntax - scalars
   noble-riscv64:
-    build-on: ["ubuntu@24.04:riscv64"]
-    build-for: ["ubuntu@24.04:riscv64"]
+    build-on: "ubuntu@24.04:riscv64"
+    build-for: "ubuntu@24.04:riscv64"
 
   # Cross compile
   noble-cross:

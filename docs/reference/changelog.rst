@@ -9,6 +9,7 @@ Features
 ========
 
 - Legacy rockcraft base strings ``ubuntu:20.04`` and ``ubuntu:22.04`` are now supported.
+- Allow scalar ``build-on`` and ``build-for`` values in Platforms.
 
 0.7.1 (2025-04-10)
 ------------------

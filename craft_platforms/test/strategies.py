@@ -251,14 +251,22 @@ def platform_dict(
         build_fors = build_for_str(real_distro_base())
     return {
         "build-on": draw(
-            strategies.lists(
+            strategies.one_of(
+                strategies.lists(
+                    build_ons,
+                    min_size=1,
+                    max_size=max_build_ons,
+                    unique_by=lambda x: tuple(sorted(x)),
+                ),
                 build_ons,
-                min_size=1,
-                max_size=max_build_ons,
-                unique_by=lambda x: tuple(sorted(x)),
             )
         ),
-        "build-for": [draw(build_fors)],
+        "build-for": draw(
+            strategies.one_of(
+                build_fors,
+                strategies.lists(build_fors, min_size=1, max_size=1),  # or list of them
+            )
+        ),
     }
 
 
