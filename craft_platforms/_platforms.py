@@ -22,13 +22,13 @@ from typing import Dict, List, Optional, Sequence, Tuple, Union
 import annotated_types
 from typing_extensions import Annotated
 
-from craft_platforms import _architectures, _buildinfo, _distro, _errors
+from craft_platforms import _architectures, _buildinfo, _distro, _errors, _utils
 
 PlatformDict = typing.TypedDict(
     "PlatformDict",
     {
-        "build-on": Sequence[str],
-        "build-for": Annotated[Sequence[str], annotated_types.Len(1)],
+        "build-on": Union[Sequence[str], str],
+        "build-for": Union[Annotated[Sequence[str], annotated_types.Len(1)], str],
     },
 )
 """The platforms where an artifact is built and where the resulting artifact runs."""
@@ -75,8 +75,8 @@ def get_platforms_build_plan(
             )
         else:
             for build_on, build_for in itertools.product(
-                platform["build-on"],
-                platform.get("build-for", [platform_name]),
+                _utils.vectorize(platform["build-on"]),
+                _utils.vectorize(platform.get("build-for", [platform_name])),
             ):
                 build_plan.append(
                     _buildinfo.BuildInfo(

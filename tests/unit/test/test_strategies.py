@@ -19,6 +19,7 @@ from typing import Dict, Union
 
 import craft_platforms
 import pytest
+from craft_platforms import _utils
 from craft_platforms.test import strategies
 from hypothesis import given
 
@@ -99,12 +100,13 @@ def test_build_for_str(build_for_str: str):
 
 def check_platform_dict(platform_dict: Union[dict, craft_platforms.PlatformDict]):
     assert platform_dict.keys() == {"build-on", "build-for"}
+    build_fors = _utils.vectorize(platform_dict["build-for"])
 
-    for build_on in platform_dict["build-on"]:
+    for build_on in _utils.vectorize(platform_dict["build-on"]):
         _, build_arch = craft_platforms.parse_base_and_architecture(build_on)
         assert isinstance(build_arch, craft_platforms.DebianArchitecture)
-    assert len(platform_dict["build-for"]) == 1
-    craft_platforms.parse_base_and_architecture(platform_dict["build-for"][0])
+    assert len(build_fors) == 1
+    craft_platforms.parse_base_and_architecture(build_fors[0])
 
 
 @given(strategies.platform_dict(max_build_ons=None))

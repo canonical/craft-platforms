@@ -2,7 +2,17 @@
 Changelog
 *********
 
+0.8.0 (2025-04-16)
+------------------
+
+Features
+========
+
+- Allow scalar ``build-on`` and ``build-for`` values in Platforms.
+
+
 0.7.1 (2025-04-10)
+------------------
 
 Bug Fixes
 =========
