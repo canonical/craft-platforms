@@ -131,6 +131,34 @@ SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", 
             )
             for arch in craft_platforms.DebianArchitecture
         ),
+        pytest.param(
+            {
+                "🐉🎄 Ⓣ卄Ｉ𝐬 ⓘ𝕊 α ש𝓐𝐋𝐢𝓓 ρｌάţƑᵒᖇ𝔪 ᑎคⓜⒺ 👣♡": {  # noqa: RUF001
+                    "build-on": ["amd64"],
+                    "build-for": ["all"],
+                }
+            },
+            {
+                "🐉🎄 Ⓣ卄Ｉ𝐬 ⓘ𝕊 α ש𝓐𝐋𝐢𝓓 ρｌάţƑᵒᖇ𝔪 ᑎคⓜⒺ 👣♡": [  # noqa: RUF001
+                    (craft_platforms.DebianArchitecture.AMD64, "all"),
+                ],
+            },
+            id="crazy-text",
+        ),
+        pytest.param(
+            {
+                "ǝɯɐu ɯɹoɟʇɐld pılɐʌ ɐ sı sıɥ⊥": {  # noqa: RUF001
+                    "build-on": ["amd64"],
+                    "build-for": ["all"],
+                }
+            },
+            {
+                "ǝɯɐu ɯɹoɟʇɐld pılɐʌ ɐ sı sıɥ⊥": [  # noqa: RUF001
+                    (craft_platforms.DebianArchitecture.AMD64, "all"),
+                ],
+            },
+            id="southern-hemisphere-validity",
+        ),
     ],
 )
 def test_build_plans_success(
