@@ -9,7 +9,7 @@ Changelog
 Features
 ========
 
-- Update the ``__repr__`` of DebianArchitectures to product the representation of the
+- Update the ``__repr__`` of DebianArchitectures to produce the representation of the
   string value, to conform with the common Craft idiom of using a string's
   representation in user-facing messages.
 
