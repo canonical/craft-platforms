@@ -31,7 +31,7 @@ jobs:
           if ty check 2>&1 > ${{ runner.temp }}/ty.log; then
             echo 'Type checking with `ty` succeeded' > ${{ runner.temp }}/comment.txt
           else
-            echo 'Type checking with `ty` failed' > ${{ runner.temp }}/comment.txt
+            echo 'Type checking with `ty` failed. This is a notification only and does not require action.' > ${{ runner.temp }}/comment.txt
           fi
           echo "<details><summary>Command output</summary>" >> ${{ runner.temp }}/comment.txt
           echo -e '\n```' >> ${{ runner.temp }}/comment.txt
