@@ -77,3 +77,17 @@ endif
 # If additional build dependencies need installing in order to build the linting env.
 .PHONY: install-lint-build-deps
 install-lint-build-deps:
+
+# Experimental: type check with ty
+.PHONY: lint-ty
+lint-ty: install-ty
+	ty check
+
+.PHONY: install-ty
+ifneq ($(shell which ty),)
+else ifneq ($(shell which snap),)
+	sudo snap install --edge astral-ty
+	sudo snap alias astral-ty.ty ty
+else ifneq ($(shell which uv),)
+	uv tool install ty
+endif
