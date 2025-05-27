@@ -2,6 +2,17 @@
 Changelog
 *********
 
+
+0.9.0 (2025-05-27)
+------------------
+
+Features
+========
+
+- Update the ``__repr__`` of DebianArchitectures to produce the representation of the
+  string value, to conform with the common Craft idiom of using a string's
+  representation in user-facing messages.
+
 0.8.0 (2025-04-16)
 ------------------
 
