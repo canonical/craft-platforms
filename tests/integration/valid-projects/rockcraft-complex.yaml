@@ -39,11 +39,11 @@ parts:
       - check-pythonpath.py
 
 _build_plan:
-  - "BuildInfo(platform='amd64', build_on=DebianArchitecture('amd64'), build_for=DebianArchitecture('amd64'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
-  - "BuildInfo(platform='armhf', build_on=DebianArchitecture('arm64'), build_for=DebianArchitecture('armhf'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
-  - "BuildInfo(platform='armhf', build_on=DebianArchitecture('armhf'), build_for=DebianArchitecture('armhf'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
-  - "BuildInfo(platform='arm64', build_on=DebianArchitecture('amd64'), build_for=DebianArchitecture('arm64'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
-  - "BuildInfo(platform='i386', build_on=DebianArchitecture('amd64'), build_for=DebianArchitecture('i386'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
-  - "BuildInfo(platform='s390x', build_on=DebianArchitecture('s390x'), build_for=DebianArchitecture('s390x'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
-  - "BuildInfo(platform='s390x', build_on=DebianArchitecture('arm64'), build_for=DebianArchitecture('s390x'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
-  - "BuildInfo(platform='riscv64', build_on=DebianArchitecture('riscv64'), build_for=DebianArchitecture('riscv64'), build_base=DistroBase(distribution='ubuntu', series='20.04'))"
+  - "BuildInfo(platform='amd64', build_on='amd64', build_for='amd64', build_base=DistroBase(distribution='ubuntu', series='20.04'))"
+  - "BuildInfo(platform='armhf', build_on='arm64', build_for='armhf', build_base=DistroBase(distribution='ubuntu', series='20.04'))"
+  - "BuildInfo(platform='armhf', build_on='armhf', build_for='armhf', build_base=DistroBase(distribution='ubuntu', series='20.04'))"
+  - "BuildInfo(platform='arm64', build_on='amd64', build_for='arm64', build_base=DistroBase(distribution='ubuntu', series='20.04'))"
+  - "BuildInfo(platform='i386', build_on='amd64', build_for='i386', build_base=DistroBase(distribution='ubuntu', series='20.04'))"
+  - "BuildInfo(platform='s390x', build_on='s390x', build_for='s390x', build_base=DistroBase(distribution='ubuntu', series='20.04'))"
+  - "BuildInfo(platform='s390x', build_on='arm64', build_for='s390x', build_base=DistroBase(distribution='ubuntu', series='20.04'))"
+  - "BuildInfo(platform='riscv64', build_on='riscv64', build_for='riscv64', build_base=DistroBase(distribution='ubuntu', series='20.04'))"

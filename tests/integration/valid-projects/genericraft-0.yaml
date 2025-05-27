@@ -6,4 +6,4 @@ platforms:
   i386:
 
 _build_plan:
-  - "BuildInfo(platform='i386', build_on=DebianArchitecture('i386'), build_for=DebianArchitecture('i386'), build_base=DistroBase(distribution='ubuntu', series='devel'))"
+  - "BuildInfo(platform='i386', build_on='i386', build_for='i386', build_base=DistroBase(distribution='ubuntu', series='devel'))"

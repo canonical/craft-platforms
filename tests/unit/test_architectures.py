@@ -92,3 +92,10 @@ def test_fuzz_parse_base_and_architecture(base, arch):
 
     assert out_base == base
     assert out_arch == arch
+
+
+@pytest.mark.parametrize("deb_arch", list(DebianArchitecture))
+def test_debian_architecture_repr(deb_arch: DebianArchitecture):
+    """Test that the repr of DebianArchitectures is the repr of their string value."""
+    arch_str = deb_arch.value
+    assert f"{deb_arch!r}" == f"{arch_str!r}"
