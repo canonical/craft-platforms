@@ -165,16 +165,16 @@ def test_distro_base_equality(base, other, expected):
         ],
     ],
 )
-def test_distro_base_difference_success(smaller, bigger):
-    with pytest_check.check():
+def test_distro_base_difference_success(check, smaller, bigger):
+    with check():
         assert bigger > smaller
-    with pytest_check.check():
+    with check():
         assert bigger >= smaller
-    with pytest_check.check():
+    with check():
         assert smaller <= bigger
-    with pytest_check.check():
+    with check():
         assert smaller < bigger
-    with pytest_check.check():
+    with check():
         assert bigger != smaller
 
 
@@ -186,42 +186,26 @@ def test_distro_base_difference_success(smaller, bigger):
         *list(itertools.product(ALL_DEBIAN, ALL_ALMA)),
     ],
 )
-def test_compare_incompatible_distros(first, second):
+def test_compare_incompatible_distros(check, first, second):
     pytest_check.is_false(first == second)
     pytest_check.is_false(second == first)
     pytest_check.is_true(first != second)
     pytest_check.is_true(second != first)
-    with pytest_check.raises(
-        ValueError,
-    ):  # pyright: ignore[reportOptionalContextManager]
+    with check.raises(ValueError):
         assert first > second
-    with pytest_check.raises(
-        ValueError,
-    ):  # pyright: ignore[reportOptionalContextManager]
+    with check.raises(ValueError):
         assert first >= second
-    with pytest_check.raises(
-        ValueError,
-    ):  # pyright: ignore[reportOptionalContextManager]
+    with check.raises(ValueError):
         assert first <= second
-    with pytest_check.raises(
-        ValueError,
-    ):  # pyright: ignore[reportOptionalContextManager]
+    with check.raises(ValueError):
         assert first < second
-    with pytest_check.raises(
-        ValueError,
-    ):  # pyright: ignore[reportOptionalContextManager]
+    with check.raises(ValueError):
         assert second > first
-    with pytest_check.raises(
-        ValueError,
-    ):  # pyright: ignore[reportOptionalContextManager]
+    with check.raises(ValueError):
         assert second >= first
-    with pytest_check.raises(
-        ValueError,
-    ):  # pyright: ignore[reportOptionalContextManager]
+    with check.raises(ValueError):
         assert second <= first
-    with pytest_check.raises(
-        ValueError,
-    ):  # pyright: ignore[reportOptionalContextManager]
+    with check.raises(ValueError):
         assert second < first
 
 

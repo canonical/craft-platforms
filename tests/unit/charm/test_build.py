@@ -136,6 +136,7 @@ SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", 
     ],
 )
 def test_build_plans_success(
+    check,
     base,
     build_base,
     expected_base,
@@ -150,9 +151,9 @@ def test_build_plans_success(
     )
 
     for build_item in build_plan:
-        with pytest_check.check():
+        with check():
             assert build_item.build_base == expected_base
-        with pytest_check.check():
+        with check():
             assert (build_item.build_on, build_item.build_for) in platform_archs[
                 build_item.platform
             ]
