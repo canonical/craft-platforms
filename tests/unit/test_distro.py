@@ -210,6 +210,36 @@ def test_compare_incompatible_distros(check, first, second):
 
 
 @pytest.mark.parametrize(
+    ("first", "second"),
+    [
+        (NOBLE, ("ubuntu", "24.04", "this should not be here.")),
+        (NOBLE, ("ubuntu", 24.04)),
+    ],
+)
+def test_compare_incompatible_types(check, first, second):
+    pytest_check.is_false(first == second)
+    pytest_check.is_false(second == first)
+    pytest_check.is_true(first != second)
+    pytest_check.is_true(second != first)
+    with check.raises(TypeError):
+        assert first > second
+    with check.raises(TypeError):
+        assert first >= second
+    with check.raises(TypeError):
+        assert first <= second
+    with check.raises(TypeError):
+        assert first < second
+    with check.raises(TypeError):
+        assert second > first
+    with check.raises(TypeError):
+        assert second >= first
+    with check.raises(TypeError):
+        assert second <= first
+    with check.raises(TypeError):
+        assert second < first
+
+
+@pytest.mark.parametrize(
     ("os_release", "expected"),
     [
         (CENTOS_7, False),
