@@ -20,7 +20,7 @@ from __future__ import annotations
 import contextlib
 import dataclasses
 import typing
-from typing import List, Union
+from typing import List, Union, cast
 
 import distro
 from typing_extensions import Self
@@ -69,6 +69,18 @@ def _get_series(base: Union[DistroBase, BaseName] | tuple[str, str]) -> str:
     return base[1]
 
 
+def _is_distrobase_compatible(item: object) -> bool:
+    """Check if the given object is compatible for comparison with a DistroBase."""
+    if isinstance(item, (DistroBase, BaseName)):
+        return True
+    return (
+        isinstance(item, tuple)
+        and len(item) == 2  # noqa: PLR2004 (if it's a tuple, it'll be ('distro', 'series'))
+        and isinstance(item[0], str)
+        and isinstance(item[1], str)
+    )
+
+
 @dataclasses.dataclass(repr=True)
 class DistroBase:
     """A linux distribution base."""
@@ -92,15 +104,15 @@ class DistroBase:
             )
 
     def __eq__(self, other: object, /) -> bool:
-        if isinstance(other, (DistroBase, BaseName, tuple)):
-            other_distro = _get_distro(other)
-            other_series = _get_series(other)
-        else:
+        if not _is_distrobase_compatible(other):
             return NotImplemented
+        other = cast("DistroBase | BaseName | tuple[str, str]", other)
+        other_distro = _get_distro(other)
 
         if self.distribution != other_distro:
             return False
 
+        other_series = _get_series(other)
         # The series is allowed to be more specific on one side.
         return all(
             this_part == other_part
@@ -109,7 +121,10 @@ class DistroBase:
             )
         )
 
-    def __lt__(self, other: Union[Self, BaseName, tuple[str, str]]) -> bool:
+    def __lt__(self, other: object) -> bool:
+        if not _is_distrobase_compatible(other):
+            return NotImplemented
+        other = cast("DistroBase | BaseName | tuple[str, str]", other)
         self._ensure_bases_comparable(other)
         other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
@@ -118,7 +133,10 @@ class DistroBase:
         other_version_tuple = _get_series_tuple(other_version)
         return self_version_tuple < other_version_tuple
 
-    def __le__(self, other: Union[Self, BaseName, tuple[str, str]]) -> bool:
+    def __le__(self, other: object) -> bool:
+        if not _is_distrobase_compatible(other):
+            return NotImplemented
+        other = cast("DistroBase | BaseName | tuple[str, str]", other)
         self._ensure_bases_comparable(other)
         other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
@@ -127,7 +145,10 @@ class DistroBase:
         other_version_tuple = _get_series_tuple(other_version)
         return self_version_tuple <= other_version_tuple
 
-    def __gt__(self, other: Union[Self, BaseName, tuple[str, str]]) -> bool:
+    def __gt__(self, other: object) -> bool:
+        if not _is_distrobase_compatible(other):
+            return NotImplemented
+        other = cast("DistroBase | BaseName | tuple[str, str]", other)
         self._ensure_bases_comparable(other)
         other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
@@ -136,7 +157,10 @@ class DistroBase:
         other_version_tuple = _get_series_tuple(other_version)
         return self_version_tuple > other_version_tuple
 
-    def __ge__(self, other: Union[Self, BaseName, tuple[str, str]]) -> bool:
+    def __ge__(self, other: object) -> bool:
+        if not _is_distrobase_compatible(other):
+            return NotImplemented
+        other = cast("DistroBase | BaseName | tuple[str, str]", other)
         self._ensure_bases_comparable(other)
         other_version = _get_series(other)
         if self.series == "devel" or other_version == "devel":
