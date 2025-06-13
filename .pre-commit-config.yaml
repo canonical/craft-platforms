@@ -13,12 +13,12 @@ repos:
       - id: fix-byte-order-marker
       - id: mixed-line-ending
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.11.2"
+    rev: "v0.11.13"
     hooks:
       - id: ruff-format
       - id: ruff
         args: [--fix]
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: "v1.35.1"
+    rev: "v1.37.1"
     hooks:
       - id: yamllint

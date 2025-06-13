@@ -50,6 +50,19 @@ PLATFORMS_AND_EXPECTED_ARCHES = [
     *[
         pytest.param(
             {
+                architecture.value: {
+                    "build-on": architecture.value,
+                    "build-for": architecture.value,
+                },
+            },
+            {architecture.value: [(architecture.value, architecture.value)]},
+            id=f"explicit-scalar-{architecture.value}",
+        )
+        for architecture in craft_platforms.DebianArchitecture
+    ],
+    *[
+        pytest.param(
+            {
                 "my-platform": {
                     "build-on": [
                         arch.value for arch in craft_platforms.DebianArchitecture
@@ -64,6 +77,26 @@ PLATFORMS_AND_EXPECTED_ARCHES = [
                 ],
             },
             id=f"build-on-any-for-{build_for_arch.value}",
+        )
+        for build_for_arch in craft_platforms.DebianArchitecture
+    ],
+    *[
+        pytest.param(
+            {
+                "my-platform": {
+                    "build-on": [
+                        arch.value for arch in craft_platforms.DebianArchitecture
+                    ],
+                    "build-for": build_for_arch.value,
+                },
+            },
+            {
+                "my-platform": [
+                    (arch.value, build_for_arch.value)
+                    for arch in craft_platforms.DebianArchitecture
+                ],
+            },
+            id=f"build-on-any-for-scalar-{build_for_arch.value}",
         )
         for build_for_arch in craft_platforms.DebianArchitecture
     ],
@@ -289,6 +322,7 @@ def test_get_snap_base_specific_errors(base, build_base, snap_type, match):
 )
 @pytest.mark.parametrize("snap_type", ["app", "core", "gadget", "kernel", None])
 def test_get_platforms_snap_build_plan_success(
+    check,
     base: str,
     build_base: Optional[str],
     expected_base: craft_platforms.DistroBase,
@@ -304,9 +338,9 @@ def test_get_platforms_snap_build_plan_success(
     )
 
     for build_item in build_plan:
-        with pytest_check.check():
+        with check():
             assert build_item.build_base == expected_base
-        with pytest_check.check():
+        with check():
             assert (build_item.build_on, build_item.build_for) in expected_archs[
                 build_item.platform
             ]
@@ -328,6 +362,7 @@ def test_get_platforms_snap_build_plan_success(
     PLATFORMS_AND_EXPECTED_ARCHES,
 )
 def test_get_platforms_snap_build_plan_base_snap_success(
+    check,
     build_base: str,
     expected_base: craft_platforms.DistroBase,
     platforms: Union[craft_platforms.Platforms, None],
@@ -341,9 +376,9 @@ def test_get_platforms_snap_build_plan_base_snap_success(
     )
 
     for build_item in build_plan:
-        with pytest_check.check():
+        with check():
             assert build_item.build_base == expected_base
-        with pytest_check.check():
+        with check():
             assert (build_item.build_on, build_item.build_for) in expected_archs[
                 build_item.platform
             ]

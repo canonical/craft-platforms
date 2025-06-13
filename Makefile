@@ -12,205 +12,82 @@ endif
 
 .SHELLFLAGS = -ec
 
-.PHONY: help
-help: ## Show this help.
-	@printf "%-41s %s\n" "Target" "Description"
-	@printf "%-41s %s\n" "------" "-----------"
-	@fgrep " ##" $(MAKEFILE_LIST) | fgrep -v grep | sed 's/:[^#]*/ /' | awk -F '[: ]*' \
-	'{
-		if ($$2 == "##")
-		{
-			$$1=sprintf("%-40s", $$1);
-			$$2="";
-			print $$0;
-		}
-		else
-		{
-			$$1=sprintf(" └%-38s", $$1);
-			$$2="";
-			print $$0;
-		}
-	}'
+UV_TEST_GROUPS := "--group=dev"
+UV_DOCS_GROUPS := "--group=docs"
+UV_LINT_GROUPS := "--group=lint" "--group=types"
 
----------------- : ## ----------------
+# If you have dev dependencies that depend on your distro version, uncomment these:
+# ifneq ($(wildcard /etc/os-release),)
+# include /etc/os-release
+# endif
+# ifdef VERSION_CODENAME
+# UV_TEST_GROUPS += "--group=dev-$(VERSION_CODENAME)"
+# UV_DOCS_GROUPS += "--group=dev-$(VERSION_CODENAME)"
+# UV_LINT_GROUPS += "--group=dev-$(VERSION_CODENAME)"
+# endif
 
-.PHONY: setup
-setup: install-uv setup-precommit ## Set up a development environment
-	uv sync --frozen --all-extras
-
-.PHONY: setup-tests
-setup-tests: install-uv install-venv  ##- Set up a testing environment without linters
-	uv sync --frozen
-
-.PHONY: setup-lint
-setup-lint: install-uv install-shellcheck install-ruff install-codespell ##- Set up a linting environment
-	uv sync --frozen --no-install-workspace
-
-.PHONY: setup-docs
-setup-docs: install-uv  ##- Set up a documentation-only environment
-	uv sync --frozen --no-dev --no-install-workspace --extra docs
-
-.PHONY: setup-precommit
-setup-precommit: install-uv  ##- Set up pre-commit hooks in this repository.
-ifeq ($(shell which pre-commit),)
-	uv tool install pre-commit
-endif
-	pre-commit install
-
----------------- : ## ----------------
+include common.mk
 
 .PHONY: format
-format: format-ruff format-codespell  ## Run all automatic formatters
-
-.PHONY: format-ruff
-format-ruff:  ##- Automatically format with ruff
-	success=true
-	ruff check --fix $(SOURCES) || success=false
-	ruff format $(SOURCES)
-	$$success || exit 1
-
-.PHONY: format-codespell
-format-codespell:  ##- Fix spelling issues with codespell
-	codespell --toml pyproject.toml --write-changes $(SOURCES)
-
-.PHONY: autoformat
-autoformat: format  # Alias for 'format'
-
----------------- : ## ----------------
+format: format-ruff format-codespell format-prettier  ## Run all automatic formatters
 
 .PHONY: lint
-lint: lint-ruff lint-codespell lint-mypy lint-pyright lint-shellcheck lint-yaml lint-docs  ## Run all linters
+lint: lint-ruff lint-codespell lint-mypy lint-prettier lint-pyright lint-shellcheck lint-docs lint-twine  ## Run all linters
 
-.PHONY: lint-ruff
-lint-ruff: install-ruff  ##- Lint with ruff
-	ruff check $(SOURCES)
-	ruff format --diff $(SOURCES)
+.PHONY: pack
+pack: pack-pip  ## Build all packages
 
-.PHONY: lint-codespell
-lint-codespell: install-codespell  ##- Check spelling with codespell
-	codespell --toml pyproject.toml $(SOURCES)
+.PHONY: pack-snap
+pack-snap: snap/snapcraft.yaml  ##- Build snap package
+ifeq ($(shell which snapcraft),)
+	sudo snap install --classic snapcraft
+endif
+	snapcraft pack
 
-.PHONY: lint-mypy
-lint-mypy:  ##- Check types with mypy
-	uv run mypy --show-traceback --show-error-codes $(PROJECT)
+.PHONY: publish
+publish: publish-pypi  ## Publish packages
 
-.PHONY: lint-pyright
-lint-pyright:  ##- Check types with pyright
-ifneq ($(shell which pyright),)
-	pyright --pythonpath .venv/bin/python
+.PHONY: publish-pypi
+publish-pypi: clean package-pip lint-twine  ##- Publish Python packages to pypi
+	uv tool run twine upload dist/*
+
+# Find dependencies that need installing
+APT_PACKAGES :=
+ifeq ($(wildcard /usr/include/libxml2/libxml/xpath.h),)
+APT_PACKAGES += libxml2-dev
+endif
+ifeq ($(wildcard /usr/include/libxslt/xslt.h),)
+APT_PACKAGES += libxslt1-dev
+endif
+ifeq ($(wildcard /usr/share/doc/python3-venv/copyright),)
+APT_PACKAGES += python3-venv
+endif
+
+# Used for installing build dependencies in CI.
+.PHONY: install-build-deps
+install-build-deps: install-lint-build-deps
+ifeq ($(APT_PACKAGES),)
+else ifeq ($(shell which apt-get),)
+	$(warning Cannot install build dependencies without apt.)
+	$(warning Please ensure the equivalents to these packages are installed: $(APT_PACKAGES))
 else
-	# Fix for a bug in npm
-	[ -d "/home/ubuntu/.npm/_cacache" ] && chown -R 1000:1000 "/home/ubuntu/.npm" || true
-	uv run pyright
+	sudo $(APT) install $(APT_PACKAGES)
 endif
 
-.PHONY: lint-shellcheck
-lint-shellcheck: install-shellcheck  ##- Lint shell scripts
-	git ls-files | file --mime-type -Nnf- | grep shellscript | cut -f1 -d: | xargs -r shellcheck
+# If additional build dependencies need installing in order to build the linting env.
+.PHONY: install-lint-build-deps
+install-lint-build-deps:
 
-.PHONY: lint-yaml
-lint-yaml:  ##- Lint YAML files with yamllint
-	uv run yamllint .
+# Experimental: type check with ty
+.PHONY: lint-ty
+lint-ty: install-ty
+	ty check
 
-.PHONY: lint-docs
-lint-docs:  ##- Lint the documentation
-	uv run --extra docs sphinx-lint --max-line-length 88 --enable all $(DOCS)
-
----------------- : ## ----------------
-
-.PHONY: test
-test: test-unit test-integration  ## Run all tests
-
-.PHONY: test-unit
-test-unit:  ##- Run unit tests
-	uv run pytest tests/unit
-
-.PHONY: test-integration
-test-integration:  ##- Run integration tests
-	uv run pytest tests/integration
-
-.PHONY: test-coverage
-test-coverage:  ## Generate coverage report
-	uv run coverage run --source $(PROJECT) -m pytest tests
-	uv run coverage xml -o coverage.xml
-	uv run coverage report -m
-	uv run coverage html
-
----------------- : ## ----------------
-
-.PHONY: docs
-docs:  ## Build documentation
-	uv run --extra docs sphinx-build -b html -W docs docs/_build
-
-.PHONY: docs-auto
-docs-auto:  ## Build and host docs with sphinx-autobuild
-	uv run --extra docs sphinx-autobuild -b html --open-browser --port=8080 --watch $(PROJECT) -W docs docs/_build
-
----------------- : ## ----------------
-
-.PHONY: package
-package: package-pip  ## Build all packages
-
-.PHONY: package-pip
-package-pip:  ##- Build packages for pip (sdist, wheel)
-	uv run pyproject-build --installer uv .
-
----------------- : ## ----------------
-
-.PHONY: clean
-clean:  ## Clean up the development environment
-	uv tool run pyclean .
-	rm -rf dist/ build/ docs/_build/ *.snap .coverage*
-
----------------- : ## ----------------
-
-# Below are intermediate targets for setup. They are not included in help as they should
-# not be used independently.
-
-.PHONY: install-uv
-install-uv:
-ifneq ($(shell which uv),)
+.PHONY: install-ty
+ifneq ($(shell which ty),)
 else ifneq ($(shell which snap),)
-	sudo snap install --classic astral-uv
-else ifneq ($(shell which brew),)
-	brew install uv
-else ifeq ($(OS),Windows_NT)
-	powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-else
-	curl -LsSf https://astral.sh/uv/install.sh | sh
-endif
-
-.PHONY: install-venv
-install-venv:
-ifneq ($(shell which apt-get),)
-	sudo apt-get --yes install python3-venv
-endif
-
-.PHONY: install-codespell
-install-codespell:
-ifneq ($(shell which codespell),)
-else ifneq ($(shell which snap),)
-	sudo snap install codespell
-else ifneq ($(shell which brew),)
-	make install-uv
-	uv tool install codespell
-endif
-
-.PHONY: install-ruff
-install-ruff:
-ifneq ($(shell which ruff),)
-else ifneq ($(shell which snap),)
-	sudo snap install ruff
-else
-	make install-uv
-	uv tool install ruff
-endif
-
-.PHONY: install-shellcheck
-install-shellcheck:
-ifneq ($(shell which shellcheck),)
-else ifneq ($(shell which snap),)
-	sudo snap install shellcheck
-else ifneq ($(shell which brew),)
-	brew install shellcheck
+	sudo snap install --edge astral-ty
+	sudo snap alias astral-ty.ty ty
+else ifneq ($(shell which uv),)
+	uv tool install ty
 endif

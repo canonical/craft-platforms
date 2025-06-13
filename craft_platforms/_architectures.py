@@ -41,7 +41,12 @@ class DebianArchitecture(str, enum.Enum):
         return self.value
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.value!r})"
+        """Generate the repr of the string value.
+
+        This is different from the Python/StringEnum default because of the very common
+        idiom in Craft codebases of using a string's repr to pretty-print to users.
+        """
+        return f"{self.value!r}"
 
     @classmethod
     def from_machine(cls, arch: str) -> Self:

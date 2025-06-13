@@ -186,7 +186,7 @@ def get_platforms_snap_build_plan(
     snap_type: Optional[str] = None,
     platforms: Union[_platforms.Platforms, None],
 ) -> Sequence[_buildinfo.BuildInfo]:
-    """Generate the build plan for a platforms-based charm.
+    """Generate the build plan for a platforms-based snap.
 
     :param base: The ``base`` string in ``snapcraft.yaml`` (or ``None`` if not given)
     :param build_base: The ``build-base`` string in ``snapcraft.yaml`` (or ``None`` if

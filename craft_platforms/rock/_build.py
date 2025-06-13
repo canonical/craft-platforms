@@ -19,6 +19,11 @@ from typing import Optional, Sequence
 
 from craft_platforms import _buildinfo, _errors, _platforms
 
+_LEGACY_BASES_MAP = {
+    "ubuntu:20.04": "ubuntu@20.04",
+    "ubuntu:22.04": "ubuntu@22.04",
+}
+
 
 def get_rock_build_plan(
     base: str,
@@ -33,7 +38,17 @@ def get_rock_build_plan(
     :param base: the rock base (e.g. ``'ubuntu@24.04'``)
     :param platforms: the platforms structure in ``rockcraft.yaml``
     :param build_base: the build base, if provided in ``rockcraft.yaml``.
+    :raises NeedsBuildBaseError: If base is bare and no build base is specified
     """
+    # Bare bases require a build_base
+    if base == "bare" and build_base is None:
+        raise _errors.NeedBuildBaseError(base=base)
+
+    if base in _LEGACY_BASES_MAP:
+        base = _LEGACY_BASES_MAP[base]
+    if build_base in _LEGACY_BASES_MAP:
+        build_base = _LEGACY_BASES_MAP[build_base]
+
     for name, platform in platforms.items():
         if platform and "all" in platform.get("build-for", []):
             raise _errors.InvalidPlatformError(

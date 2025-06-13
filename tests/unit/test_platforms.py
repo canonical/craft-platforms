@@ -73,6 +73,19 @@ SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", 
         *(
             pytest.param(
                 {
+                    architecture.value: {
+                        "build-on": architecture.value,
+                        "build-for": architecture.value,
+                    },
+                },
+                {architecture.value: [(architecture.value, architecture.value)]},
+                id=f"explicit-scalar-{architecture.value}",
+            )
+            for architecture in craft_platforms.DebianArchitecture
+        ),
+        *(
+            pytest.param(
+                {
                     "my-platform": {
                         "build-on": [
                             arch.value for arch in craft_platforms.DebianArchitecture
@@ -92,6 +105,26 @@ SAMPLE_UBUNTU_VERSIONS = ("16.04", "18.04", "20.04", "22.04", "24.04", "24.10", 
         ),
         *(
             pytest.param(
+                {
+                    "my-platform": {
+                        "build-on": [
+                            arch.value for arch in craft_platforms.DebianArchitecture
+                        ],
+                        "build-for": build_for_arch.value,
+                    },
+                },
+                {
+                    "my-platform": [
+                        (arch.value, build_for_arch.value)
+                        for arch in craft_platforms.DebianArchitecture
+                    ],
+                },
+                id=f"build-on-any-for-scalar-{build_for_arch.value}",
+            )
+            for build_for_arch in craft_platforms.DebianArchitecture
+        ),
+        *(
+            pytest.param(
                 {"my-platform": {"build-on": [arch.value], "build-for": ["all"]}},
                 {"my-platform": [(arch, "all")]},
                 id=f"on-{arch.value}-for-all",
@@ -106,6 +139,7 @@ def test_build_plans_success(
     expected_base,
     platforms,
     platform_archs,
+    check,
 ):
     """Shallow test for success on a large number of platform items."""
     build_plan = craft_platforms.get_platforms_build_plan(
@@ -115,9 +149,9 @@ def test_build_plans_success(
     )
 
     for build_item in build_plan:
-        with pytest_check.check():
+        with check():
             assert build_item.build_base == expected_base
-        with pytest_check.check():
+        with check():
             assert (build_item.build_on, build_item.build_for) in platform_archs[
                 build_item.platform
             ]

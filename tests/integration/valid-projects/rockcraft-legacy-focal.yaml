@@ -1,5 +1,5 @@
-name: base-2004
-base: ubuntu@20.04
+name: legacy-2004
+base: ubuntu:20.04
 
 version: "0.1"
 summary: A rock that bundles a Python project.

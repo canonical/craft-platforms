@@ -1,5 +1,5 @@
-name: base-2004
-base: ubuntu@20.04
+name: legacy-2204
+base: ubuntu:22.04
 
 version: "0.1"
 summary: A rock that bundles a Python project.
@@ -22,4 +22,4 @@ parts:
       - check-pythonpath.py
 
 _build_plan:
-  - "BuildInfo(platform='amd64', build_on='amd64', build_for='amd64', build_base=DistroBase(distribution='ubuntu', series='20.04'))"
+  - "BuildInfo(platform='amd64', build_on='amd64', build_for='amd64', build_base=DistroBase(distribution='ubuntu', series='22.04'))"

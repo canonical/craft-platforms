@@ -2,7 +2,36 @@
 Changelog
 *********
 
-0.7.0 (2025-MM-DD)
+
+0.9.0 (2025-05-27)
+------------------
+
+Features
+========
+
+- Update the ``__repr__`` of DebianArchitectures to produce the representation of the
+  string value, to conform with the common Craft idiom of using a string's
+  representation in user-facing messages.
+
+0.8.0 (2025-04-16)
+------------------
+
+Features
+========
+
+- Legacy rockcraft base strings ``ubuntu:20.04`` and ``ubuntu:22.04`` are now supported.
+- Allow scalar ``build-on`` and ``build-for`` values in Platforms.
+
+0.7.1 (2025-04-10)
+------------------
+
+Bug Fixes
+=========
+
+- The ``bare`` base for Rockcraft was not properly handled. An error will now be raised
+  if ``bare`` is specified with no ``build-base``.
+
+0.7.0 (2025-04-02)
 ------------------
 
 Features
@@ -10,6 +39,11 @@ Features
 
 - Add a module of :doc:`/reference/testing/strategies` to assist when testing code that
   uses craft-platforms.
+
+Bug Fixes
+=========
+
+- Pass the correct type when obtaining a Snapcraft build plan.
 
 0.6.0 (2025-02-11)
 ------------------
