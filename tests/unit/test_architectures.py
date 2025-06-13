@@ -112,7 +112,7 @@ def test_convert_arch(go_arch: GoArchitecture, debian_arch: DebianArchitecture):
     assert debian_arch.to_go().to_debian() == debian_arch
     assert go_arch.to_debian().to_go() == go_arch
 
-    
+
 @pytest.mark.parametrize("deb_arch", list(DebianArchitecture))
 def test_debian_architecture_repr(deb_arch: DebianArchitecture):
     """Test that the repr of DebianArchitectures is the repr of their string value."""
