@@ -34,7 +34,6 @@ dev = [
     "pytest-cov~=5.0",
     "pytest-mock~=3.12",
     "pyyaml~=6.0",
-    "yamllint~=1.34",
     "mypy[reports]~=1.11",
     "types-Pygments",
     "types-colorama",
@@ -56,9 +55,7 @@ test = [
     "pytest~=8.0",
     "hypothesis~=6.108",
 ]
-lint = [
-    "yamllint~=1.34",
-]
+lint = []
 types = [
     "mypy[reports]~=1.11",
 ]
