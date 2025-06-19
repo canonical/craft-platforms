@@ -19,6 +19,7 @@ import platform
 
 import pytest
 from craft_platforms import DebianArchitecture, DistroBase, parse_base_and_architecture
+from craft_platforms._architectures import GoArchitecture
 from craft_platforms.test import strategies
 from hypothesis import given
 
@@ -92,6 +93,24 @@ def test_fuzz_parse_base_and_architecture(base, arch):
 
     assert out_base == base
     assert out_arch == arch
+
+
+@pytest.mark.parametrize(
+    ("go_arch", "debian_arch"),
+    [
+        # All pairs
+        *zip(GoArchitecture, DebianArchitecture),
+        # Specific examples
+        (GoArchitecture.PPC64EL, DebianArchitecture.PPC64EL),
+        (GoArchitecture.RISCV64, DebianArchitecture.RISCV64),
+    ],
+)
+def test_convert_arch(go_arch: GoArchitecture, debian_arch: DebianArchitecture):
+    assert go_arch.to_debian() == debian_arch
+    assert debian_arch.to_go() == go_arch
+
+    assert debian_arch.to_go().to_debian() == debian_arch
+    assert go_arch.to_debian().to_go() == go_arch
 
 
 @pytest.mark.parametrize("deb_arch", list(DebianArchitecture))
