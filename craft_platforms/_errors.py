@@ -33,8 +33,8 @@ class CraftError(typing.Protocol):
     resolution: Optional[str]
 
 
-@dataclasses.dataclass()
-class CraftPlatformsError(Exception):
+@dataclasses.dataclass(unsafe_hash=True)
+class CraftPlatformsError(Exception):  # noqa: PLW1641 (https://github.com/astral-sh/ruff/issues/18905)
     """Signal a program error with a lot of information to report."""
 
     message: str
