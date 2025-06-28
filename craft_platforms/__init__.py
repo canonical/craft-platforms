@@ -15,7 +15,12 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Package base for craft_platforms."""
 
-from ._architectures import DebianArchitecture, parse_base_and_architecture
+from ._architectures import (
+    DebianArchitecture,
+    GoArchitectureValue,
+    GoArchitecture,
+    parse_base_and_architecture,
+)
 from ._build import get_build_plan
 from ._buildinfo import BuildInfo
 from . import charm, rock, snap
