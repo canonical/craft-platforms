@@ -305,7 +305,7 @@ def get_bases_charm_build_plan(
     bases: Sequence[Dict[str, Any]],
 ) -> Sequence[_buildinfo.BuildInfo]:
     """Get a build plan for a legacy "bases" based charm."""
-    plan = []
+    plan: List[_buildinfo.BuildInfo] = []
     for base in bases:
         plan.extend(_gen_build_plan_for_base(base))
     return plan
