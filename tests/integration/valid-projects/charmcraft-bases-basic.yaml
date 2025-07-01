@@ -1,0 +1,19 @@
+name: example-charm
+summary: An example charm with the legacy bases keyword
+description: |
+  A description for an example charm with the legacy bases keyword.
+type: charm
+bases:
+  - name: ubuntu
+    channel: "22.04"
+
+parts:
+  charm:
+    plugin: charm
+
+_build_plan:
+  - "BuildInfo(platform='ubuntu-22.04-amd64', build_on='amd64', build_for='amd64', build_base=DistroBase(distribution='ubuntu', series='22.04'))"
+  - "BuildInfo(platform='ubuntu-22.04-arm64', build_on='arm64', build_for='arm64', build_base=DistroBase(distribution='ubuntu', series='22.04'))"
+  - "BuildInfo(platform='ubuntu-22.04-ppc64el', build_on='ppc64el', build_for='ppc64el', build_base=DistroBase(distribution='ubuntu', series='22.04'))"
+  - "BuildInfo(platform='ubuntu-22.04-riscv64', build_on='riscv64', build_for='riscv64', build_base=DistroBase(distribution='ubuntu', series='22.04'))"
+  - "BuildInfo(platform='ubuntu-22.04-s390x', build_on='s390x', build_for='s390x', build_base=DistroBase(distribution='ubuntu', series='22.04'))"
