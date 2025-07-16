@@ -180,7 +180,6 @@ strict = false
 
 [tool.ruff]
 line-length = 88
-target-version = "py38"
 src = ["craft_platforms", "tests"]
 extend-exclude = [
     "docs",
