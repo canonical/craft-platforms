@@ -22,7 +22,7 @@ from craft_platforms._buildinfo import BuildInfo
 from craft_platforms._platforms import get_platforms_build_plan
 
 _APP_SPECIFIC_PLANNERS: Dict[str, Callable[..., Iterable[BuildInfo]]] = {
-    "charmcraft": charm.get_platforms_charm_build_plan,
+    "charmcraft": charm.get_charm_build_plan,
     "rockcraft": rock.get_rock_build_plan,
     "snapcraft": snap.get_platforms_snap_build_plan,
 }
@@ -47,6 +47,8 @@ def get_build_plan(
     planners or special behaviour for more apps.
     """
     planner = _APP_SPECIFIC_PLANNERS.get(app, get_platforms_build_plan)
+    if app == "charmcraft":
+        return planner(project_data)
 
     args = {
         "base": project_data.get("base"),

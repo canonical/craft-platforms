@@ -677,3 +677,299 @@ def test_fuzz_get_platforms_build_plan_multi_base(
 ):
     assume(_is_valid_platform(platforms))
     craft_platforms.charm.get_platforms_charm_build_plan(None, platforms)
+
+
+@pytest.mark.parametrize(
+    ("bases", "expected"),
+    [
+        pytest.param(
+            [{"name": "ubuntu", "channel": "20.04"}],
+            [
+                craft_platforms.BuildInfo(
+                    "ubuntu-20.04-amd64",
+                    craft_platforms.DebianArchitecture.AMD64,
+                    craft_platforms.DebianArchitecture.AMD64,
+                    craft_platforms.DistroBase("ubuntu", "20.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "ubuntu-20.04-arm64",
+                    craft_platforms.DebianArchitecture.ARM64,
+                    craft_platforms.DebianArchitecture.ARM64,
+                    craft_platforms.DistroBase("ubuntu", "20.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "ubuntu-20.04-ppc64el",
+                    craft_platforms.DebianArchitecture.PPC64EL,
+                    craft_platforms.DebianArchitecture.PPC64EL,
+                    craft_platforms.DistroBase("ubuntu", "20.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "ubuntu-20.04-riscv64",
+                    craft_platforms.DebianArchitecture.RISCV64,
+                    craft_platforms.DebianArchitecture.RISCV64,
+                    craft_platforms.DistroBase("ubuntu", "20.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "ubuntu-20.04-s390x",
+                    craft_platforms.DebianArchitecture.S390X,
+                    craft_platforms.DebianArchitecture.S390X,
+                    craft_platforms.DistroBase("ubuntu", "20.04"),
+                ),
+            ],
+        ),
+        pytest.param(
+            [{"name": "ubuntu", "channel": "22.04", "architectures": ["arm64"]}],
+            [
+                craft_platforms.BuildInfo(
+                    "ubuntu-22.04-arm64",
+                    craft_platforms.DebianArchitecture.ARM64,
+                    craft_platforms.DebianArchitecture.ARM64,
+                    craft_platforms.DistroBase("ubuntu", "22.04"),
+                ),
+            ],
+        ),
+        pytest.param(
+            [
+                {
+                    "build-on": [
+                        {
+                            "name": "ubuntu",
+                            "channel": "22.04",
+                            "architectures": ["amd64", "s390x"],
+                        }
+                    ],
+                    "run-on": [
+                        {
+                            "name": "ubuntu",
+                            "channel": "22.04",
+                            "architectures": ["s390x"],
+                        }
+                    ],
+                },
+            ],
+            [
+                craft_platforms.BuildInfo(
+                    "ubuntu-22.04-s390x",
+                    craft_platforms.DebianArchitecture.AMD64,
+                    craft_platforms.DebianArchitecture.S390X,
+                    craft_platforms.DistroBase("ubuntu", "22.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "ubuntu-22.04-s390x",
+                    craft_platforms.DebianArchitecture.S390X,
+                    craft_platforms.DebianArchitecture.S390X,
+                    craft_platforms.DistroBase("ubuntu", "22.04"),
+                ),
+            ],
+        ),
+        pytest.param(
+            [
+                {
+                    "build-on": [
+                        {
+                            "name": "ubuntu",
+                            "channel": "22.04",
+                            "architectures": ["amd64", "riscv64"],
+                        },
+                        {
+                            "name": "ubuntu",
+                            "channel": "20.04",
+                            "architectures": ["amd64", "arm64"],
+                        },
+                    ],
+                    "run-on": [
+                        {
+                            "name": "ubuntu",
+                            "channel": "22.04",
+                            "architectures": ["amd64"],
+                        },
+                        {
+                            "name": "ubuntu",
+                            "channel": "22.04",
+                            "architectures": ["riscv64"],
+                        },
+                        {
+                            "name": "ubuntu",
+                            "channel": "22.04",
+                            "architectures": ["arm64"],
+                        },
+                    ],
+                },
+                {
+                    "build-on": [{"name": "ubuntu", "channel": "20.04"}],
+                    "run-on": [
+                        {
+                            "name": "ubuntu",
+                            "channel": "20.04",
+                            "architectures": [
+                                "amd64",
+                                "arm64",
+                                "riscv64",
+                                "s390x",
+                                "ppc64el",
+                                "armhf",
+                            ],
+                        }
+                    ],
+                },
+            ],
+            [
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-22.04-amd64",
+                    build_on=craft_platforms.DebianArchitecture.AMD64,
+                    build_for=craft_platforms.DebianArchitecture.AMD64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="22.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-22.04-amd64",
+                    build_on=craft_platforms.DebianArchitecture.RISCV64,
+                    build_for=craft_platforms.DebianArchitecture.AMD64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="22.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-22.04-riscv64",
+                    build_on=craft_platforms.DebianArchitecture.AMD64,
+                    build_for=craft_platforms.DebianArchitecture.RISCV64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="22.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-22.04-riscv64",
+                    build_on=craft_platforms.DebianArchitecture.RISCV64,
+                    build_for=craft_platforms.DebianArchitecture.RISCV64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="22.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-22.04-arm64",
+                    build_on=craft_platforms.DebianArchitecture.AMD64,
+                    build_for=craft_platforms.DebianArchitecture.ARM64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="22.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-22.04-arm64",
+                    build_on=craft_platforms.DebianArchitecture.RISCV64,
+                    build_for=craft_platforms.DebianArchitecture.ARM64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="22.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-20.04-amd64",
+                    build_on=craft_platforms.DebianArchitecture.AMD64,
+                    build_for=craft_platforms.DebianArchitecture.AMD64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="20.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-20.04-amd64",
+                    build_on=craft_platforms.DebianArchitecture.ARM64,
+                    build_for=craft_platforms.DebianArchitecture.AMD64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="20.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-20.04-riscv64",
+                    build_on=craft_platforms.DebianArchitecture.AMD64,
+                    build_for=craft_platforms.DebianArchitecture.RISCV64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="20.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-20.04-riscv64",
+                    build_on=craft_platforms.DebianArchitecture.ARM64,
+                    build_for=craft_platforms.DebianArchitecture.RISCV64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="20.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-20.04-arm64",
+                    build_on=craft_platforms.DebianArchitecture.AMD64,
+                    build_for=craft_platforms.DebianArchitecture.ARM64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="20.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-20.04-arm64",
+                    build_on=craft_platforms.DebianArchitecture.ARM64,
+                    build_for=craft_platforms.DebianArchitecture.ARM64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="20.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-20.04-amd64-arm64-riscv64-s390x-ppc64el-armhf",
+                    build_on=craft_platforms.DebianArchitecture.AMD64,
+                    build_for=craft_platforms.DebianArchitecture.AMD64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="20.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-20.04-amd64-arm64-riscv64-s390x-ppc64el-armhf",
+                    build_on=craft_platforms.DebianArchitecture.ARM64,
+                    build_for=craft_platforms.DebianArchitecture.AMD64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="20.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-20.04-amd64-arm64-riscv64-s390x-ppc64el-armhf",
+                    build_on=craft_platforms.DebianArchitecture.PPC64EL,
+                    build_for=craft_platforms.DebianArchitecture.AMD64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="20.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-20.04-amd64-arm64-riscv64-s390x-ppc64el-armhf",
+                    build_on=craft_platforms.DebianArchitecture.RISCV64,
+                    build_for=craft_platforms.DebianArchitecture.AMD64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="20.04",
+                    ),
+                ),
+                craft_platforms.BuildInfo(
+                    platform="ubuntu-20.04-amd64-arm64-riscv64-s390x-ppc64el-armhf",
+                    build_on=craft_platforms.DebianArchitecture.S390X,
+                    build_for=craft_platforms.DebianArchitecture.AMD64,
+                    build_base=craft_platforms.DistroBase(
+                        distribution="ubuntu",
+                        series="20.04",
+                    ),
+                ),
+            ],
+        ),
+    ],
+)
+def test_bases_build_plan_success(bases, expected):
+    assert charm.get_bases_charm_build_plan(bases) == expected

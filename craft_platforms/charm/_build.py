@@ -16,7 +16,7 @@
 """Charmcraft-specific platforms information."""
 
 import itertools
-from typing import Collection, List, Optional, Sequence
+from typing import Any, Collection, Dict, Iterable, List, Optional, Sequence
 
 from craft_platforms import (
     _architectures,
@@ -279,3 +279,48 @@ def get_platforms_charm_build_plan(
                 )
 
     return build_plan
+
+
+def _gen_build_plan_for_base(base: Dict[str, Any]) -> Iterable[_buildinfo.BuildInfo]:
+    if "build-on" not in base:
+        base = {"build-on": [base], "run-on": [base]}
+
+    for build_base in base["build-on"]:
+        build_archs = build_base.get("architectures", DEFAULT_ARCHITECTURES)
+        for run_base, build_arch in itertools.product(base["run-on"], build_archs):
+            run_archs = run_base.get("architectures", [build_arch])
+            run_archs_str = "-".join(run_archs)
+            yield _buildinfo.BuildInfo(
+                f"{build_base['name']}-{build_base['channel']}-{run_archs_str}",
+                build_on=_architectures.DebianArchitecture(build_arch),
+                build_for=run_archs[0],
+                build_base=_distro.DistroBase(
+                    build_base["name"], build_base["channel"]
+                ),
+            )
+
+
+def get_bases_charm_build_plan(
+    bases: Sequence[Dict[str, Any]],
+) -> Sequence[_buildinfo.BuildInfo]:
+    """Get a build plan for a legacy "bases" based charm."""
+    plan: List[_buildinfo.BuildInfo] = []
+    for base in bases:
+        plan.extend(_gen_build_plan_for_base(base))
+    return plan
+
+
+def get_charm_build_plan(
+    project_data: Dict[str, Any],
+) -> Sequence[_buildinfo.BuildInfo]:
+    if "platforms" in project_data:
+        return get_platforms_charm_build_plan(
+            base=project_data.get("base"),
+            build_base=project_data.get("build-base"),
+            platforms=project_data.get(
+                "platforms",
+            ),
+        )
+    if "bases" in project_data:
+        return get_bases_charm_build_plan(project_data["bases"])
+    raise NotImplementedError("Unknown charm type with no bases or platforms.")
