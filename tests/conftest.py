@@ -25,7 +25,7 @@ def project_main_module() -> types.ModuleType:
     downstream project.
     """
     try:
-        import craft_platforms
+        import craft_platforms  # noqa: PLC0415
 
         main_module = craft_platforms
     except ImportError:

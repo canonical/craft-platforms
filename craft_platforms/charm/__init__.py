@@ -15,10 +15,17 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 """Charm-specific module for craft-platforms."""
 
-from ._build import DEFAULT_ARCHITECTURES, get_platforms_charm_build_plan
+from ._build import (
+    DEFAULT_ARCHITECTURES,
+    get_platforms_charm_build_plan,
+    get_bases_charm_build_plan,
+    get_charm_build_plan,
+)
 
 
 __all__ = [
     "DEFAULT_ARCHITECTURES",
     "get_platforms_charm_build_plan",
+    "get_bases_charm_build_plan",
+    "get_charm_build_plan",
 ]
