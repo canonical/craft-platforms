@@ -286,19 +286,18 @@ def _gen_build_plan_for_base(base: Dict[str, Any]) -> Iterable[_buildinfo.BuildI
         base = {"build-on": [base], "run-on": [base]}
 
     for build_base in base["build-on"]:
-        for run_base in base["run-on"]:
-            build_archs = build_base.get("architectures", DEFAULT_ARCHITECTURES)
-            for build_arch in build_archs:
-                run_archs = run_base.get("architectures", [build_arch])
-                run_archs_str = "-".join(run_archs)
-                yield _buildinfo.BuildInfo(
-                    f"{build_base['name']}-{build_base['channel']}-{run_archs_str}",
-                    build_on=_architectures.DebianArchitecture(build_arch),
-                    build_for=run_archs[0],
-                    build_base=_distro.DistroBase(
-                        build_base["name"], build_base["channel"]
-                    ),
-                )
+        build_archs = build_base.get("architectures", DEFAULT_ARCHITECTURES)
+        for run_base, build_arch in itertools.product(base["run-on"], build_archs):
+            run_archs = run_base.get("architectures", [build_arch])
+            run_archs_str = "-".join(run_archs)
+            yield _buildinfo.BuildInfo(
+                f"{build_base['name']}-{build_base['channel']}-{run_archs_str}",
+                build_on=_architectures.DebianArchitecture(build_arch),
+                build_for=run_archs[0],
+                build_base=_distro.DistroBase(
+                    build_base["name"], build_base["channel"]
+                ),
+            )
 
 
 def get_bases_charm_build_plan(
