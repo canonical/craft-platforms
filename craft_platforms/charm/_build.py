@@ -286,8 +286,8 @@ def _gen_build_plan_for_base(base: Dict[str, Any]) -> Iterable[_buildinfo.BuildI
         base = {"build-on": [base], "run-on": [base]}
 
     for build_base in base["build-on"]:
+        build_archs = build_base.get("architectures", DEFAULT_ARCHITECTURES)
         for run_base in base["run-on"]:
-            build_archs = build_base.get("architectures", DEFAULT_ARCHITECTURES)
             for build_arch in build_archs:
                 run_archs = run_base.get("architectures", [build_arch])
                 run_archs_str = "-".join(run_archs)
