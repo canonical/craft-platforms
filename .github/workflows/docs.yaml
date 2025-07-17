@@ -31,7 +31,7 @@ jobs:
           make lint-docs
       - name: Build docs
         run: |
-          make docs
+          UV_PYTHON=3.10 make docs
       - name: Upload documentation
         uses: actions/upload-artifact@v4
         with:
