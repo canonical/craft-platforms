@@ -57,7 +57,7 @@ test = [
     "hypothesis~=6.108",
 ]
 lint = [
-    "yamllint~=1.34",
+    # Left empty for scaffolding and Makefile compatibility
 ]
 types = [
     "mypy[reports]~=1.11",
