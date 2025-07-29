@@ -59,6 +59,16 @@ class DebianArchitecture(str, enum.Enum):
         return cls(_ARCH_TRANSLATIONS_PLATFORM_TO_DEB.get(arch.lower(), arch.lower()))
 
     @classmethod
+    def from_efi(cls, arch: str) -> Self:
+        """Get a DebianArchitecture value from the given EFI arch.
+
+        :param arch: a string containing an architecture as used in EFI boot stubs, e.g. 'x64', 'aa64'
+        :returns: The DebianArchitecture enum value
+        :raises: ValueError if the architecture is not a valid Debian architecture.
+        """
+        return cls(_ARCH_TRANSLATIONS_EFI_TO_DEB.get(arch.lower(), arch.lower()))
+
+    @classmethod
     def from_host(cls) -> Self:
         """Get the DebianArchitecture of the running host."""
         return cls.from_machine(platform.machine())
@@ -69,6 +79,13 @@ class DebianArchitecture(str, enum.Enum):
         :returns: A string matching what platform.machine() or uname -m would return.
         """
         return _ARCH_TRANSLATIONS_DEB_TO_PLATFORM.get(self.value, self.value)
+
+    def to_efi_arch(self) -> str:
+        """Convert this DebianArchitecture to an EFI string.
+
+        :returns: A string matching what os.uname().machine would return.
+        """
+        return _ARCH_TRANSLATIONS_DEB_TO_EFI.get(self.value, self.value)
 
 
 # architecture translations from the platform syntax to the deb/snap syntax
@@ -84,6 +101,23 @@ _ARCH_TRANSLATIONS_PLATFORM_TO_DEB = {
 # architecture translations from the deb/snap syntax to the platform syntax
 _ARCH_TRANSLATIONS_DEB_TO_PLATFORM = {
     deb: platform for platform, deb in _ARCH_TRANSLATIONS_PLATFORM_TO_DEB.items()
+}
+
+# # architecture translations from the EFI syntax to the deb/snap syntax
+# The EFI abbreviations were pulled from
+# https://github.com/systemd/systemd/blob/main/src/ukify/ukify.py
+ARCH_TRANSLATIONS_EFI_TO_DEB = {
+    "aa64": "arm64",
+    "arm": "armv7l",
+    "ia32": "i386",
+    "risvc32": "riscv32",
+    "riscv64": "riscv64",
+    "x64": "amd64",
+}
+
+# architecture translations from the deb/snap syntax to the EFI syntax
+_ARCH_TRANSLATIONS_DEB_TO_EFI = {
+    deb: efi for efi, deb in _ARCH_TRANSLATIONS_EFI_TO_DEB.items()
 }
 
 
