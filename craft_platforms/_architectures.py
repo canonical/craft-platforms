@@ -106,7 +106,7 @@ _ARCH_TRANSLATIONS_DEB_TO_PLATFORM = {
 # # architecture translations from the EFI syntax to the deb/snap syntax
 # The EFI abbreviations were pulled from
 # https://github.com/systemd/systemd/blob/main/src/ukify/ukify.py
-ARCH_TRANSLATIONS_EFI_TO_DEB = {
+_ARCH_TRANSLATIONS_EFI_TO_DEB = {
     "aa64": "arm64",
     "arm": "armv7l",
     "ia32": "i386",
