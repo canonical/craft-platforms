@@ -69,6 +69,16 @@ class DebianArchitecture(str, enum.Enum):
         return cls(_ARCH_TRANSLATIONS_EFI_TO_DEB.get(arch.lower(), arch.lower()))
 
     @classmethod
+    def from_grub(cls, arch: str) -> Self:
+        """Get a DebianArchitecture value from the given GRUB arch.
+
+        :param arch: a string containing an architecture as used in the --target argument to grub-install
+        :returns: The DebianArchitecture enum value
+        :raises: ValueError if the architecture is not a valid Debian architecture.
+        """
+        return cls(_ARCH_TRANSLATIONS_GRUB_TO_DEB.get(arch.lower(), arch.lower()))
+
+    @classmethod
     def from_host(cls) -> Self:
         """Get the DebianArchitecture of the running host."""
         return cls.from_machine(platform.machine())
@@ -78,46 +88,56 @@ class DebianArchitecture(str, enum.Enum):
 
         :returns: A string matching what platform.machine() or uname -m would return.
         """
-        return _ARCH_TRANSLATIONS_DEB_TO_PLATFORM.get(self.value, self.value)
+        variants = _ARCH_TRANSLATIONS.get(self.value, None)
+        if variants is None:
+            return self.value
+        return variants[0]
 
     def to_efi_arch(self) -> str:
-        """Convert this DebianArchitecture to an EFI string.
+        """Convert this DebianArchitecture to an EFI firmware string.
 
-        :returns: A string matching what os.uname().machine would return.
+        :returns: A string as matched by UKIFY in systemd
+        (see https://github.com/systemd/systemd/blob/main/src/ukify/ukify.py)
         """
-        return _ARCH_TRANSLATIONS_DEB_TO_EFI.get(self.value, self.value)
+        variants = _ARCH_TRANSLATIONS.get(self.value, None)
+        if variants is None:
+            return self.value
+        return variants[1]
+
+    def to_grub_arch(self) -> str:
+        """Convert this DebianArchitecture to a GRUB boot target.
+
+        :returns: A string suitable for the --target argument to grub-install
+        """
+        variants = _ARCH_TRANSLATIONS.get(self.value, None)
+        if variants is None:
+            return self.value
+        return variants[2]
 
 
-# architecture translations from the platform syntax to the deb/snap syntax
+# Architecture translation from the deb/snap syntax to (platform, efi, grub) syntaxes
+# - platform: values as returned by uname -m
+# - efi: see EFI_ARCH_MAP in https://github.com/systemd/systemd/blob/main/src/ukify/ukify.py
+# - grub: values from --target arg for grub-install (see man page)
+_ARCH_TRANSLATIONS = {
+    DebianArchitecture.AMD64: ("x86_64", "x64", "x86_64-efi"),
+    DebianArchitecture.ARM64: ("aarch64", "aa64", "arm64-efi"),
+    DebianArchitecture.ARMHF: ("armv7l", "arm", "arm-efi"),
+    DebianArchitecture.I386: ("i686", "ia32", "i386-efi"),
+    DebianArchitecture.PPC64EL: ("ppc64le", None, None),
+    DebianArchitecture.RISCV64: ("riscv64", "riscv64", "riscv64-efi"),
+    DebianArchitecture.S390X: (None, None, None),
+}
+
+# architecture translations from the other syntaxes to deb/snap syntax
 _ARCH_TRANSLATIONS_PLATFORM_TO_DEB = {
-    "aarch64": "arm64",
-    "armv7l": "armhf",
-    "i686": "i386",
-    "ppc": "powerpc",
-    "ppc64le": "ppc64el",
-    "x86_64": "amd64",
+    platform: deb for (deb, (platform, _, _)) in _ARCH_TRANSLATIONS.items()
 }
-
-# architecture translations from the deb/snap syntax to the platform syntax
-_ARCH_TRANSLATIONS_DEB_TO_PLATFORM = {
-    deb: platform for platform, deb in _ARCH_TRANSLATIONS_PLATFORM_TO_DEB.items()
-}
-
-# # architecture translations from the EFI syntax to the deb/snap syntax
-# The EFI abbreviations were pulled from
-# https://github.com/systemd/systemd/blob/main/src/ukify/ukify.py
 _ARCH_TRANSLATIONS_EFI_TO_DEB = {
-    "aa64": "arm64",
-    "arm": "armv7l",
-    "ia32": "i386",
-    "risvc32": "riscv32",
-    "riscv64": "riscv64",
-    "x64": "amd64",
+    efi: deb for (deb, (_, efi, _)) in _ARCH_TRANSLATIONS.items() if efi is not None
 }
-
-# architecture translations from the deb/snap syntax to the EFI syntax
-_ARCH_TRANSLATIONS_DEB_TO_EFI = {
-    deb: efi for efi, deb in _ARCH_TRANSLATIONS_EFI_TO_DEB.items()
+_ARCH_TRANSLATIONS_GRUB_TO_DEB = {
+    grub: deb for (deb, (_, _, grub)) in _ARCH_TRANSLATIONS.items() if grub is not None
 }
 
 

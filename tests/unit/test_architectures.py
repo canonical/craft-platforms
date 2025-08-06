@@ -61,6 +61,29 @@ def test_debian_architectures_from_efi(given, expected):
 @pytest.mark.parametrize(
     ("given", "expected"),
     [
+        pytest.param(DebianArchitecture.AMD64, "x86_64-efi", id="converted"),
+        pytest.param(DebianArchitecture.RISCV64, None, id="not-converted"),
+    ],
+)
+def test_debian_architecture_to_grub_arch(given, expected):
+    assert given.to_grub_arch() == expected
+
+
+@pytest.mark.parametrize(
+    ("given", "expected"),
+    [
+        pytest.param("x86_64-efi", DebianArchitecture.AMD64, id="amd64-windows"),
+        pytest.param("arm64-efi", DebianArchitecture.ARM64, id="converted"),
+        pytest.param("riscv64", "riscv64", id="not-converted"),
+    ],
+)
+def test_debian_architectures_from_grub(given, expected):
+    assert DebianArchitecture.from_grub(given) == expected
+
+
+@pytest.mark.parametrize(
+    ("given", "expected"),
+    [
         pytest.param(DebianArchitecture.AMD64, "x86_64", id="converted"),
         pytest.param(DebianArchitecture.RISCV64, "riscv64", id="not-converted"),
     ],
