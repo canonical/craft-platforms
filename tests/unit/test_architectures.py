@@ -62,7 +62,7 @@ def test_debian_architectures_from_efi(given, expected):
     ("given", "expected"),
     [
         pytest.param(DebianArchitecture.AMD64, "x86_64-efi", id="converted"),
-        pytest.param(DebianArchitecture.PPC64EL, None, id="not-converted"),
+        pytest.param(DebianArchitecture.PPC64EL, "ppc64el", id="not-converted"),
     ],
 )
 def test_debian_architecture_to_grub_arch(given, expected):

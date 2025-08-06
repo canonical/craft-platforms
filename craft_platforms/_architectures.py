@@ -88,10 +88,7 @@ class DebianArchitecture(str, enum.Enum):
 
         :returns: A string matching what platform.machine() or uname -m would return.
         """
-        variants = _ARCH_TRANSLATIONS.get(self.value, None)
-        if variants is None:
-            return self.value
-        return variants[0]
+        return _ARCH_TRANSLATIONS_DEB_TO_PLATFORM.get(self.value, self.value)
 
     def to_efi_arch(self) -> str:
         """Convert this DebianArchitecture to an EFI firmware string.
@@ -99,45 +96,52 @@ class DebianArchitecture(str, enum.Enum):
         :returns: A string as matched by UKIFY in systemd
         (see https://github.com/systemd/systemd/blob/main/src/ukify/ukify.py)
         """
-        variants = _ARCH_TRANSLATIONS.get(self.value, None)
-        if variants is None:
-            return self.value
-        return variants[1]
+        return _ARCH_TRANSLATIONS_DEB_TO_EFI.get(self.value, self.value)
 
     def to_grub_arch(self) -> str:
         """Convert this DebianArchitecture to a GRUB boot target.
 
         :returns: A string suitable for the --target argument to grub-install
         """
-        variants = _ARCH_TRANSLATIONS.get(self.value, None)
-        if variants is None:
-            return self.value
-        return variants[2]
+        return _ARCH_TRANSLATIONS_DEB_TO_GRUB.get(self.value, self.value)
 
 
 # Architecture translation from the deb/snap syntax to (platform, efi, grub) syntaxes
 # - platform: values as returned by uname -m
 # - efi: see EFI_ARCH_MAP in https://github.com/systemd/systemd/blob/main/src/ukify/ukify.py
 # - grub: values from --target arg for grub-install (see man page)
-_ARCH_TRANSLATIONS = {
-    DebianArchitecture.AMD64: ("x86_64", "x64", "x86_64-efi"),
-    DebianArchitecture.ARM64: ("aarch64", "aa64", "arm64-efi"),
-    DebianArchitecture.ARMHF: ("armv7l", "arm", "arm-efi"),
-    DebianArchitecture.I386: ("i686", "ia32", "i386-efi"),
-    DebianArchitecture.PPC64EL: ("ppc64le", None, None),
-    DebianArchitecture.RISCV64: ("riscv64", "riscv64", "riscv64-efi"),
-    DebianArchitecture.S390X: (None, None, None),
+_ARCH_TRANSLATIONS_DEB_TO_PLATFORM = {
+    "amd64": "x86_64",
+    "arm64": "aarch64",
+    "armhf": "armv7l",
+    "i386": "i686",
+    "ppc64el": "ppc64le",
+    "riscv64": "riscv64",
+}
+_ARCH_TRANSLATIONS_DEB_TO_EFI = {
+    "amd64": "x64",
+    "arm64": "aa64",
+    "armhf": "arm",
+    "i386": "ia32",
+    "riscv64": "riscv64",
+}
+_ARCH_TRANSLATIONS_DEB_TO_GRUB = {
+    "amd64": "x86_64-efi",
+    "arm64": "arm64-efi",
+    "armhf": "arm-efi",
+    "i386": "i386-efi",
+    "riscv64": "riscv64-efi",
 }
 
 # architecture translations from the other syntaxes to deb/snap syntax
 _ARCH_TRANSLATIONS_PLATFORM_TO_DEB = {
-    platform: deb for (deb, (platform, _, _)) in _ARCH_TRANSLATIONS.items()
+    platform: deb for (deb, platform) in _ARCH_TRANSLATIONS_DEB_TO_PLATFORM.items()
 }
 _ARCH_TRANSLATIONS_EFI_TO_DEB = {
-    efi: deb for (deb, (_, efi, _)) in _ARCH_TRANSLATIONS.items() if efi is not None
+    efi: deb for (deb, efi) in _ARCH_TRANSLATIONS_DEB_TO_EFI.items()
 }
 _ARCH_TRANSLATIONS_GRUB_TO_DEB = {
-    grub: deb for (deb, (_, _, grub)) in _ARCH_TRANSLATIONS.items() if grub is not None
+    grub: deb for (deb, grub) in _ARCH_TRANSLATIONS_DEB_TO_GRUB.items()
 }
 
 
