@@ -58,6 +58,11 @@ def test_debian_architectures_from_efi(given, expected):
     assert DebianArchitecture.from_efi(given) == expected
 
 
+def test_debian_architecture_from_efi_bad():
+    with pytest.raises(ValueError, match="'unknown' is not a valid DebianArchitecture"):
+        DebianArchitecture.from_efi("unknown")
+
+
 @pytest.mark.parametrize(
     ("given", "expected"),
     [
@@ -67,6 +72,11 @@ def test_debian_architectures_from_efi(given, expected):
 )
 def test_debian_architecture_to_grub_arch(given, expected):
     assert given.to_grub_arch() == expected
+
+
+def test_debian_architecture_from_grub_bad():
+    with pytest.raises(ValueError, match="'unknown' is not a valid DebianArchitecture"):
+        DebianArchitecture.from_grub("unknown")
 
 
 @pytest.mark.parametrize(

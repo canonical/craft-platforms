@@ -107,9 +107,7 @@ class DebianArchitecture(str, enum.Enum):
 
 
 # Architecture translation from the deb/snap syntax to (platform, efi, grub) syntaxes
-# - platform: values as returned by uname -m
-# - efi: see EFI_ARCH_MAP in https://github.com/systemd/systemd/blob/main/src/ukify/ukify.py
-# - grub: values from --target arg for grub-install (see man page)
+# platform: values as returned by uname -m
 _ARCH_TRANSLATIONS_DEB_TO_PLATFORM = {
     "amd64": "x86_64",
     "arm64": "aarch64",
@@ -118,6 +116,8 @@ _ARCH_TRANSLATIONS_DEB_TO_PLATFORM = {
     "ppc64el": "ppc64le",
     "riscv64": "riscv64",
 }
+# see EFI_ARCH_MAP defined in systemd
+# https://github.com/systemd/systemd/blob/2fe2ee9adb18347efc0f6856830b63ba0aa874a2/src/ukify/ukify.py#L65-L75
 _ARCH_TRANSLATIONS_DEB_TO_EFI = {
     "amd64": "x64",
     "arm64": "aa64",
@@ -125,6 +125,7 @@ _ARCH_TRANSLATIONS_DEB_TO_EFI = {
     "i386": "ia32",
     "riscv64": "riscv64",
 }
+# values from --target arg for grub-install (see man page)
 _ARCH_TRANSLATIONS_DEB_TO_GRUB = {
     "amd64": "x86_64-efi",
     "arm64": "arm64-efi",
