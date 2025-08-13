@@ -1,24 +1,26 @@
 # Craft Platforms
 
 [![QA](https://github.com/canonical/craft-platforms/actions/workflows/qa.yaml/badge.svg)](https://github.com/canonical/craft-platforms/actions/workflows/qa.yaml)
-[![Security scan](https://github.com/canonical/craft-platforms/actions/workflows/security-scan.yaml/badge.svg)](https://github.com/canonical/craft-platforms/actions/workflows/security-scan.yaml)
-[![Documentation](https://github.com/canonical/craft-platforms/actions/workflows/docs.yaml/badge.svg)](https://github.com/canonical/craft-platforms/actions/workflows/docs.yaml)
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![PyPI - Version](https://img.shields.io/pypi/v/craft-platforms)](https://pypi.org/project/craft-platforms)
 [![ReadTheDocs badge](https://readthedocs.com/projects/canonical-craft-platforms/badge/?version=latest)](https://canonical-craft-platforms.readthedocs-hosted.com)
+[![PyPI - Version](https://img.shields.io/pypi/v/craft-platforms)](https://pypi.org/project/craft-platforms)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Security scan](https://github.com/canonical/craft-platforms/actions/workflows/security-scan.yaml/badge.svg)](https://github.com/canonical/craft-platforms/actions/workflows/security-scan.yaml)
 
-Utilities for handling platform information for Snapcraft, Charmcraft, Rockcraft, and
-other craft tools based on [Craft Application](https://canonical-craft-application.readthedocs-hosted.com).
+**Craft Platforms** is a library that handles platform information for Snapcraft,
+Charmcraft, Rockcraft, and other craft apps. A platform in this sense is the combination
+of an operating system version and its target architecture.
 
-Craft Platforms parses information defined in a craft recipe file such as a
-`snapcraft.yaml` file and creates a build plan. A build plan describes the
-environments where the application can build artifacts and the environments
-where the artifacts can run.
+The library's primary function is to parse information in a craft project file, such as
+`snapcraft.yaml`, and creates a _build plan_ from it. The plan is a manifest for
+environments, describing those where the artifact can build and run.
+
+This library is most useful for developers who build apps with the [Craft
+Application](https://canonical-craft-application.readthedocs-hosted.com) library.
 
 ## Basic usage
 
 Craft Platforms creates exhaustive build plans for any craft-like data structure,
-taking into account differences per application.
+taking into account differences between applications.
 
 ```terminal
 >>> import craft_platforms
@@ -31,12 +33,12 @@ taking into account differences per application.
 
 ## Installation
 
-Craft Platforms is a pure-python library that runs on Python 3.8 or later. It can be
+Craft Platforms is a pure Python library that runs on Python 3.8 or later. It can be
 installed from [PyPI](https://pypi.org/project/craft-platforms)
 
 ## Documentation
 
-The documentation is available [on ReadTheDocs](https://canonical-craft-platforms.readthedocs-hosted.com)
+The [Craft Platforms documentation](https://canonical-craft-platforms.readthedocs-hosted.com) contains reference information for the library.
 
 ## Community and support
 
