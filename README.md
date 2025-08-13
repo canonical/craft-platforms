@@ -11,7 +11,7 @@ Charmcraft, Rockcraft, and other craft apps. A platform in this sense is the com
 of an operating system version and its target architecture.
 
 The library's primary function is to parse information in a craft project file, such as
-`snapcraft.yaml`, and creates a _build plan_ from it. The plan is a manifest for
+`snapcraft.yaml`, and creates a build plan from it. The plan is a manifest for
 environments, describing those where the artifact can build and run.
 
 This library is most useful for developers who build apps with the [Craft
