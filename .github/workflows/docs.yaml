@@ -20,7 +20,7 @@ jobs:
         run: |
           sudo snap install --classic astral-uv --no-wait
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Finish UV install
