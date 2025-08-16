@@ -59,6 +59,26 @@ class DebianArchitecture(str, enum.Enum):
         return cls(_ARCH_TRANSLATIONS_PLATFORM_TO_DEB.get(arch.lower(), arch.lower()))
 
     @classmethod
+    def from_efi(cls, arch: str) -> Self:
+        """Get a DebianArchitecture value from the given EFI arch.
+
+        :param arch: a string containing an architecture as used in EFI boot stubs, e.g. 'x64', 'aa64'
+        :returns: The DebianArchitecture enum value
+        :raises: ValueError if the architecture is not a valid Debian architecture.
+        """
+        return cls(_ARCH_TRANSLATIONS_EFI_TO_DEB.get(arch.lower(), arch.lower()))
+
+    @classmethod
+    def from_grub(cls, arch: str) -> Self:
+        """Get a DebianArchitecture value from the given GRUB arch.
+
+        :param arch: a string containing an architecture as used in the --target argument to grub-install
+        :returns: The DebianArchitecture enum value
+        :raises: ValueError if the architecture is not a valid Debian architecture.
+        """
+        return cls(_ARCH_TRANSLATIONS_GRUB_TO_DEB.get(arch.lower(), arch.lower()))
+
+    @classmethod
     def from_host(cls) -> Self:
         """Get the DebianArchitecture of the running host."""
         return cls.from_machine(platform.machine())
@@ -70,20 +90,59 @@ class DebianArchitecture(str, enum.Enum):
         """
         return _ARCH_TRANSLATIONS_DEB_TO_PLATFORM.get(self.value, self.value)
 
+    def to_efi_arch(self) -> str:
+        """Convert this DebianArchitecture to an EFI firmware string.
 
-# architecture translations from the platform syntax to the deb/snap syntax
-_ARCH_TRANSLATIONS_PLATFORM_TO_DEB = {
-    "aarch64": "arm64",
-    "armv7l": "armhf",
-    "i686": "i386",
-    "ppc": "powerpc",
-    "ppc64le": "ppc64el",
-    "x86_64": "amd64",
+        :returns: A string as matched by UKIFY in systemd
+        (see https://github.com/systemd/systemd/blob/main/src/ukify/ukify.py)
+        """
+        return _ARCH_TRANSLATIONS_DEB_TO_EFI.get(self.value, self.value)
+
+    def to_grub_arch(self) -> str:
+        """Convert this DebianArchitecture to a GRUB boot target.
+
+        :returns: A string suitable for the --target argument to grub-install
+        """
+        return _ARCH_TRANSLATIONS_DEB_TO_GRUB.get(self.value, self.value)
+
+
+# Architecture translation from the deb/snap syntax to (platform, efi, grub) syntaxes
+# platform: values as returned by uname -m
+_ARCH_TRANSLATIONS_DEB_TO_PLATFORM = {
+    "amd64": "x86_64",
+    "arm64": "aarch64",
+    "armhf": "armv7l",
+    "i386": "i686",
+    "ppc64el": "ppc64le",
+    "riscv64": "riscv64",
+}
+# see EFI_ARCH_MAP defined in systemd
+# https://github.com/systemd/systemd/blob/2fe2ee9adb18347efc0f6856830b63ba0aa874a2/src/ukify/ukify.py#L65-L75
+_ARCH_TRANSLATIONS_DEB_TO_EFI = {
+    "amd64": "x64",
+    "arm64": "aa64",
+    "armhf": "arm",
+    "i386": "ia32",
+    "riscv64": "riscv64",
+}
+# values from --target arg for grub-install (see man page)
+_ARCH_TRANSLATIONS_DEB_TO_GRUB = {
+    "amd64": "x86_64-efi",
+    "arm64": "arm64-efi",
+    "armhf": "arm-efi",
+    "i386": "i386-efi",
+    "riscv64": "riscv64-efi",
 }
 
-# architecture translations from the deb/snap syntax to the platform syntax
-_ARCH_TRANSLATIONS_DEB_TO_PLATFORM = {
-    deb: platform for platform, deb in _ARCH_TRANSLATIONS_PLATFORM_TO_DEB.items()
+# architecture translations from the other syntaxes to deb/snap syntax
+_ARCH_TRANSLATIONS_PLATFORM_TO_DEB = {
+    platform: deb for (deb, platform) in _ARCH_TRANSLATIONS_DEB_TO_PLATFORM.items()
+}
+_ARCH_TRANSLATIONS_EFI_TO_DEB = {
+    efi: deb for (deb, efi) in _ARCH_TRANSLATIONS_DEB_TO_EFI.items()
+}
+_ARCH_TRANSLATIONS_GRUB_TO_DEB = {
+    grub: deb for (deb, grub) in _ARCH_TRANSLATIONS_DEB_TO_GRUB.items()
 }
 
 
