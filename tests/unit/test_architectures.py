@@ -49,46 +49,12 @@ def test_debian_architecture_to_efi_arch(given, expected):
 @pytest.mark.parametrize(
     ("given", "expected"),
     [
-        pytest.param("x64", DebianArchitecture.AMD64, id="amd64-windows"),
-        pytest.param("aa64", DebianArchitecture.ARM64, id="converted"),
-        pytest.param("riscv64", DebianArchitecture.RISCV64, id="not-converted"),
-    ],
-)
-def test_debian_architectures_from_efi(given, expected):
-    assert DebianArchitecture.from_efi(given) == expected
-
-
-def test_debian_architecture_from_efi_bad():
-    with pytest.raises(ValueError, match="'unknown' is not a valid DebianArchitecture"):
-        DebianArchitecture.from_efi("unknown")
-
-
-@pytest.mark.parametrize(
-    ("given", "expected"),
-    [
         pytest.param(DebianArchitecture.AMD64, "x86_64-efi", id="converted"),
         pytest.param(DebianArchitecture.PPC64EL, "ppc64el", id="not-converted"),
     ],
 )
 def test_debian_architecture_to_grub_arch(given, expected):
     assert given.to_grub_arch() == expected
-
-
-def test_debian_architecture_from_grub_bad():
-    with pytest.raises(ValueError, match="'unknown' is not a valid DebianArchitecture"):
-        DebianArchitecture.from_grub("unknown")
-
-
-@pytest.mark.parametrize(
-    ("given", "expected"),
-    [
-        pytest.param("x86_64-efi", DebianArchitecture.AMD64, id="amd64-windows"),
-        pytest.param("arm64-efi", DebianArchitecture.ARM64, id="converted"),
-        pytest.param("riscv64", "riscv64", id="not-converted"),
-    ],
-)
-def test_debian_architectures_from_grub(given, expected):
-    assert DebianArchitecture.from_grub(given) == expected
 
 
 @pytest.mark.parametrize(

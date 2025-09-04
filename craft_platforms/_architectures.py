@@ -59,26 +59,6 @@ class DebianArchitecture(str, enum.Enum):
         return cls(_ARCH_TRANSLATIONS_PLATFORM_TO_DEB.get(arch.lower(), arch.lower()))
 
     @classmethod
-    def from_efi(cls, arch: str) -> Self:
-        """Get a DebianArchitecture value from the given EFI arch.
-
-        :param arch: a string containing an architecture as used in EFI boot stubs, e.g. 'x64', 'aa64'
-        :returns: The DebianArchitecture enum value
-        :raises: ValueError if the architecture is not a valid Debian architecture.
-        """
-        return cls(_ARCH_TRANSLATIONS_EFI_TO_DEB.get(arch.lower(), arch.lower()))
-
-    @classmethod
-    def from_grub(cls, arch: str) -> Self:
-        """Get a DebianArchitecture value from the given GRUB arch.
-
-        :param arch: a string containing an architecture as used in the --target argument to grub-install
-        :returns: The DebianArchitecture enum value
-        :raises: ValueError if the architecture is not a valid Debian architecture.
-        """
-        return cls(_ARCH_TRANSLATIONS_GRUB_TO_DEB.get(arch.lower(), arch.lower()))
-
-    @classmethod
     def from_host(cls) -> Self:
         """Get the DebianArchitecture of the running host."""
         return cls.from_machine(platform.machine())
@@ -137,12 +117,6 @@ _ARCH_TRANSLATIONS_DEB_TO_GRUB = {
 # architecture translations from the other syntaxes to deb/snap syntax
 _ARCH_TRANSLATIONS_PLATFORM_TO_DEB = {
     platform: deb for (deb, platform) in _ARCH_TRANSLATIONS_DEB_TO_PLATFORM.items()
-}
-_ARCH_TRANSLATIONS_EFI_TO_DEB = {
-    efi: deb for (deb, efi) in _ARCH_TRANSLATIONS_DEB_TO_EFI.items()
-}
-_ARCH_TRANSLATIONS_GRUB_TO_DEB = {
-    grub: deb for (deb, grub) in _ARCH_TRANSLATIONS_DEB_TO_GRUB.items()
 }
 
 
