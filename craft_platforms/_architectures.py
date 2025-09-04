@@ -73,8 +73,7 @@ class DebianArchitecture(str, enum.Enum):
     def to_efi_arch(self) -> str:
         """Convert this DebianArchitecture to an EFI firmware string.
 
-        :returns: A string as matched by UKIFY in systemd
-        (see https://github.com/systemd/systemd/blob/main/src/ukify/ukify.py)
+        :returns: A string as matched by UKIFY in systemd (see https://github.com/systemd/systemd/blob/main/src/ukify/ukify.py)
         """
         return _ARCH_TRANSLATIONS_DEB_TO_EFI.get(self.value, self.value)
 
