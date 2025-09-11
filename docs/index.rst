@@ -11,17 +11,11 @@ Craft Platforms
 
 .. list-table::
 
-    .. * - | :ref:`Tutorial <tutorials>`
-        | **Get started** with a hands-on introduction to Craft Platforms
-    .. * - | :ref:`How-to guides <how-to-guides>`
-        | **Step-by-step guides** covering key operations and common tasks
     * - |
       - |
     * - | :ref:`Reference <reference>`
         | **Technical information** about Craft Platforms
       - |
-    .. * - | :ref:`Explanation <explanation>`
-        | **Discussion and clarification** of key topics
 
 
 Project and community

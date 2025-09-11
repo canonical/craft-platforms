@@ -65,9 +65,7 @@ extensions = [
 
 extensions.extend(
     [
-        # "sphinx_toolbox.more_autodoc",
-        "sphinx_toolbox.more_autodoc.variables",
-        "sphinx.ext.autodoc",  # Must be loaded after more_autodoc
+        "sphinx_toolbox.more_autodoc",
         "sphinx.ext.napoleon",
         "sphinx_autodoc_typehints",
         "sphinx.ext.intersphinx",
@@ -78,8 +76,8 @@ extensions.extend(
         "sphinx_sitemap",
         "sphinx_toolbox",
         "sphinx_toolbox.more_autodoc",
-        "sphinx.ext.autodoc",  # Must be loaded after more_autodoc
         "sphinxext.rediraffe",
+        "sphinx.ext.autodoc",  # Must be loaded after more_autodoc
     ]
 )
 
@@ -87,8 +85,9 @@ extensions.extend(
 exclude_patterns = [
     # Exclude the empty quadrants
     "tutorials/index.rst",
-    "how-to/index.rst",
+    "how-to-guides/index.rst",
     "explanation/index.rst",
+    "release-notes/index.rst",
 ]
 # endregion
 

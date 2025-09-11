@@ -4,6 +4,7 @@ dynamic = ["version"]
 dependencies = [
     "annotated-types>=0.3.0",
     "distro>=1.6.0",
+    "sphinxext-rediraffe>=0.2.7",
     "typing_extensions>=4.0.0",
 ]
 classifiers = [
@@ -49,6 +50,7 @@ docs = [
     "sphinx-pydantic~=0.1.1",
     "sphinx-toolbox~=4.0",
     "sphinx-lint~=1.0.0",
+    "sphinx-sitemap>=2.8.0",
 ]
 test = [
     # Extra packages that are needed when using items from the craft-platforms.test
