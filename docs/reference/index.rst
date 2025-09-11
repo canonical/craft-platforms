@@ -1,7 +1,7 @@
 .. _reference:
 
 Reference
-*********
+=========
 
 .. toctree::
    :maxdepth: 2
@@ -11,7 +11,7 @@ Reference
    testing/index
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`

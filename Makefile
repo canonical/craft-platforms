@@ -12,9 +12,13 @@ endif
 
 .SHELLFLAGS = -ec
 
+# Define when more than the main package tree requires coverage
+# like is the case for snapcraft (snapcraft and snapcraft_legacy):
+# COVERAGE_SOURCE="starcraft"
 UV_TEST_GROUPS := "--group=dev"
 UV_DOCS_GROUPS := "--group=docs"
 UV_LINT_GROUPS := "--group=lint" "--group=types"
+UV_TICS_GROUPS := "--group=tics"
 
 # If you have dev dependencies that depend on your distro version, uncomment these:
 # ifneq ($(wildcard /etc/os-release),)
@@ -24,15 +28,16 @@ UV_LINT_GROUPS := "--group=lint" "--group=types"
 # UV_TEST_GROUPS += "--group=dev-$(VERSION_CODENAME)"
 # UV_DOCS_GROUPS += "--group=dev-$(VERSION_CODENAME)"
 # UV_LINT_GROUPS += "--group=dev-$(VERSION_CODENAME)"
+# UV_TICS_GROUPS += "--group=dev-$(VERSION_CODENAME)"
 # endif
 
 include common.mk
 
 .PHONY: format
-format: format-ruff format-codespell format-prettier  ## Run all automatic formatters
+format: format-ruff format-codespell format-prettier format-pre-commit  ## Run all automatic formatters
 
 .PHONY: lint
-lint: lint-ruff lint-codespell lint-mypy lint-prettier lint-pyright lint-shellcheck lint-docs lint-twine  ## Run all linters
+lint: lint-ruff lint-codespell lint-mypy lint-prettier lint-pyright lint-shellcheck lint-docs lint-twine lint-uv-lockfile  ## Run all linters
 
 .PHONY: pack
 pack: pack-pip  ## Build all packages
@@ -77,17 +82,3 @@ endif
 # If additional build dependencies need installing in order to build the linting env.
 .PHONY: install-lint-build-deps
 install-lint-build-deps:
-
-# Experimental: type check with ty
-.PHONY: lint-ty
-lint-ty: install-ty
-	ty check
-
-.PHONY: install-ty
-ifneq ($(shell which ty),)
-else ifneq ($(shell which snap),)
-	sudo snap install --edge astral-ty
-	sudo snap alias astral-ty.ty ty
-else ifneq ($(shell which uv),)
-	uv tool install ty
-endif
