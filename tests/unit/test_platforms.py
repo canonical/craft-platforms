@@ -20,6 +20,8 @@ import itertools
 import craft_platforms
 import pytest
 import pytest_check
+from craft_platforms._errors import InvalidPlatformNameError
+from craft_platforms._platforms import RESERVED_PLATFORM_NAMES
 from craft_platforms.test import strategies
 from hypothesis import given
 from hypothesis import strategies as hp_strat
@@ -311,12 +313,25 @@ def test_build_plans_bad_base(base, error_msg):
         craft_platforms.get_platforms_build_plan(base, {"amd64": None})
 
 
+@pytest.mark.parametrize("platform_name", RESERVED_PLATFORM_NAMES)
+@pytest.mark.parametrize(
+    "platform_value", [None, {}, {"build-on": ["ppc64el"], "build-for": ["s390x"]}]
+)
+def test_build_plans_reserved_platform_name(platform_name: str, platform_value):
+    with pytest.raises(
+        InvalidPlatformNameError, match="Platform name '.*' is reserved."
+    ):
+        craft_platforms.get_platforms_build_plan(
+            base="ubuntu@26.10", platforms={platform_name: platform_value}
+        )
+
+
 @pytest.mark.parametrize(
     ("platforms", "error_msg"),
     [
         pytest.param(
             {"my machine": None},
-            "Platform name 'my machine' is not a valid Debian architecture. Specify a build-on and build-for.",
+            "platform name 'my machine' is not a valid Debian architecture and needs 'build-on' and 'build-for' specified",
             id="invalid-platform-name-no-details",
         ),
         pytest.param(

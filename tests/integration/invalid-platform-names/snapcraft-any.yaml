@@ -1,0 +1,16 @@
+name: hello-try
+base: core24
+version: "0.1"
+summary: snapcraft try spread test
+description: snapcraft try spread test
+
+grade: stable
+confinement: strict
+platforms:
+  any:
+    build-on: [amd64, arm64]
+    build-for: any
+
+parts:
+  hello-part:
+    plugin: nil

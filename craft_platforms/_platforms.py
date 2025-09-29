@@ -24,6 +24,13 @@ from typing_extensions import Annotated
 
 from craft_platforms import _architectures, _buildinfo, _distro, _errors, _utils
 
+RESERVED_PLATFORM_NAMES = frozenset(
+    (
+        "any",  # "any" is used for `for` grammar.
+        "*",  # This could be confused for "all".
+    )
+)
+
 PlatformDict = typing.TypedDict(
     "PlatformDict",
     {
@@ -53,6 +60,21 @@ def get_platforms_build_plan(
         distro_base = _distro.DistroBase.from_str(build_base or base)
     build_plan: List[_buildinfo.BuildInfo] = []
 
+    used_reserved_names = RESERVED_PLATFORM_NAMES & platforms.keys()
+    if used_reserved_names:
+        if len(used_reserved_names) == 1:
+            raise _errors.InvalidPlatformNameError(
+                f"Platform name {next(iter(used_reserved_names))!r} is reserved.",
+                resolution="Use a different platform name, perhaps 'all' for platform-agnostic artifacts.",
+            )
+        used_reserved_names_str = ", ".join(
+            f"{name!r}" for name in sorted(used_reserved_names)
+        )
+        raise _errors.InvalidPlatformNameError(
+            f"Reserved platform names used: {used_reserved_names_str}",
+            resolution="Change the platform name strings for these platforms.",
+        )
+
     for platform_name, platform in platforms.items():
         if platform is None:
             # This is a workaround for Python 3.10.
@@ -61,9 +83,8 @@ def get_platforms_build_plan(
             try:
                 architecture = _architectures.DebianArchitecture(platform_name)
             except ValueError:
-                raise _errors.InvalidPlatformNameError(
-                    f"Platform name {platform_name!r} is not a valid Debian architecture. "
-                    "Specify a build-on and build-for.",
+                raise _errors.InvalidDebianArchPlatformNameError(
+                    platform_name
                 ) from None
             build_plan.append(
                 _buildinfo.BuildInfo(

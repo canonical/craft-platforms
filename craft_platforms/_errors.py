@@ -148,6 +148,10 @@ class NeedBuildBaseError(CraftPlatformsError, ValueError):
 
 
 class InvalidPlatformNameError(CraftPlatformsError, ValueError):
+    """Error when a specified platform name is invalid."""
+
+
+class InvalidDebianArchPlatformNameError(InvalidPlatformNameError):
     """Error when a specified platform name is not a Debian architecture."""
 
     def __init__(self, platform_name: str) -> None:
