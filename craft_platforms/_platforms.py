@@ -72,7 +72,7 @@ def get_platforms_build_plan(
         )
         raise _errors.InvalidPlatformNameError(
             f"Reserved platform names used: {used_reserved_names_str}",
-            resolution="Change the platform name strings for these platforms.",
+            resolution="Change the platform names for these platforms.",
         )
 
     for platform_name, platform in platforms.items():
