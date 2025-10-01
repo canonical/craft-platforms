@@ -16,6 +16,7 @@
 """Unit tests for generic platforms build planner."""
 
 import itertools
+import re
 
 import craft_platforms
 import pytest
@@ -323,6 +324,20 @@ def test_build_plans_reserved_platform_name(platform_name: str, platform_value):
     ):
         craft_platforms.get_platforms_build_plan(
             base="ubuntu@26.10", platforms={platform_name: platform_value}
+        )
+
+
+def test_build_plans_multiple_reserved_platform_names():
+    with pytest.raises(
+        InvalidPlatformNameError,
+        match=re.escape("Reserved platform names used: '*', 'any'"),
+    ):
+        craft_platforms.get_platforms_build_plan(
+            base="ubuntu@26.10",
+            platforms={
+                "any": {"build-on": ["riscv64"], "build-for": ["all"]},
+                "*": {"build-on": ["s390x"], "build-for": ["all"]},
+            },
         )
 
 
