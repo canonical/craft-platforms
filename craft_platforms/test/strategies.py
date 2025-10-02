@@ -17,6 +17,8 @@
 
 from typing import Dict, Optional, Union
 
+from craft_platforms._platforms import RESERVED_PLATFORM_NAMES
+
 try:
     from hypothesis import strategies
 except ImportError:
@@ -306,7 +308,9 @@ def platform(
             max_size=1,
         ),
         strategies.dictionaries(
-            keys=strategies.text(min_size=1).filter(lambda x: x not in ("@", ":")),
+            keys=strategies.text(min_size=1).filter(
+                lambda x: x not in ("@", ":", *RESERVED_PLATFORM_NAMES)
+            ),
             values=values,
             min_size=1,
             max_size=1,

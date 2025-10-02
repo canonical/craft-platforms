@@ -221,6 +221,22 @@ def get_platforms_charm_build_plan(
             )
             for arch in DEFAULT_ARCHITECTURES
         ]
+
+    used_reserved_names = _platforms.RESERVED_PLATFORM_NAMES & platforms.keys()
+    if used_reserved_names:
+        if len(used_reserved_names) == 1:
+            raise _errors.InvalidPlatformNameError(
+                f"Platform name {next(iter(used_reserved_names))!r} is reserved.",
+                resolution="Use a different platform name, perhaps 'all' for platform-agnostic artifacts.",
+            )
+        used_reserved_names_str = ", ".join(
+            f"{name!r}" for name in sorted(used_reserved_names)
+        )
+        raise _errors.InvalidPlatformNameError(
+            f"Reserved platform names used: {used_reserved_names_str}",
+            resolution="Change the platform name strings for these platforms.",
+        )
+
     build_plan: List[_buildinfo.BuildInfo] = []
     for platform_name, platform in platforms.items():
         distro_base = _get_base_from_build_data(
