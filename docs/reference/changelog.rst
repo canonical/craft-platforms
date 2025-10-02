@@ -20,8 +20,9 @@ Breaking changes
 ================
 
 - When Craft Grammar introduced platform selector grammar, the ``*`` and ``any``
-  platform names became standard craft vocabulary. These are now reserved platform names
-  in Craft Platforms, and users are warned if they try and define new platforms using them.
+  platform names became standard craft vocabulary. These are now reserved platform
+  names in Craft Platforms, and users are warned if they try and define new platforms
+  using them.
 
 For a complete list of commits, check out the `0.11.0`_ release on GitHub.
 
