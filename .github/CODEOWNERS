@@ -9,7 +9,7 @@
 *.py    @lengau
 
 # Documentation owners
-/docs/  @medubelko @lengau
+/docs/  @canonical/starcraft-authors
 
 # Module-specific overrides to match application ownership.
 /craft_platforms/charm  @lengau
@@ -17,4 +17,4 @@
 /craft_platforms/snap   @mr-cal
 
 # Finally, all CODEOWNERS changes need to be approved by The Man, Himself.
-/.github/CODEOWNERS     @sergiusens
+/.github/CODEOWNERS     @steinbro
