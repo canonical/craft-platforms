@@ -285,7 +285,7 @@ def test_build_plans_bad_base(base, error_msg):
     [
         pytest.param(
             {"my machine": None},
-            "Platform name 'my machine' is not a valid Debian architecture. Specify a build-on and build-for.",
+            "platform name 'my machine' is not a valid Debian architecture and needs 'build-on' and 'build-for' specified",
             id="invalid-platform-name-no-details",
         ),
         pytest.param(
