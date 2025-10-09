@@ -9,7 +9,8 @@
 *.py    @lengau
 
 # Documentation owners
-/docs/  @medubelko @lengau
+/docs/  @canonical/starcraft-authors
+/docs/reference/changelog.rst @canonical/starcraft-reviewers
 
 # Module-specific overrides to match application ownership.
 /craft_platforms/charm  @lengau
