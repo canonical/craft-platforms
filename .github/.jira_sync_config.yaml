@@ -1,6 +1,10 @@
 settings:
   components:
+<<<<<<< HEAD
     - Craft Platforms
+=======
+    - Starbase
+>>>>>>> starbase/main
   labels:
     - "Status: Triaged"
   # Adds a comment with the JIRA ID

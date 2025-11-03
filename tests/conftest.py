@@ -25,9 +25,16 @@ def project_main_module() -> types.ModuleType:
     downstream project.
     """
     try:
+<<<<<<< HEAD
         import craft_platforms  # noqa: PLC0415
 
         main_module = craft_platforms
+=======
+        # This should be the project's main package; downstream projects must update this.
+        import starcraft  # noqa: PLC0415
+
+        main_module = starcraft
+>>>>>>> starbase/main
     except ImportError:
         pytest.fail(
             "Failed to import the project's main module: check if it needs updating",

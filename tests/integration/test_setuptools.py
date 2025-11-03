@@ -21,8 +21,14 @@ from zipfile import ZipFile
 
 import pytest
 
+<<<<<<< HEAD
 
 @pytest.mark.slow
+=======
+pytestmark = [pytest.mark.slow]
+
+
+>>>>>>> starbase/main
 def test_packages(project_main_module, tmp_path, request):
     """Check wheel generation from our pyproject.toml"""
     root_dir = Path(request.config.rootdir)

@@ -8,13 +8,21 @@ end_of_line = lf
 indent_size = 4
 indent_style = space
 insert_final_newline = true
+<<<<<<< HEAD
 max_line_length = 80
+=======
+max_line_length = 88
+>>>>>>> starbase/main
 trim_trailing_whitespace = true
 
 [.editorconfig]
 max_line_length = off
 
+<<<<<<< HEAD
 [Makefile]
+=======
+[{Makefile,*.mk}]
+>>>>>>> starbase/main
 indent_style = tab
 
 [{*.py,*.pyi}]
@@ -29,15 +37,23 @@ indent_size = 2
 max_line_length = off
 
 [{*.markdown,*.md,*.rst}]
+<<<<<<< HEAD
 max_line_length = off
+=======
+>>>>>>> starbase/main
 ij_visual_guides = none
 
 [{*.toml,Cargo.lock,Cargo.toml.orig,Gopkg.lock,Pipfile,poetry.lock}]
 max_line_length = off
 
+<<<<<<< HEAD
 [{*.ini, *.cfg}]
 max_line_length = off
 
 [{*.yaml,*.yml}]
 indent_size = 2
 max_line_length = off
+=======
+[{*.yaml,*.yml}]
+indent_size = 2
+>>>>>>> starbase/main
