@@ -9,6 +9,10 @@ version: 2
 sphinx:
   builder: dirhtml
   configuration: docs/conf.py
+<<<<<<< HEAD
+=======
+  fail_on_warning: true
+>>>>>>> starbase/main
 
 # Optionally build your docs in additional formats such as PDF
 # formats:
@@ -18,7 +22,11 @@ sphinx:
 build:
   os: ubuntu-24.04
   tools:
+<<<<<<< HEAD
     python: "3.10"
+=======
+    python: "3.12"
+>>>>>>> starbase/main
   jobs:
     post_checkout:
       - git fetch --tags --unshallow # Also fetch tags
@@ -29,4 +37,11 @@ build:
     create_environment:
       - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
     install:
+<<<<<<< HEAD
       - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --group docs
+=======
+      - make setup-docs UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}"
+    build:
+      html:
+        - make docs UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" DOCS_OUTPUT="$READTHEDOCS_OUTPUT/html/"
+>>>>>>> starbase/main

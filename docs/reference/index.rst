@@ -1,6 +1,7 @@
 .. _reference:
 
 Reference
+<<<<<<< HEAD
 *********
 
 .. toctree::
@@ -12,6 +13,15 @@ Reference
 
 Indices and tables
 ==================
+=======
+=========
+
+.. toctree::
+   :maxdepth: 1
+
+Indices and tables
+------------------
+>>>>>>> starbase/main
 
 * :ref:`genindex`
 * :ref:`modindex`
