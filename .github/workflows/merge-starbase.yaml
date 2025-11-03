@@ -102,6 +102,24 @@ jobs:
             git add -A
           fi
 
+      - name: Exclude workflow files
+        if: steps.merge.outputs.has_changes == 'true'
+        run: |
+          # Reset workflow files to avoid permission issues
+          # Workflow changes require special permissions and should be reviewed separately
+          if git diff --cached --name-only | grep -q '^\.github/workflows/'; then
+            echo "Excluding workflow file changes (require 'actions: write' permission)"
+            git diff --cached --name-only | grep '^\.github/workflows/' | xargs git reset HEAD --
+            git checkout HEAD -- .github/workflows/ 2>/dev/null || true
+            echo "## Workflow Files Excluded" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Workflow file changes were excluded from this automated merge." >> $GITHUB_STEP_SUMMARY
+            echo "These changes require manual review and merging:" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            git diff starbase/main HEAD -- .github/workflows/ --name-only >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
       - name: Commit merge
         if: steps.merge.outputs.has_changes == 'true'
         run: |
@@ -132,6 +150,7 @@ jobs:
 
           ### Review Notes
           - Files like `common.mk` should only be edited in starbase, so starbase's version is automatically used
+          - **Workflow files (`.github/workflows/`) are excluded** from this automated merge and must be updated manually
           - Please review all other changes carefully
           - Some conflicts may require manual resolution - check for conflict markers
           - Use GitHub Copilot to help determine which changes from starbase vs craft-platforms should be kept
