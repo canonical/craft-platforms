@@ -48,16 +48,21 @@ jobs:
         id: merge
         run: |
           # Check if we're already up-to-date
-          if git merge-base --is-ancestor starbase/main HEAD; then
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "Already up-to-date with starbase/main"
-            echo "## Already Up-to-Date" >> $GITHUB_STEP_SUMMARY
-            echo "No changes to merge from starbase. Repository is already up-to-date." >> $GITHUB_STEP_SUMMARY
-            exit 0
+          # First check if there's a common ancestor
+          if git merge-base starbase/main HEAD >/dev/null 2>&1; then
+            # If there's a common ancestor, check if we're up-to-date
+            if git merge-base --is-ancestor starbase/main HEAD; then
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+              echo "Already up-to-date with starbase/main"
+              echo "## Already Up-to-Date" >> $GITHUB_STEP_SUMMARY
+              echo "No changes to merge from starbase. Repository is already up-to-date." >> $GITHUB_STEP_SUMMARY
+              exit 0
+            fi
           fi
 
           # Attempt to merge starbase/main into current branch
-          if git merge starbase/main --no-commit --no-ff; then
+          # Use --allow-unrelated-histories in case the repositories don't share history
+          if git merge starbase/main --no-commit --no-ff --allow-unrelated-histories; then
             echo "merge_status=clean" >> $GITHUB_OUTPUT
             echo "has_changes=true" >> $GITHUB_OUTPUT
             echo "Merge completed without conflicts"
