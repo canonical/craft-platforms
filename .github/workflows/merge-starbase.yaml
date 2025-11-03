@@ -1,0 +1,173 @@
+name: Merge Starbase
+
+on:
+  # Run every Monday at 9:00 AM UTC
+  schedule:
+    - cron: '0 9 * * 1'
+
+  # Run on PRs that modify this workflow
+  pull_request:
+    paths:
+      - ".github/workflows/merge-starbase.yaml"
+
+  # Allow manual triggering
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  merge-starbase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # Full history needed for merge
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add starbase remote
+        run: |
+          git remote add starbase https://github.com/canonical/starbase.git || true
+          git fetch starbase main
+
+      - name: Create merge branch
+        id: create-branch
+        run: |
+          BRANCH_NAME="bot/merge-starbase-$(date +%Y%m%d-%H%M%S)"
+          echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          git checkout -b "${BRANCH_NAME}"
+
+      - name: Merge starbase changes
+        id: merge
+        run: |
+          # Check if we're already up-to-date
+          # First check if there's a common ancestor
+          if git merge-base starbase/main HEAD >/dev/null 2>&1; then
+            # If there's a common ancestor, check if we're up-to-date
+            if git merge-base --is-ancestor starbase/main HEAD; then
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+              echo "Already up-to-date with starbase/main"
+              echo "## Already Up-to-Date" >> $GITHUB_STEP_SUMMARY
+              echo "No changes to merge from starbase. Repository is already up-to-date." >> $GITHUB_STEP_SUMMARY
+              exit 0
+            fi
+          fi
+
+          # Attempt to merge starbase/main into current branch
+          # Use --allow-unrelated-histories in case the repositories don't share history
+          if git merge starbase/main --no-commit --no-ff --allow-unrelated-histories; then
+            echo "merge_status=clean" >> $GITHUB_OUTPUT
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Merge completed without conflicts"
+          else
+            echo "merge_status=conflicts" >> $GITHUB_OUTPUT
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Merge has conflicts that need resolution"
+            # List conflicted files
+            echo "Conflicted files:"
+            git diff --name-only --diff-filter=U
+          fi
+
+      - name: Handle merge conflicts
+        if: steps.merge.outputs.has_changes == 'true' && steps.merge.outputs.merge_status == 'conflicts'
+        run: |
+          # For files that should come from starbase (like common.mk),
+          # use theirs version
+          STARBASE_FILES="common.mk"
+          for file in $STARBASE_FILES; do
+            if git diff --name-only --diff-filter=U | grep -q "^${file}$"; then
+              echo "Using starbase version for $file"
+              git checkout --theirs "$file"
+              git add "$file"
+            fi
+          done
+
+          # Check if all conflicts are resolved
+          if git diff --name-only --diff-filter=U | grep -q .; then
+            echo "Some conflicts remain unresolved. Manual intervention required."
+            echo "## Merge Conflicts Detected" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The following files have conflicts that need manual resolution:" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            git diff --name-only --diff-filter=U >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            # Stage all files to create a commit even with markers
+            git add -A
+          fi
+
+      - name: Exclude workflow files
+        if: steps.merge.outputs.has_changes == 'true'
+        run: |
+          # Reset workflow files to avoid permission issues
+          # Workflow changes require special permissions and should be reviewed separately
+          if git diff --cached --name-only | grep -q '^\.github/workflows/'; then
+            echo "Excluding workflow file changes (require 'actions: write' permission)"
+            git diff --cached --name-only | grep '^\.github/workflows/' | xargs git reset HEAD --
+            git checkout HEAD -- .github/workflows/ 2>/dev/null || true
+            echo "## Workflow Files Excluded" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Workflow file changes were excluded from this automated merge." >> $GITHUB_STEP_SUMMARY
+            echo "These changes require manual review and merging:" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            git diff starbase/main HEAD -- .github/workflows/ --name-only >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Commit merge
+        if: steps.merge.outputs.has_changes == 'true'
+        run: |
+          git commit -m "chore(merge): merge latest changes from starbase" \
+            -m "This automated merge brings in the latest changes from the starbase repository." \
+            -m "Some files like common.mk are automatically taken from starbase as they should only be edited in the starbase repository." \
+            -m "Please review the changes and resolve any remaining conflicts if present." \
+            -m "Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
+      - name: Push branch
+        if: steps.merge.outputs.has_changes == 'true'
+        run: |
+          git push origin ${{ steps.create-branch.outputs.branch_name }}
+
+      - name: Create Pull Request
+        if: steps.merge.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cat > /tmp/pr-body.md << 'EOF'
+          ## Automated Starbase Merge
+
+          This PR merges the latest changes from the [starbase](https://github.com/canonical/starbase) repository.
+
+          ### Changes Included
+          - Updates to `common.mk` and other shared tooling files
+          - Latest build and development infrastructure improvements
+
+          ### Review Notes
+          - Files like `common.mk` should only be edited in starbase, so starbase's version is automatically used
+          - **Workflow files (`.github/workflows/`) are excluded** from this automated merge and must be updated manually
+          - Please review all other changes carefully
+          - Some conflicts may require manual resolution - check for conflict markers
+          - Use GitHub Copilot to help determine which changes from starbase vs craft-platforms should be kept
+
+          ### Testing
+          - [ ] Verify that `make help` works correctly
+          - [ ] Verify that `make lint` works correctly
+          - [ ] Verify that `make test` works correctly
+          - [ ] Review any modified workflows or configurations
+
+          **Note:** This PR was created automatically by the scheduled workflow.
+          EOF
+
+          gh pr create \
+            --title "chore: merge latest changes from starbase" \
+            --body-file /tmp/pr-body.md \
+            --base main \
+            --head ${{ steps.create-branch.outputs.branch_name }} \
+            --label "automated" \
+            --label "dependencies"
