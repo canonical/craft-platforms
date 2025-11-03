@@ -16,6 +16,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   merge-starbase:
@@ -91,6 +92,7 @@ jobs:
 
           # Check if all conflicts are resolved
           if git diff --name-only --diff-filter=U | grep -q .; then
+            echo "has_unresolved_conflicts=true" >> $GITHUB_OUTPUT
             echo "Some conflicts remain unresolved. Manual intervention required."
             echo "## Merge Conflicts Detected" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
@@ -98,30 +100,16 @@ jobs:
             echo '```' >> $GITHUB_STEP_SUMMARY
             git diff --name-only --diff-filter=U >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Please use GitHub Copilot to get suggestions for resolving these conflicts." >> $GITHUB_STEP_SUMMARY
             # Stage all files to create a commit even with markers
             git add -A
-          fi
-
-      - name: Exclude workflow files
-        if: steps.merge.outputs.has_changes == 'true'
-        run: |
-          # Reset workflow files to avoid permission issues
-          # Workflow changes require special permissions and should be reviewed separately
-          if git diff --cached --name-only | grep -q '^\.github/workflows/'; then
-            echo "Excluding workflow file changes (require 'actions: write' permission)"
-            git diff --cached --name-only | grep '^\.github/workflows/' | xargs git reset HEAD --
-            git checkout HEAD -- .github/workflows/ 2>/dev/null || true
-            echo "## Workflow Files Excluded" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Workflow file changes were excluded from this automated merge." >> $GITHUB_STEP_SUMMARY
-            echo "These changes require manual review and merging:" >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            git diff starbase/main HEAD -- .github/workflows/ --name-only >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "has_unresolved_conflicts=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Commit merge
-        if: steps.merge.outputs.has_changes == 'true'
+        if: steps.merge.outputs.has_changes == 'true' && github.event_name != 'pull_request'
         run: |
           git commit -m "chore(merge): merge latest changes from starbase" \
             -m "This automated merge brings in the latest changes from the starbase repository." \
@@ -130,16 +118,49 @@ jobs:
             -m "Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
       - name: Push branch
-        if: steps.merge.outputs.has_changes == 'true'
+        if: steps.merge.outputs.has_changes == 'true' && github.event_name != 'pull_request'
         run: |
           git push origin ${{ steps.create-branch.outputs.branch_name }}
 
-      - name: Create Pull Request
+      - name: Create Pull Request or Comment
         if: steps.merge.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cat > /tmp/pr-body.md << 'EOF'
+          # Check if we're running in a PR context
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # Post a comment on the PR instead of creating a new PR
+            cat > /tmp/comment.md << 'EOF'
+          ## Starbase Merge Test Results
+
+          This workflow was triggered by a PR to test the merge process.
+
+          ### Summary
+          EOF
+            
+            if [ "${{ steps.merge.outputs.merge_status }}" = "conflicts" ]; then
+              cat >> /tmp/comment.md << 'EOF'
+          ⚠️ **Merge conflicts detected**
+
+          The following files have conflicts:
+          EOF
+              echo '```' >> /tmp/comment.md
+              git diff --name-only --diff-filter=U >> /tmp/comment.md || echo "No unresolved conflicts" >> /tmp/comment.md
+              echo '```' >> /tmp/comment.md
+              echo "" >> /tmp/comment.md
+              echo "Please use GitHub Copilot to get suggestions for resolving these conflicts." >> /tmp/comment.md
+            else
+              cat >> /tmp/comment.md << 'EOF'
+          ✅ **Merge completed successfully without conflicts**
+
+          All changes from starbase were merged cleanly.
+          EOF
+            fi
+            
+            gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
+          else
+            # Create a new PR for the scheduled/manual run
+            cat > /tmp/pr-body.md << 'EOF'
           ## Automated Starbase Merge
 
           This PR merges the latest changes from the [starbase](https://github.com/canonical/starbase) repository.
@@ -147,13 +168,21 @@ jobs:
           ### Changes Included
           - Updates to `common.mk` and other shared tooling files
           - Latest build and development infrastructure improvements
+          - Workflow files from starbase
 
           ### Review Notes
           - Files like `common.mk` should only be edited in starbase, so starbase's version is automatically used
-          - **Workflow files (`.github/workflows/`) are excluded** from this automated merge and must be updated manually
-          - Please review all other changes carefully
-          - Some conflicts may require manual resolution - check for conflict markers
-          - Use GitHub Copilot to help determine which changes from starbase vs craft-platforms should be kept
+          - Please review all changes carefully
+          EOF
+            
+            if [ "${{ steps.merge.outputs.merge_status }}" = "conflicts" ]; then
+              cat >> /tmp/pr-body.md << 'EOF'
+          - ⚠️ **Some conflicts require manual resolution** - check for conflict markers
+          - Use GitHub Copilot to get suggestions for resolving the conflicts
+          EOF
+            fi
+            
+            cat >> /tmp/pr-body.md << 'EOF'
 
           ### Testing
           - [ ] Verify that `make help` works correctly
@@ -163,9 +192,14 @@ jobs:
 
           **Note:** This PR was created automatically by the scheduled workflow.
           EOF
-
-          gh pr create \
-            --title "chore: merge latest changes from starbase" \
-            --body-file /tmp/pr-body.md \
-            --base main \
-            --head ${{ steps.create-branch.outputs.branch_name }}
+            
+            # Create PR with appropriate flags
+            PR_FLAGS="--title \"chore: merge latest changes from starbase\" --body-file /tmp/pr-body.md --base main --head ${{ steps.create-branch.outputs.branch_name }}"
+            
+            if [ "${{ steps.merge.outputs.merge_status }}" = "conflicts" ]; then
+              # Mark as draft and assign to lengau if there are conflicts
+              gh pr create $PR_FLAGS --draft --assignee lengau
+            else
+              gh pr create $PR_FLAGS
+            fi
+          fi
