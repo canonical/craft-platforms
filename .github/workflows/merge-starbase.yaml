@@ -5,6 +5,11 @@ on:
   schedule:
     - cron: '0 9 * * 1'
 
+  # Run on PRs that modify this workflow
+  pull_request:
+    paths:
+      - ".github/workflows/merge-starbase.yaml"
+
   # Allow manual triggering
   workflow_dispatch:
 
