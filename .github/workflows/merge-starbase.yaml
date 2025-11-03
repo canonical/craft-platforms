@@ -3,7 +3,7 @@ name: Merge Starbase
 on:
   # Run every Monday at 9:00 AM UTC
   schedule:
-    - cron: '0 9 * * 1'
+    - cron: "0 9 * * 1"
 
   # Run on PRs that modify this workflow
   pull_request:
@@ -24,7 +24,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0  # Full history needed for merge
+          fetch-depth: 0 # Full history needed for merge
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
