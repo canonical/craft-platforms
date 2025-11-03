@@ -47,12 +47,23 @@ jobs:
       - name: Merge starbase changes
         id: merge
         run: |
+          # Check if we're already up-to-date
+          if git merge-base --is-ancestor starbase/main HEAD; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "Already up-to-date with starbase/main"
+            echo "## Already Up-to-Date" >> $GITHUB_STEP_SUMMARY
+            echo "No changes to merge from starbase. Repository is already up-to-date." >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+
           # Attempt to merge starbase/main into current branch
           if git merge starbase/main --no-commit --no-ff; then
             echo "merge_status=clean" >> $GITHUB_OUTPUT
+            echo "has_changes=true" >> $GITHUB_OUTPUT
             echo "Merge completed without conflicts"
           else
             echo "merge_status=conflicts" >> $GITHUB_OUTPUT
+            echo "has_changes=true" >> $GITHUB_OUTPUT
             echo "Merge has conflicts that need resolution"
             # List conflicted files
             echo "Conflicted files:"
@@ -60,7 +71,7 @@ jobs:
           fi
 
       - name: Handle merge conflicts
-        if: steps.merge.outputs.merge_status == 'conflicts'
+        if: steps.merge.outputs.has_changes == 'true' && steps.merge.outputs.merge_status == 'conflicts'
         run: |
           # For files that should come from starbase (like common.mk),
           # use theirs version
@@ -87,6 +98,7 @@ jobs:
           fi
 
       - name: Commit merge
+        if: steps.merge.outputs.has_changes == 'true'
         run: |
           git commit -m "chore(merge): merge latest changes from starbase" \
             -m "This automated merge brings in the latest changes from the starbase repository." \
@@ -95,10 +107,12 @@ jobs:
             -m "Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
       - name: Push branch
+        if: steps.merge.outputs.has_changes == 'true'
         run: |
           git push origin ${{ steps.create-branch.outputs.branch_name }}
 
       - name: Create Pull Request
+        if: steps.merge.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
