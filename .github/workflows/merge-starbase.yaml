@@ -71,9 +71,21 @@ jobs:
             echo "merge_status=conflicts" >> $GITHUB_OUTPUT
             echo "has_changes=true" >> $GITHUB_OUTPUT
             echo "Merge has conflicts that need resolution"
+            # Save list of conflicted files for later use
+            git diff --name-only --diff-filter=U > /tmp/conflicted-files.txt
+            # Save conflict details
+            echo "## Conflicted Files" > /tmp/conflict-details.txt
+            echo "" >> /tmp/conflict-details.txt
+            for file in $(cat /tmp/conflicted-files.txt); do
+              echo "### $file" >> /tmp/conflict-details.txt
+              echo '```diff' >> /tmp/conflict-details.txt
+              git diff "$file" | head -100 >> /tmp/conflict-details.txt
+              echo '```' >> /tmp/conflict-details.txt
+              echo "" >> /tmp/conflict-details.txt
+            done
             # List conflicted files
             echo "Conflicted files:"
-            git diff --name-only --diff-filter=U
+            cat /tmp/conflicted-files.txt
           fi
 
       - name: Handle merge conflicts
@@ -145,8 +157,22 @@ jobs:
           The following files have conflicts:
           EOF
               echo '```' >> /tmp/comment.md
-              git diff --name-only --diff-filter=U >> /tmp/comment.md || echo "No unresolved conflicts" >> /tmp/comment.md
+              if [ -f /tmp/conflicted-files.txt ]; then
+                cat /tmp/conflicted-files.txt >> /tmp/comment.md
+              else
+                echo "Unable to retrieve conflict list" >> /tmp/comment.md
+              fi
               echo '```' >> /tmp/comment.md
+              echo "" >> /tmp/comment.md
+              echo "<details><summary>Conflict Details</summary>" >> /tmp/comment.md
+              echo "" >> /tmp/comment.md
+              if [ -f /tmp/conflict-details.txt ]; then
+                cat /tmp/conflict-details.txt >> /tmp/comment.md
+              else
+                echo "Unable to retrieve conflict details" >> /tmp/comment.md
+              fi
+              echo "" >> /tmp/comment.md
+              echo "</details>" >> /tmp/comment.md
               echo "" >> /tmp/comment.md
               echo "Please use GitHub Copilot to get suggestions for resolving these conflicts." >> /tmp/comment.md
             else
