@@ -18,6 +18,7 @@ import pathlib
 import craft_platforms
 import pytest
 import yaml
+from craft_platforms._errors import InvalidPlatformNameError
 
 
 @pytest.mark.parametrize(
@@ -37,3 +38,23 @@ def test_valid_projects_succeed(filename: str) -> None:
     expected = project_data["_build_plan"]
 
     assert [repr(item) for item in build_plan] == expected
+
+
+@pytest.mark.parametrize(
+    ("filename"),
+    [
+        path.name
+        for path in (pathlib.Path(__file__).parent / "invalid-platform-names").iterdir()
+    ],
+)
+def test_invalid_platform_names(filename: str) -> None:
+    app_name = filename.partition("-")[0]
+    with (
+        pathlib.Path(__file__).parent / "invalid-platform-names" / filename
+    ).open() as f:
+        project_data = yaml.safe_load(f)
+
+    with pytest.raises(
+        InvalidPlatformNameError, match="Platform name '.*' is reserved."
+    ):
+        craft_platforms.get_build_plan(app=app_name, project_data=project_data)

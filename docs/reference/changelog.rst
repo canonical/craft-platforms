@@ -2,6 +2,30 @@
 Changelog
 *********
 
+.. Release template:
+    a.b.c (unrelased)
+    -----------------
+
+    Section
+    =======
+
+    - Change
+
+    For a complete list of commits, check out the `a.b.c`_ release on GitHub.
+
+0.11.0 (unreleased)
+-------------------
+
+Breaking changes
+================
+
+- When Craft Grammar introduced platform selector grammar, the ``*`` and ``any``
+  platform names became standard craft vocabulary. These are now reserved platform
+  names in Craft Platforms, and users are warned if they try and define new platforms
+  using them.
+
+For a complete list of commits, check out the `0.11.0`_ release on GitHub.
+
 0.10.0 (2025-07-17)
 -------------------
 
@@ -146,6 +170,7 @@ New Features
 For a complete list of commits, check out the `0.1.0`_ release on GitHub.
 
 
+.. _0.11.0: https://github.com/canonical/craft-platforms/releases/tag/0.11.0
 .. _0.3.1: https://github.com/canonical/craft-platforms/releases/tag/0.3.1
 .. _0.3.0: https://github.com/canonical/craft-platforms/releases/tag/0.3.0
 .. _0.2.0: https://github.com/canonical/craft-platforms/releases/tag/0.2.0
