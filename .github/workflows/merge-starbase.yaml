@@ -168,6 +168,4 @@ jobs:
             --title "chore: merge latest changes from starbase" \
             --body-file /tmp/pr-body.md \
             --base main \
-            --head ${{ steps.create-branch.outputs.branch_name }} \
-            --label "automated" \
-            --label "dependencies"
+            --head ${{ steps.create-branch.outputs.branch_name }}
