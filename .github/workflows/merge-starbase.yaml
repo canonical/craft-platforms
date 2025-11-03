@@ -164,12 +164,35 @@ jobs:
             echo "✓ All conflicts resolved automatically!" >> $GITHUB_STEP_SUMMARY
           fi
 
+      - name: Regenerate uv.lock
+        if: steps.merge.outputs.has_changes == 'true' && github.event_name != 'pull_request'
+        run: |
+          echo "Regenerating uv.lock file..."
+          # Check if uv is available, install if needed
+          if ! command -v uv &> /dev/null; then
+            echo "Installing uv..."
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            export PATH="$HOME/.local/bin:$PATH"
+          fi
+
+          # Regenerate the lock file
+          uv lock
+
+          # Check if lock file was modified
+          if git diff --quiet uv.lock; then
+            echo "uv.lock unchanged"
+          else
+            echo "uv.lock regenerated and updated"
+            git add uv.lock
+          fi
+
       - name: Commit merge
         if: steps.merge.outputs.has_changes == 'true' && github.event_name != 'pull_request'
         run: |
           git commit -m "chore(merge): merge latest changes from starbase" \
             -m "This automated merge brings in the latest changes from the starbase repository." \
             -m "Some files like common.mk are automatically taken from starbase as they should only be edited in the starbase repository." \
+            -m "The uv.lock file has been regenerated to reflect any dependency changes." \
             -m "Please review the changes and resolve any remaining conflicts if present." \
             -m "Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
