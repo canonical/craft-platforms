@@ -13,6 +13,20 @@ repository. Once you've done that, clone the project to your computer using git
 clone's ``--recurse-submodules`` parameter. (See more on the `git submodules`_
 documentation.)
 
+Starbase Integration
+====================
+This repository uses common tooling files (like ``common.mk``) from the
+starbase_ repository. These files should only be edited in starbase, not here.
+
+A scheduled GitHub Actions workflow runs weekly to automatically merge the
+latest changes from starbase into this repository. The workflow creates a pull
+request with the merged changes, which should be reviewed before merging. Files
+that should always come from starbase (like ``common.mk``) are automatically
+taken from starbase's version during the merge.
+
+The workflow can also be triggered manually from the GitHub Actions tab if
+you need to merge starbase changes outside of the regular schedule.
+
 Tooling
 =======
 We use a large number of tools for our project. Most of these are installed for
@@ -279,4 +293,5 @@ Example footers::
 .. _pytest: https://pytest.org
 .. _ruff: https://github.com/charliermarsh/ruff
 .. _ShellCheck: https://www.shellcheck.net/
+.. _starbase: https://github.com/canonical/starbase
 .. _tox: https://tox.wiki

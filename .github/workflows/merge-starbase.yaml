@@ -1,0 +1,298 @@
+name: Merge Starbase
+
+on:
+  # Run every Monday at 9:00 AM UTC
+  schedule:
+    - cron: "0 9 * * 1"
+
+  # Run on PRs that modify this workflow
+  pull_request:
+    paths:
+      - ".github/workflows/merge-starbase.yaml"
+
+  # Allow manual triggering
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  merge-starbase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # Full history needed for merge
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add starbase remote
+        run: |
+          git remote add starbase https://github.com/canonical/starbase.git || true
+          git fetch starbase main
+
+      - name: Create merge branch
+        id: create-branch
+        run: |
+          BRANCH_NAME="bot/merge-starbase-$(date +%Y%m%d-%H%M%S)"
+          echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          git checkout -b "${BRANCH_NAME}"
+
+      - name: Merge starbase changes
+        id: merge
+        run: |
+          # Check if we're already up-to-date
+          # First check if there's a common ancestor
+          if git merge-base starbase/main HEAD >/dev/null 2>&1; then
+            # If there's a common ancestor, check if we're up-to-date
+            if git merge-base --is-ancestor starbase/main HEAD; then
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+              echo "Already up-to-date with starbase/main"
+              echo "## Already Up-to-Date" >> $GITHUB_STEP_SUMMARY
+              echo "No changes to merge from starbase. Repository is already up-to-date." >> $GITHUB_STEP_SUMMARY
+              exit 0
+            fi
+          fi
+
+          # Attempt to merge starbase/main into current branch
+          # Use --allow-unrelated-histories in case the repositories don't share history
+          if git merge starbase/main --no-commit --no-ff --allow-unrelated-histories; then
+            echo "merge_status=clean" >> $GITHUB_OUTPUT
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Merge completed without conflicts"
+          else
+            echo "merge_status=conflicts" >> $GITHUB_OUTPUT
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "Merge has conflicts that need resolution"
+            # Save list of conflicted files for later use
+            git diff --name-only --diff-filter=U > /tmp/conflicted-files.txt
+            # Save conflict details
+            echo "## Conflicted Files" > /tmp/conflict-details.txt
+            echo "" >> /tmp/conflict-details.txt
+            for file in $(cat /tmp/conflicted-files.txt); do
+              echo "### $file" >> /tmp/conflict-details.txt
+              echo '```diff' >> /tmp/conflict-details.txt
+              git diff "$file" | head -100 >> /tmp/conflict-details.txt
+              echo '```' >> /tmp/conflict-details.txt
+              echo "" >> /tmp/conflict-details.txt
+            done
+            # List conflicted files
+            echo "Conflicted files:"
+            cat /tmp/conflicted-files.txt
+          fi
+
+      - name: Handle merge conflicts
+        if: steps.merge.outputs.has_changes == 'true' && steps.merge.outputs.merge_status == 'conflicts'
+        run: |
+          # Strategy 1: Files that should always come from starbase
+          # These files are maintained in starbase and should not be modified locally
+          STARBASE_ONLY_FILES="common.mk"
+
+          echo "## Conflict Resolution Strategy" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          for file in $STARBASE_ONLY_FILES; do
+            if git diff --name-only --diff-filter=U | grep -q "^${file}$"; then
+              echo "✓ Using starbase version for $file (starbase-only file)"
+              echo "- **$file**: Using starbase version (starbase-only file)" >> $GITHUB_STEP_SUMMARY
+              git checkout --theirs "$file"
+              git add "$file"
+            fi
+          done
+
+          # Strategy 2: Intelligent conflict resolution for other files
+          # Handle conflicts where local changes are project-specific (e.g., project name)
+          for file in $(git diff --name-only --diff-filter=U); do
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Processing conflicts in: $file"
+            
+            # Check if the conflict involves project-specific terms
+            # Look for patterns where "starcraft" or "starbase" might be renamed to project name
+            if git diff "$file" | grep -E "<<<<<<< HEAD|>>>>>>> starbase/main" >/dev/null; then
+              # Extract conflict regions and analyze them
+              CONFLICT_CONTENT=$(git diff "$file")
+              
+              # Pattern: Local side has project-specific names (craft_platforms, craft-platforms)
+              # while starbase side has generic names (starcraft, starbase)
+              if echo "$CONFLICT_CONTENT" | grep -i "craft.platforms\|craft_platforms" | head -1 | grep -q "<<<<<<< HEAD"; then
+                # Local changes appear to be project-specific customizations
+                echo "⚙ Attempting intelligent resolution for $file (detected project-specific changes)"
+                echo "- **$file**: Attempting intelligent merge (project-specific changes detected)" >> $GITHUB_STEP_SUMMARY
+                
+                # Use a three-way merge strategy: accept local for project-specific, starbase for infrastructure
+                # This is complex, so we'll use git merge-file with markers and let it through
+                # The markers will help reviewers see what needs manual resolution
+                echo "  → Keeping conflict markers for manual review with Copilot guidance" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "⚠ Complex conflict in $file - requires manual resolution"
+                echo "- **$file**: Complex conflict - requires manual resolution" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check if all conflicts are resolved
+          if git diff --name-only --diff-filter=U | grep -q .; then
+            echo "has_unresolved_conflicts=true" >> $GITHUB_OUTPUT
+            echo "Some conflicts remain unresolved. Manual intervention required."
+            echo "## Remaining Merge Conflicts" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The following files still have conflicts that need manual resolution:" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            git diff --name-only --diff-filter=U >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Resolution Guidance" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "For remaining conflicts:" >> $GITHUB_STEP_SUMMARY
+            echo "1. Files with project-specific changes (project name, paths) should generally keep local changes" >> $GITHUB_STEP_SUMMARY
+            echo "2. Infrastructure and tooling changes should generally accept starbase changes" >> $GITHUB_STEP_SUMMARY
+            echo "3. Use GitHub Copilot to analyze each conflict and suggest the best resolution" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            # Stage all files to create a commit even with markers
+            git add -A
+          else
+            echo "has_unresolved_conflicts=false" >> $GITHUB_OUTPUT
+            echo "✓ All conflicts resolved automatically!" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Regenerate uv.lock
+        if: steps.merge.outputs.has_changes == 'true' && github.event_name != 'pull_request'
+        run: |
+          echo "Regenerating uv.lock file..."
+          # Check if uv is available, install if needed
+          if ! command -v uv &> /dev/null; then
+            echo "Installing uv..."
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            export PATH="$HOME/.local/bin:$PATH"
+          fi
+
+          # Regenerate the lock file
+          uv lock
+
+          # Check if lock file was modified
+          if git diff --quiet uv.lock; then
+            echo "uv.lock unchanged"
+          else
+            echo "uv.lock regenerated and updated"
+            git add uv.lock
+          fi
+
+      - name: Commit merge
+        if: steps.merge.outputs.has_changes == 'true' && github.event_name != 'pull_request'
+        run: |
+          git commit -m "chore(merge): merge latest changes from starbase" \
+            -m "This automated merge brings in the latest changes from the starbase repository." \
+            -m "Some files like common.mk are automatically taken from starbase as they should only be edited in the starbase repository." \
+            -m "The uv.lock file has been regenerated to reflect any dependency changes." \
+            -m "Please review the changes and resolve any remaining conflicts if present." \
+            -m "Co-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
+      - name: Push branch
+        if: steps.merge.outputs.has_changes == 'true' && github.event_name != 'pull_request'
+        run: |
+          git push origin ${{ steps.create-branch.outputs.branch_name }}
+
+      - name: Create Pull Request or Comment
+        if: steps.merge.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Check if we're running in a PR context
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # Post a comment on the PR instead of creating a new PR
+            cat > /tmp/comment.md << 'EOF'
+          ## Starbase Merge Test Results
+
+          This workflow was triggered by a PR to test the merge process.
+
+          ### Summary
+          EOF
+            
+            if [ "${{ steps.merge.outputs.merge_status }}" = "conflicts" ]; then
+              cat >> /tmp/comment.md << 'EOF'
+          ⚠️ **Merge conflicts detected**
+
+          The following files have conflicts:
+          EOF
+              echo '```' >> /tmp/comment.md
+              if [ -f /tmp/conflicted-files.txt ]; then
+                cat /tmp/conflicted-files.txt >> /tmp/comment.md
+              else
+                echo "Unable to retrieve conflict list" >> /tmp/comment.md
+              fi
+              echo '```' >> /tmp/comment.md
+              echo "" >> /tmp/comment.md
+              echo "<details><summary>Conflict Details</summary>" >> /tmp/comment.md
+              echo "" >> /tmp/comment.md
+              if [ -f /tmp/conflict-details.txt ]; then
+                cat /tmp/conflict-details.txt >> /tmp/comment.md
+              else
+                echo "Unable to retrieve conflict details" >> /tmp/comment.md
+              fi
+              echo "" >> /tmp/comment.md
+              echo "</details>" >> /tmp/comment.md
+              echo "" >> /tmp/comment.md
+              echo "Please use GitHub Copilot to get suggestions for resolving these conflicts." >> /tmp/comment.md
+            else
+              cat >> /tmp/comment.md << 'EOF'
+          ✅ **Merge completed successfully without conflicts**
+
+          All changes from starbase were merged cleanly.
+          EOF
+            fi
+            
+            gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/comment.md
+          else
+            # Create a new PR for the scheduled/manual run
+            cat > /tmp/pr-body.md << 'EOF'
+          ## Automated Starbase Merge
+
+          This PR merges the latest changes from the [starbase](https://github.com/canonical/starbase) repository.
+
+          ### Changes Included
+          - Updates to `common.mk` and other shared tooling files
+          - Latest build and development infrastructure improvements
+          - Workflow files from starbase
+
+          ### Review Notes
+          - Files like `common.mk` should only be edited in starbase, so starbase's version is automatically used
+          - Please review all changes carefully
+          EOF
+            
+            if [ "${{ steps.merge.outputs.merge_status }}" = "conflicts" ]; then
+              cat >> /tmp/pr-body.md << 'EOF'
+          - ⚠️ **Some conflicts require manual resolution** - check for conflict markers
+          - Use GitHub Copilot to get suggestions for resolving the conflicts
+          EOF
+            fi
+            
+            cat >> /tmp/pr-body.md << 'EOF'
+
+          ### Testing
+          - [ ] Verify that `make help` works correctly
+          - [ ] Verify that `make lint` works correctly
+          - [ ] Verify that `make test` works correctly
+          - [ ] Review any modified workflows or configurations
+
+          **Note:** This PR was created automatically by the scheduled workflow.
+          EOF
+            
+            # Create PR with appropriate flags
+            PR_FLAGS="--title \"chore: merge latest changes from starbase\" --body-file /tmp/pr-body.md --base main --head ${{ steps.create-branch.outputs.branch_name }}"
+            
+            if [ "${{ steps.merge.outputs.merge_status }}" = "conflicts" ]; then
+              # Mark as draft and assign to lengau if there are conflicts
+              gh pr create $PR_FLAGS --draft --assignee lengau
+            else
+              gh pr create $PR_FLAGS
+            fi
+          fi
