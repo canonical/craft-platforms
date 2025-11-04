@@ -18,4 +18,4 @@
 /craft_platforms/snap   @mr-cal
 
 # Finally, all CODEOWNERS changes need to be approved by The Man, Himself.
-/.github/CODEOWNERS     @sergiusens
+/.github/CODEOWNERS     @steinbro
