@@ -138,7 +138,13 @@ def parse_base_and_name(platform_name: str) -> Tuple[Optional[_distro.DistroBase
     """
     if ":" in platform_name:
         base_str, _, name = platform_name.partition(":")
-        base = _distro.DistroBase.from_str(base_str)
+        # Only parse as base if it contains "@" (looks like a base string)
+        if "@" in base_str:
+            base = _distro.DistroBase.from_str(base_str)
+        else:
+            # Treat the whole string as the platform name
+            base = None
+            name = platform_name
     else:
         base = None
         name = platform_name
