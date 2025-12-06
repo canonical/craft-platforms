@@ -418,9 +418,7 @@ def test_parse_base_and_name(given, expected):
 
 def test_parse_base_and_name_invalid_base():
     """Test that invalid base strings with @ and multiple @ are caught."""
-    expected = (
-        "Invalid base string 'invalid@@base'. Format should be '<distribution>@<series>'"
-    )
+    expected = "Invalid base string 'invalid@@base'. Format should be '<distribution>@<series>'"
 
     with pytest.raises(ValueError, match=expected):
         craft_platforms.parse_base_and_name("invalid@@base:my-platform")
