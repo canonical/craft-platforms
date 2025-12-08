@@ -20,7 +20,7 @@ jobs:
         run: |
           sudo snap install --classic astral-uv --no-wait
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Finish UV install
@@ -33,7 +33,7 @@ jobs:
         run: |
           UV_PYTHON=3.10 make docs
       - name: Upload documentation
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: docs
           path: docs/_build/
