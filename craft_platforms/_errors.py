@@ -201,7 +201,7 @@ class AllInMultiplePlatformsError(BuildForAllError):
 
 
 class NeedBuildBaseError(CraftPlatformsError, ValueError):
-    """Error when ``base`` requires a ``build_base``, but none is unspecified."""
+    """Error when ``base`` requires a ``build_base``, but none is specified."""
 
     def __init__(self, base: str) -> None:
         super().__init__(
