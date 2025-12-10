@@ -17,7 +17,7 @@
 
 import itertools
 import typing
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Collection, Dict, List, Optional, Sequence, Tuple, Union
 
 import annotated_types
 from typing_extensions import Annotated
@@ -52,8 +52,18 @@ def get_platforms_build_plan(
     base: Union[str, _distro.DistroBase],
     platforms: Platforms,
     build_base: Optional[str] = None,
+    *,
+    allow_all_and_architecture_dependent: bool = False,
 ) -> Sequence[_buildinfo.BuildInfo]:
-    """Generate the build plan for a platforms-based artefact."""
+    """Generate the build plan for a platforms-based artifact.
+
+    :param base: The target base
+    :param platforms: A dictionary of the platforms.
+    :param build_base: The build base, if declared.
+    :param allow_all_and_architecture_dependent: whether to allow architecture-dependent
+        platforms and architecture-independent platforms to coexist. This does not
+        change the fact that only one architecture-independent platform can exist.
+    """
     if isinstance(base, _distro.DistroBase):
         distro_base = base
     else:
@@ -114,15 +124,43 @@ def get_platforms_build_plan(
 
     build_for_archs = {info.build_for for info in build_plan}
     if "all" in build_for_archs:
-        platforms_with_all = {
-            info.platform for info in build_plan if info.build_for == "all"
+        _validate_build_for_all(
+            build_plan,
+            platforms,
+            build_for_archs,
+            allow_all_and_architecture_dependent=allow_all_and_architecture_dependent,
+        )
+
+    return build_plan
+
+
+def _validate_build_for_all(
+    build_plan: Collection[_buildinfo.BuildInfo],
+    platforms: Platforms,
+    build_for_archs: Collection[str],
+    *,
+    allow_all_and_architecture_dependent: bool,
+) -> None:
+    """Validate the build plan if there's a "bulid-for: all"."""
+    platforms_with_all = {
+        info.platform for info in build_plan if info.build_for == "all"
+    }
+    if allow_all_and_architecture_dependent:
+        if len(platforms_with_all) > 1:
+            raise _errors.AllInMultiplePlatformsError(platforms_with_all)
+        platforms_with_all_and_another = {
+            platform
+            for platform in platforms_with_all
+            if len((platforms.get(platform) or {}).get("build-for", ())) > 1
         }
+        if platforms_with_all_and_another:
+            raise _errors.AllOnlyBuildInPlatformError(platforms_with_all_and_another)
+
+    else:
         if len(platforms_with_all) > 1:
             raise _errors.AllSinglePlatformError(platforms_with_all)
         if len(build_for_archs) > 1:
             raise _errors.AllOnlyBuildError(platforms_with_all)
-
-    return build_plan
 
 
 def parse_base_and_name(platform_name: str) -> Tuple[Optional[_distro.DistroBase], str]:

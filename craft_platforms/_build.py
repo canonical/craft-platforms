@@ -17,12 +17,13 @@
 
 from typing import Any, Callable, Dict, Iterable
 
-from craft_platforms import charm, rock, snap
+from craft_platforms import charm, deb, rock, snap
 from craft_platforms._buildinfo import BuildInfo
 from craft_platforms._platforms import get_platforms_build_plan
 
 _APP_SPECIFIC_PLANNERS: Dict[str, Callable[..., Iterable[BuildInfo]]] = {
     "charmcraft": charm.get_charm_build_plan,
+    "debcraft": deb.get_deb_build_plan,
     "rockcraft": rock.get_rock_build_plan,
     "snapcraft": snap.get_platforms_snap_build_plan,
 }
