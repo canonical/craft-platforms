@@ -141,7 +141,7 @@ def _validate_build_for_all(
     *,
     allow_all_and_architecture_dependent: bool,
 ) -> None:
-    """Validate the build plan if there's a "bulid-for: all"."""
+    """Validate the build plan if there's a "build-for: all"."""
     platforms_with_all = {
         info.platform for info in build_plan if info.build_for == "all"
     }

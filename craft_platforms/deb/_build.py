@@ -13,11 +13,9 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Rockcraft-specific platforms information."""
+"""Debcraft-specific platforms information."""
 
 from typing import Optional, Sequence
-
-import distro
 
 from craft_platforms import _buildinfo, _platforms
 from craft_platforms._architectures import DebianArchitecture
@@ -29,18 +27,19 @@ def get_deb_build_plan(
     platforms: Optional[_platforms.Platforms],
     build_base: Optional[str] = None,
 ) -> Sequence[_buildinfo.BuildInfo]:
-    """Generate the build plan for a rock.
+    """Generate the build plan for a deb.
 
-    This function uses the default build planner, but filters it to prevent the use of
-    ``build-for: all``
+    This function uses the default build planner and enables the use of
+    ``build-for: all`` alongside architecture-dependent builds. It also fills in
+    default values that are optional specifically for debcraft.
 
-    :param base: the rock base (e.g. ``'ubuntu@24.04'``)
-    :param platforms: the platforms structure in ``rockcraft.yaml``
-    :param build_base: the build base, if provided in ``rockcraft.yaml``.
+    :param base: the deb base (e.g. ``'ubuntu@24.04'``)
+    :param platforms: the platforms structure in ``debcraft.yaml``
+    :param build_base: the build base, if provided in ``debcraft.yaml``.
     :raises NeedsBuildBaseError: If base is bare and no build base is specified
     """
     if not base:
-        base = str(DistroBase.from_linux_distribution(distro.LinuxDistribution()))
+        base = str(DistroBase.from_host())
     if not platforms:
         platforms = {
             "all": {

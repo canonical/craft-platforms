@@ -13,7 +13,7 @@
 #
 # You should have received a copy of the GNU Lesser General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""Charm-specific module for craft-platforms."""
+"""Deb-specific module for craft-platforms."""
 
 from ._build import get_deb_build_plan
 
