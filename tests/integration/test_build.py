@@ -28,6 +28,7 @@ from craft_platforms._errors import InvalidPlatformNameError
         for path in (pathlib.Path(__file__).parent / "valid-projects").iterdir()
     ],
 )
+@pytest.mark.usefixtures("fake_host_base_sid")
 def test_valid_projects_succeed(filename: str) -> None:
     app_name = filename.partition("-")[0]
     with (pathlib.Path(__file__).parent / "valid-projects" / filename).open() as f:
