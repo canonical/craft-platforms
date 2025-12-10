@@ -126,7 +126,6 @@ def get_platforms_build_plan(
     if "all" in build_for_archs:
         _validate_build_for_all(
             build_plan,
-            platforms,
             build_for_archs,
             allow_all_and_architecture_dependent=allow_all_and_architecture_dependent,
         )
@@ -136,7 +135,6 @@ def get_platforms_build_plan(
 
 def _validate_build_for_all(
     build_plan: Collection[_buildinfo.BuildInfo],
-    platforms: Platforms,
     build_for_archs: Collection[str],
     *,
     allow_all_and_architecture_dependent: bool,
@@ -148,14 +146,14 @@ def _validate_build_for_all(
     if allow_all_and_architecture_dependent:
         if len(platforms_with_all) > 1:
             raise _errors.AllInMultiplePlatformsError(platforms_with_all)
-        platforms_with_all_and_another = {
-            platform
-            for platform in platforms_with_all
-            if len((platforms.get(platform) or {}).get("build-for", ())) > 1
+        platforms_with_arch_dependent = {
+            info.platform for info in build_plan if info.build_for != "all"
         }
+        platforms_with_all_and_another = (
+            platforms_with_all & platforms_with_arch_dependent
+        )
         if platforms_with_all_and_another:
             raise _errors.AllOnlyBuildInPlatformError(platforms_with_all_and_another)
-
     else:
         if len(platforms_with_all) > 1:
             raise _errors.AllSinglePlatformError(platforms_with_all)
