@@ -18,7 +18,7 @@
 import dataclasses
 import os
 import typing
-from typing import Collection, Iterable, Optional
+from typing import Collection, Iterable, Literal, Optional
 
 # Workaround for Windows...
 EX_DATAERR = getattr(os, "EX_DATAERR", 65)
@@ -102,12 +102,34 @@ class CraftPlatformsError(Exception):  # noqa: PLW1641 (https://github.com/astra
         return NotImplemented
 
 
+class EmptyBuildError(CraftPlatformsError, ValueError):
+    """Errors where either build-on or build-for is empty."""
+
+    def __init__(self, platform: str, key: Literal["build-on", "build-for"]) -> None:
+        super().__init__(
+            message=f"'{key}' must contain an architecture",
+            details=f"No {key} architectures in platform '{platform}'",
+            resolution=f"Add a '{key}' architecture to platform '{platform}'",
+        )
+
+
 class BuildForAllError(CraftPlatformsError, ValueError):
     """Errors related to build-for: all."""
 
 
 class AllOnlyBuildError(BuildForAllError):
-    """Error when multiple build-for architectures are defined, but one is 'all'."""
+    """Error when multiple build-for architectures are defined, but one is 'all'.
+
+    Example:
+        platforms:
+          this:
+            build-on: [riscv64]
+            build-for: [all]
+          that:
+            build-on: [arm64]
+            build-for: [all]
+
+    """
 
     def __init__(
         self,
@@ -117,6 +139,29 @@ class AllOnlyBuildError(BuildForAllError):
         super().__init__(
             message="build-for: all must be the only build-for architecture",
             details=f"build-for: all defined in platforms: {bfa_platforms}",
+            resolution="Provide only one platform with only build-for: all or remove 'all' from build-for options.",
+        )
+
+
+class AllOnlyBuildInPlatformError(BuildForAllError):
+    """A single platform builds for all and an architecture.
+
+    Example:
+        platforms:
+          illegal:
+            build-on: [riscv64]
+            build-for: [riscv64, all]
+
+    """
+
+    def __init__(
+        self,
+        platforms: Iterable[str],
+    ) -> None:
+        bfa_platforms = ",".join(platforms)
+        super().__init__(
+            message="'all' must be the only build-for architecture in a platform",
+            details=f"invalid platforms: {bfa_platforms}",
             resolution="Provide only one platform with only build-for: all or remove 'all' from build-for options.",
         )
 
@@ -136,8 +181,27 @@ class AllSinglePlatformError(BuildForAllError):
         )
 
 
+class AllInMultiplePlatformsError(BuildForAllError):
+    """Error when build-for: 'all' exists in multiple platforms.
+
+    N.B. This only gets raised if platform-dependent and platform-independent builds
+    are allowed simultaneously. Otherwise ``AllSinglePlatformError`` is raised.
+    """
+
+    def __init__(
+        self,
+        platforms: Collection[str],
+    ) -> None:
+        bfa_platforms = ",".join(platforms)
+        super().__init__(
+            message=f"build-for: all can only be in one platform ({len(platforms)} provided)",
+            details=f"build-for: all defined in platforms: {bfa_platforms}",
+            resolution="Provide only one platform with only build-for: all or remove 'all' from build-for options.",
+        )
+
+
 class NeedBuildBaseError(CraftPlatformsError, ValueError):
-    """Error when ``base`` requires a ``build_base``, but none is unspecified."""
+    """Error when ``base`` requires a ``build_base``, but none is specified."""
 
     def __init__(self, base: str) -> None:
         super().__init__(
