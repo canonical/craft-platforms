@@ -32,7 +32,7 @@ include common.mk
 format: format-ruff format-codespell format-prettier  ## Run all automatic formatters
 
 .PHONY: lint
-lint: lint-ruff lint-codespell lint-mypy lint-prettier lint-pyright lint-shellcheck lint-docs lint-twine  ## Run all linters
+lint: lint-ruff lint-ty lint-codespell lint-mypy lint-prettier lint-pyright lint-shellcheck lint-docs lint-twine  ## Run all linters
 
 .PHONY: pack
 pack: pack-pip  ## Build all packages
@@ -76,17 +76,17 @@ endif
 
 # If additional build dependencies need installing in order to build the linting env.
 .PHONY: install-lint-build-deps
-install-lint-build-deps:
+install-lint-build-deps: install-ty
 
-# Experimental: type check with ty
 .PHONY: lint-ty
 lint-ty: install-ty
 	ty check
 
 .PHONY: install-ty
+install-ty:
 ifneq ($(shell which ty),)
 else ifneq ($(shell which snap),)
-	sudo snap install --edge astral-ty
+	sudo snap install --beta astral-ty
 	sudo snap alias astral-ty.ty ty
 else ifneq ($(shell which uv),)
 	uv tool install ty

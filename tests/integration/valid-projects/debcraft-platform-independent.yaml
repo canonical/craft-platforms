@@ -1,0 +1,14 @@
+name: example-deb
+summary: A platform-independent deb.
+
+platforms:
+  all:
+
+_build_plan:
+  - BuildInfo(platform='all', build_on='amd64', build_for='all', build_base=DistroBase(distribution='debian', series='unstable'))
+  - BuildInfo(platform='all', build_on='arm64', build_for='all', build_base=DistroBase(distribution='debian', series='unstable'))
+  - BuildInfo(platform='all', build_on='armhf', build_for='all', build_base=DistroBase(distribution='debian', series='unstable'))
+  - BuildInfo(platform='all', build_on='i386', build_for='all', build_base=DistroBase(distribution='debian', series='unstable'))
+  - BuildInfo(platform='all', build_on='ppc64el', build_for='all', build_base=DistroBase(distribution='debian', series='unstable'))
+  - BuildInfo(platform='all', build_on='riscv64', build_for='all', build_base=DistroBase(distribution='debian', series='unstable'))
+  - BuildInfo(platform='all', build_on='s390x', build_for='all', build_base=DistroBase(distribution='debian', series='unstable'))

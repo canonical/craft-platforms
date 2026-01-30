@@ -357,7 +357,15 @@ def test_build_plans_multiple_reserved_platform_names():
         pytest.param(
             {"all": {"build-on": ["amd64"], "build-for": ["all", "amd64"]}},
             "build-for: all must be the only build-for architecture",
-            id="all-and-amd64",
+            id="all-and-amd64-same-platform",
+        ),
+        pytest.param(
+            {
+                "all": {"build-on": ["amd64"], "build-for": ["all"]},
+                "amd64": None,
+            },
+            "build-for: all must be the only build-for architecture",
+            id="all-and-amd64-different-platform",
         ),
         pytest.param(
             {
@@ -365,13 +373,60 @@ def test_build_plans_multiple_reserved_platform_names():
                 "that": {"build-on": ["amd64"], "build-for": ["all"]},
             },
             r"build-for: all requires exactly one platform definition \(2 provided\)",
-            id="all-and-amd64",
+            id="build-for-all-twice",
         ),
     ],
 )
 def test_build_plans_bad_architecture(platforms, error_msg):
     with pytest.raises(ValueError, match=error_msg):
         craft_platforms.get_platforms_build_plan("ubuntu@24.04", platforms)
+
+
+@pytest.mark.parametrize(
+    ("platforms", "error_msg"),
+    [
+        pytest.param(
+            {
+                "this": {"build-on": ["amd64"], "build-for": ["all"]},
+                "that": {"build-on": ["amd64"], "build-for": ["all"]},
+            },
+            r"build-for: all can only be in one platform \(2 provided\)",
+            id="build-for-all-twice",
+        ),
+        pytest.param(
+            {"all": {"build-on": ["amd64"], "build-for": ["all", "amd64"]}},
+            "'all' must be the only build-for architecture in a platform",
+            id="all-and-amd64-same-platform",
+        ),
+    ],
+)
+def test_build_plans_multiple_all_platforms_error(platforms, error_msg):
+    with pytest.raises(ValueError, match=error_msg):
+        craft_platforms.get_platforms_build_plan(
+            "ubuntu@26.04",
+            platforms,
+            allow_all_and_architecture_dependent=True,
+        )
+
+
+@pytest.mark.parametrize(
+    "platforms",
+    [
+        pytest.param(
+            {
+                "all": {"build-on": ["amd64"], "build-for": ["all"]},
+                "amd64": None,
+            },
+            id="all-and-amd64-different-platform",
+        ),
+    ],
+)
+def test_build_plans_with_allow_all_and_architecture_dependent(platforms):
+    craft_platforms.get_platforms_build_plan(
+        "ubuntu@26.04",
+        platforms,
+        allow_all_and_architecture_dependent=True,
+    )
 
 
 @pytest.mark.slow

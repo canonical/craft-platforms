@@ -200,6 +200,11 @@ class DistroBase:  # noqa: PLW1641 (https://github.com/astral-sh/ruff/issues/189
     def __str__(self) -> str:
         return f"{self.distribution}@{self.series}"
 
+    @classmethod
+    def from_host(cls) -> Self:
+        """Get the Linux distribution where this process is running."""
+        return cls.from_linux_distribution(distro.LinuxDistribution())
+
 
 def is_ubuntu_like(distribution: Union[distro.LinuxDistribution, None] = None) -> bool:
     """Determine whether the given distribution is Ubuntu or Ubuntu-like.

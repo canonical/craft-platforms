@@ -14,6 +14,7 @@
 import types
 
 import pytest
+from craft_platforms._distro import DistroBase
 
 
 @pytest.fixture
@@ -33,3 +34,10 @@ def project_main_module() -> types.ModuleType:
             "Failed to import the project's main module: check if it needs updating",
         )
     return main_module
+
+
+@pytest.fixture
+def fake_host_base_sid(mocker):
+    mocker.patch.object(
+        DistroBase, "from_host", return_value=DistroBase("debian", "unstable")
+    )
