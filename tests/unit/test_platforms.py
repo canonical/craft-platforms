@@ -461,6 +461,10 @@ def test_fuzz_get_platforms_build_plan(
             "ubuntu@24.04:my-platform",
             (craft_platforms.DistroBase("ubuntu", "24.04"), "my-platform"),
         ),
+        # Platform names with colons but no base prefix should be treated as names
+        ("0:", (None, "0:")),
+        ("123:456", (None, "123:456")),
+        ("unknown:my-platform", (None, "unknown:my-platform")),
     ],
 )
 def test_parse_base_and_name(given, expected):
@@ -468,9 +472,8 @@ def test_parse_base_and_name(given, expected):
 
 
 def test_parse_base_and_name_invalid_base():
-    expected = (
-        "Invalid base string 'unknown'. Format should be '<distribution>@<series>'"
-    )
+    """Test that invalid base strings with multiple @ are caught."""
+    expected = "Invalid base string 'invalid@@base'. Format should be '<distribution>@<series>'"
 
     with pytest.raises(ValueError, match=expected):
-        craft_platforms.parse_base_and_name("unknown:my-platform")
+        craft_platforms.parse_base_and_name("invalid@@base:my-platform")
