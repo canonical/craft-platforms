@@ -131,7 +131,10 @@ class DistroBase:  # noqa: PLW1641 (https://github.com/astral-sh/ruff/issues/189
             return self.series != "devel" and other_version == "devel"
         self_version_tuple = _get_series_tuple(self.series)
         other_version_tuple = _get_series_tuple(other_version)
-        return self_version_tuple < other_version_tuple
+
+        if not self._compare_precheck(self_version_tuple, other_version_tuple):
+            raise ValueError(f"{self} and {other} are incompatible for comparison.")
+        return self_version_tuple < other_version_tuple  # ty: ignore[unsupported-operator], checked above
 
     def __le__(self, other: object) -> bool:
         if not _is_distrobase_compatible(other):
@@ -143,7 +146,10 @@ class DistroBase:  # noqa: PLW1641 (https://github.com/astral-sh/ruff/issues/189
             return other_version == "devel"
         self_version_tuple = _get_series_tuple(self.series)
         other_version_tuple = _get_series_tuple(other_version)
-        return self_version_tuple <= other_version_tuple
+
+        if not self._compare_precheck(self_version_tuple, other_version_tuple):
+            raise ValueError(f"{self} and {other} are incompatible for comparison.")
+        return self_version_tuple <= other_version_tuple  # ty: ignore[unsupported-operator], checked above
 
     def __gt__(self, other: object) -> bool:
         if not _is_distrobase_compatible(other):
@@ -155,7 +161,10 @@ class DistroBase:  # noqa: PLW1641 (https://github.com/astral-sh/ruff/issues/189
             return other_version != "devel"
         self_version_tuple = _get_series_tuple(self.series)
         other_version_tuple = _get_series_tuple(other_version)
-        return self_version_tuple > other_version_tuple
+
+        if not self._compare_precheck(self_version_tuple, other_version_tuple):
+            raise ValueError(f"{self} and {other} are incompatible for comparison.")
+        return self_version_tuple > other_version_tuple  # ty: ignore[unsupported-operator], checked above
 
     def __ge__(self, other: object) -> bool:
         if not _is_distrobase_compatible(other):
@@ -167,7 +176,16 @@ class DistroBase:  # noqa: PLW1641 (https://github.com/astral-sh/ruff/issues/189
             return self.series == "devel"
         self_version_tuple = _get_series_tuple(self.series)
         other_version_tuple = _get_series_tuple(_get_series(other))
-        return self_version_tuple >= other_version_tuple
+
+        if not self._compare_precheck(self_version_tuple, other_version_tuple):
+            raise ValueError(f"{self} and {other} are incompatible for comparison.")
+        return self_version_tuple >= other_version_tuple  # ty: ignore[unsupported-operator], checked above
+
+    @classmethod
+    def _compare_precheck(
+        cls, lhs: tuple[int | str, ...], rhs: tuple[int | str, ...]
+    ) -> bool:
+        return all(type(left) is type(right) for left, right in zip(lhs, rhs))
 
     @classmethod
     def from_str(cls, base_str: str) -> Self:
