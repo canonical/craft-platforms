@@ -667,8 +667,10 @@ def test_fuzz_get_platforms_build_plan_single_base(
             build_ons=strategies.distro_series_arch_str(strategies.any_distro_base()),
             build_fors=strategies.distro_series_arch_str(strategies.any_distro_base()),
         ).filter(
-            lambda p: {p["build-for"][0].partition(":")[0]}
-            == {on.partition(":")[0] for on in p["build-on"]}
+            lambda p: (
+                {p["build-for"][0].partition(":")[0]}
+                == {on.partition(":")[0] for on in p["build-on"]}
+            )
         ),
     ),
 )
