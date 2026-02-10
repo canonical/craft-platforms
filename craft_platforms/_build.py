@@ -17,11 +17,8 @@
 
 from typing import Any, Callable, Dict, Iterable
 
-import exceptiongroup
-
 from craft_platforms import charm, deb, rock, snap, validators
 from craft_platforms._buildinfo import BuildInfo
-from craft_platforms._errors import InvalidPlatformNameError
 from craft_platforms._platforms import get_platforms_build_plan
 
 _APP_SPECIFIC_PLANNERS: Dict[str, Callable[..., Iterable[BuildInfo]]] = {
@@ -58,20 +55,9 @@ def get_build_plan(
     planners or special behaviour for more apps.
     """
     if strict_platform_names:
-        platform_name_errors = []
-
         for name in project_data.get("platforms", {}):
-            try:
-                validators.validate_strict_platform_name(
-                    name, allow_app_characters=allow_app_characters
-                )
-            except InvalidPlatformNameError as exc:  # noqa:PERF203 (the platforms list should be small)
-                platform_name_errors.append(exc)
-        if platform_name_errors:
-            if len(platform_name_errors) == 1:
-                raise platform_name_errors[0]
-            raise exceptiongroup.ExceptionGroup(
-                "Multiple errors while validating platform names", platform_name_errors
+            validators.validate_strict_platform_name(
+                name, allow_app_characters=allow_app_characters
             )
 
     planner = _APP_SPECIFIC_PLANNERS.get(app, get_platforms_build_plan)

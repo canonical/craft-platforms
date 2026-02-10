@@ -17,7 +17,6 @@
 
 from unittest.mock import Mock, call
 
-import exceptiongroup
 import pytest
 from craft_platforms import InvalidPlatformNameError, _build
 
@@ -57,24 +56,12 @@ def test_get_snapcraft_build_plan(monkeypatch):
         ),
         pytest.param(
             {";": None, "_": None},
-            exceptiongroup.ExceptionGroup(
-                "Multiple errors while validating platform names",
-                [
-                    InvalidPlatformNameError(
-                        message="Invalid platform name: ';'",
-                        details="Platform name contains invalid characters: [';']",
-                        resolution="Rename platform ';' to follow the naming rules.",
-                        doc_slug="platform-name-rules",
-                        reportable=False,
-                    ),
-                    InvalidPlatformNameError(
-                        message="Invalid platform name: '_'",
-                        details="Platform name contains invalid characters: ['_']",
-                        resolution="Rename platform '_' to follow the naming rules.",
-                        doc_slug="platform-name-rules",
-                        reportable=False,
-                    ),
-                ],
+            InvalidPlatformNameError(
+                message="Invalid platform name: ';'",
+                details="Platform name contains invalid characters: [';']",
+                resolution="Rename platform ';' to follow the naming rules.",
+                doc_slug="platform-name-rules",
+                reportable=False,
             ),
             id="multiple",
         ),
@@ -93,8 +80,4 @@ def test_strict_platform_name_errors(platforms, error):
             strict_platform_names=True,
         )
 
-    if isinstance(exc_info.value, exceptiongroup.ExceptionGroup):
-        assert exc_info.value.message == error.message
-        assert exc_info.value.exceptions == error.exceptions
-    else:
-        assert exc_info.value == error
+    assert exc_info.value == error
