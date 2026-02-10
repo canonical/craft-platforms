@@ -30,8 +30,8 @@ def project_main_module() -> types.ModuleType:
 
         main_module = craft_platforms
     except ImportError:
-        pytest.fail(
-            "Failed to import the project's main module: check if it needs updating",
+        pytest.fail(  # ty: ignore[invalid-argument-type] - this is fixed with pytest 9
+            reason="Failed to import the project's main module: check if it needs updating",  # ty: ignore[parameter-already-assigned] - this is fixed with pytest 9
         )
     return main_module
 

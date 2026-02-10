@@ -53,7 +53,7 @@ docs = [
 test = [
     # Extra packages that are needed when using items from the craft-platforms.test
     # module.
-    "pytest~=8.0",
+    "pytest>=8.0",
     "hypothesis~=6.108",
 ]
 lint = [
