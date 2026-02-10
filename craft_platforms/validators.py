@@ -20,6 +20,7 @@ validators.
 """
 
 import unicodedata
+from typing import List
 
 from craft_platforms._errors import InvalidPlatformNameError
 from craft_platforms._platforms import RESERVED_PLATFORM_NAMES
@@ -59,7 +60,7 @@ def validate_strict_platform_name(
             doc_slug="platform-name-rules",
             reportable=False,
         )
-    invalid_characters = []
+    invalid_characters: List[str] = []
     if not allow_app_characters:
         invalid_characters.extend(
             character
