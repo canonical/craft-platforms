@@ -40,6 +40,8 @@ dev = [
     "types-colorama",
     "types-setuptools",
     "pytest-randomly>=3.15.0",
+    "pydantic>=2.10.6",
+    "jsonschema>=4.23.0",
 ]
 docs = [
     "canonical-sphinx[full]~=0.2",

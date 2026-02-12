@@ -17,8 +17,11 @@
 
 from typing import Any, Callable, Dict, Iterable
 
-from craft_platforms import charm, deb, rock, snap
+import exceptiongroup
+
+from craft_platforms import charm, deb, rock, snap, validators
 from craft_platforms._buildinfo import BuildInfo
+from craft_platforms._errors import InvalidPlatformNameError
 from craft_platforms._platforms import get_platforms_build_plan
 
 _APP_SPECIFIC_PLANNERS: Dict[str, Callable[..., Iterable[BuildInfo]]] = {
@@ -33,13 +36,20 @@ def get_build_plan(
     app: str,
     *,
     project_data: Dict[str, Any],
+    strict_platform_names: bool = False,
+    allow_app_characters: bool = False,
 ) -> Iterable[BuildInfo]:
     """Get a build plan for a given application.
 
     :param app: The name of the application (e.g. snapcraft, charmcraft, rockcraft)
     :param project_data: The raw dictionary of the project's YAML file. Normally this
         is what's output from ``yaml.safe_load()``.
+    :param strict_platform_names: Whether to strictly validate all platform names.
+    :param allow_app_characters: Whether platform name validation allows characters
+        that are reserved for use by applications.
     :returns: An iterable containing each possible BuildInfo for this file.
+    :raises: InvalidPlatformNameError if strict validation is turned on and a platform
+        name is incorrect.
 
     This function is an abstraction layer over the general build planners, taking
     the application's name and its raw data and returning an exhaustive build plan
@@ -47,6 +57,23 @@ def get_build_plan(
     in a forward-compatible manner as it adds more logic around selecting build
     planners or special behaviour for more apps.
     """
+    if strict_platform_names:
+        platform_name_errors = []
+
+        for name in project_data.get("platforms", {}):
+            try:
+                validators.validate_strict_platform_name(
+                    name, allow_app_characters=allow_app_characters
+                )
+            except InvalidPlatformNameError as exc:  # noqa:PERF203 (the platforms list should be small)
+                platform_name_errors.append(exc)
+        if platform_name_errors:
+            if len(platform_name_errors) == 1:
+                raise platform_name_errors[0]
+            raise exceptiongroup.ExceptionGroup(
+                "Multiple errors while validating platform names", platform_name_errors
+            )
+
     planner = _APP_SPECIFIC_PLANNERS.get(app, get_platforms_build_plan)
     if app == "charmcraft":
         return planner(project_data)
