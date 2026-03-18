@@ -17,7 +17,8 @@
 
 from unittest.mock import Mock, call
 
-from craft_platforms import _build
+import pytest
+from craft_platforms import InvalidPlatformNameError, _build
 
 
 def test_get_snapcraft_build_plan(monkeypatch):
@@ -30,8 +31,53 @@ def test_get_snapcraft_build_plan(monkeypatch):
         "platforms": {},
         "type": "base",
     }
-    _build.get_build_plan("snapcraft", project_data=project_data)
+    _build.get_build_plan(
+        "snapcraft", project_data=project_data, strict_platform_names=True
+    )
 
     assert fake_build_plan.mock_calls == [
         call(base="core22", build_base="core24", platforms={}, snap_type="base")
     ]
+
+
+@pytest.mark.parametrize(
+    ("platforms", "error"),
+    [
+        pytest.param(
+            {";": None},
+            InvalidPlatformNameError(
+                message="Invalid platform name: ';'",
+                details="Platform name contains invalid characters: [';']",
+                resolution="Rename platform ';' to follow the naming rules.",
+                doc_slug="platform-name-rules",
+                reportable=False,
+            ),
+            id="single",
+        ),
+        pytest.param(
+            {";": None, "_": None},
+            InvalidPlatformNameError(
+                message="Invalid platform name: ';'",
+                details="Platform name contains invalid characters: [';']",
+                resolution="Rename platform ';' to follow the naming rules.",
+                doc_slug="platform-name-rules",
+                reportable=False,
+            ),
+            id="multiple",
+        ),
+    ],
+)
+def test_strict_platform_name_errors(platforms, error):
+    project_data = {
+        "base": "ubuntu@26.04",
+        "build-base": "devel",
+        "platforms": platforms,
+    }
+    with pytest.raises(type(error)) as exc_info:
+        _build.get_build_plan(
+            "mycraft",
+            project_data=project_data,
+            strict_platform_names=True,
+        )
+
+    assert exc_info.value == error

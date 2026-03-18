@@ -13,8 +13,19 @@ Changelog
 
     For a complete list of commits, check out the `a.b.c`_ release on GitHub.
 
-0.11.0 (unreleased)
+0.11.0 (2026-02-11)
 -------------------
+
+Features
+========
+
+- :py:func:`~craft_platforms.get_build_plan` can now validate platform names.
+- Add a :py:mod:`~craft_platforms.validators` module that contains functions that can
+  validate components of a platform.
+- Add a :py:func:`~craft_platforms.validators.validate_strict_platform_name` function
+  to validate platform names.
+- Add a :py:mod:`~craft_platforms.platform_types` module to contain Pydantic types for
+  Craft Platforms.
 
 Breaking changes
 ================

@@ -10,6 +10,8 @@ Package reference
    rock
    snap
    errors
+   platform_types
+   validators
 
 
 Architectures
@@ -25,6 +27,8 @@ Build plans
     :members:
 
 .. autofunction:: craft_platforms.get_platforms_build_plan
+
+.. autofunction:: craft_platforms.get_build_plan
 
 Distributions
 -------------
