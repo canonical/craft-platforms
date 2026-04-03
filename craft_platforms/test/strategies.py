@@ -277,7 +277,7 @@ def platform(
     shorthand_keys: Optional[strategies.SearchStrategy[str]] = None,
     values: Union[strategies.SearchStrategy[craft_platforms.PlatformDict], None] = None,
 ) -> strategies.SearchStrategy[
-    Union[Dict[str, None], Dict[str, craft_platforms.PlatformDict]]
+    Union[Dict[str, Union[None, craft_platforms.PlatformDict]]]
 ]:
     """Generate a single platform in a dictionary.
 
