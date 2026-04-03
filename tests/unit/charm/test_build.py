@@ -662,12 +662,11 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
             {
                 "ubuntu@24.04:amd64": {
                     "build-on": ["ubuntu@22.04:amd64"],
-                    "build-for": ["ubuntu@22.04:amd64"],
                 },
             },
-            r"Platform 'ubuntu@24.04:amd64' declares a base in the platform's name and declares an incompatible 'build-for' entry \(ubuntu@22.04\).",
-            "Either remove the base from the platform's name or remove the incompatible 'build-for' entry for the platform.",
-            id="platform-base-with-incompatible-entries",
+            r"Platform 'ubuntu@24.04:amd64' has mismatched bases in the 'build-on' and 'build-for' entries.",
+            "Use the same base for all 'build-on' and 'build-for' entries for the platform.",
+            id="platform-base-with-incompatible-build-on",
         ),
     ],
 )

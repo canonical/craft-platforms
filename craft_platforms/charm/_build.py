@@ -89,8 +89,8 @@ def _validate_base_definition(  # noqa: PLR0912
         # create a set of the bases defined in the build-on and build-for entries
         bases = set()
         for entry in [
-            *_utils.vectorize(platform["build-on"]),
-            *_utils.vectorize(platform["build-for"]),
+            *_utils.vectorize(platform.get("build-on", [platform_name])),
+            *_utils.vectorize(platform.get("build-for", [platform_name])),
         ]:
             distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
             bases.add(str(distro_base) if distro_base else None)
@@ -278,8 +278,8 @@ def get_platforms_charm_build_plan(
             )
         else:
             for build_on, build_for in itertools.product(
-                _utils.vectorize(platform["build-on"]),
-                _utils.vectorize(platform["build-for"]),
+                _utils.vectorize(platform.get("build-on", [platform_name])),
+                _utils.vectorize(platform.get("build-for", [platform_name])),
             ):
                 _, build_on_arch = _architectures.parse_base_and_architecture(
                     arch=build_on
