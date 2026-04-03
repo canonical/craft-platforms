@@ -191,6 +191,7 @@ New Features
 For a complete list of commits, check out the `0.1.0`_ release on GitHub.
 
 
+.. _0.11.1: https://github.com/canonical/craft-platforms/releases/tag/0.11.1
 .. _0.11.0: https://github.com/canonical/craft-platforms/releases/tag/0.11.0
 .. _0.3.1: https://github.com/canonical/craft-platforms/releases/tag/0.3.1
 .. _0.3.0: https://github.com/canonical/craft-platforms/releases/tag/0.3.0
