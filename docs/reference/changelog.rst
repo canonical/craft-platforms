@@ -13,6 +13,17 @@ Changelog
 
     For a complete list of commits, check out the `a.b.c`_ release on GitHub.
 
+0.11.1 (2026-04-03)
+-------------------
+
+Bug Fixes
+=========
+
+- Multi-base platforms for charms now accept expanded platforms passed by
+  Craft Application 6.
+
+For a complete list of commits, check out the `0.11.1`_ release on GitHub.
+
 0.11.0 (2026-02-11)
 -------------------
 
