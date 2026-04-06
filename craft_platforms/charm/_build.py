@@ -40,7 +40,7 @@ If no platforms are defined, the charm will be built on and for these architectu
 """
 
 
-def _validate_base_definition(
+def _validate_base_definition(  # noqa: PLR0912
     base: Optional[str],
     build_base: Optional[str],
     platform_name: Optional[str],
@@ -68,21 +68,29 @@ def _validate_base_definition(
 
     if platform:
         if platform_base:
-            raise _errors.InvalidMultiBaseError(
-                message=(
-                    f"Platform {platform_name!r} declares a base in the platform's "
-                    "name and declares 'build-on' and 'build-for' entries."
-                ),
-                resolution=(
-                    "Either remove the base from the platform's name or remove the "
-                    "'build-on' and 'build-for' entries for the platform."
-                ),
-            )
+            build_for_bases = [
+                _architectures.parse_base_and_architecture(target_base)[0]
+                for target_base in platform.get("build-for", [platform_name])
+            ]
+            for check_base in build_for_bases:
+                if check_base in (None, platform_base):
+                    continue
+                raise _errors.InvalidMultiBaseError(
+                    message=(
+                        f"Platform {platform_name!r} declares a base in the "
+                        "platform's name and declares an incompatible 'build-for' "
+                        f"entry ({check_base})."
+                    ),
+                    resolution=(
+                        "Either remove the base from the platform's name or remove "
+                        "the incompatible 'build-for' entry for the platform."
+                    ),
+                )
         # create a set of the bases defined in the build-on and build-for entries
         bases = set()
         for entry in [
-            *_utils.vectorize(platform["build-on"]),
-            *_utils.vectorize(platform["build-for"]),
+            *_utils.vectorize(platform.get("build-on", [platform_name])),
+            *_utils.vectorize(platform.get("build-for", [platform_name])),
         ]:
             distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
             bases.add(str(distro_base) if distro_base else None)
@@ -270,8 +278,8 @@ def get_platforms_charm_build_plan(
             )
         else:
             for build_on, build_for in itertools.product(
-                _utils.vectorize(platform["build-on"]),
-                _utils.vectorize(platform["build-for"]),
+                _utils.vectorize(platform.get("build-on", [platform_name])),
+                _utils.vectorize(platform.get("build-for", [platform_name])),
             ):
                 _, build_on_arch = _architectures.parse_base_and_architecture(
                     arch=build_on

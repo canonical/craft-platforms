@@ -446,6 +446,69 @@ def test_build_plans_success(
             ],
             id="multi-base-complex",
         ),
+        pytest.param(
+            None,
+            None,
+            {
+                "ubuntu@24.04:amd64": {
+                    "build-on": ["s390x"],
+                    "build-for": ["amd64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "ubuntu@24.04:amd64",
+                    craft_platforms.DebianArchitecture("s390x"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                ),
+            ],
+            id="multi-base-set-arch",
+        ),
+        pytest.param(  # This is how craft-application expands the shorthand.
+            None,
+            None,
+            {
+                "ubuntu@24.04:amd64": {
+                    "build-on": ["ubuntu@24.04:amd64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "ubuntu@24.04:amd64",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                ),
+            ],
+            id="multi-base-redundant",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "ubuntu@24.04:amd64": {
+                    "build-on": ["ubuntu@24.04:amd64", "ubuntu@24.04:riscv64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "ubuntu@24.04:amd64",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                ),
+                craft_platforms.BuildInfo(
+                    "ubuntu@24.04:amd64",
+                    craft_platforms.DebianArchitecture("riscv64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                ),
+            ],
+            id="multi-base-long-multi-build-on",
+        ),
     ],
 )
 def test_build_plans_in_depth(base, build_base, platforms, expected):
@@ -565,20 +628,45 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
             },
             "Platform 'my-platform' has mismatched bases in the 'build-on' and 'build-for' entries.",
             "Use the same base for all 'build-on' and 'build-for' entries for the platform.",
-            id="build-on-for-base-missing",
+            id="build-on-base-wrong",
         ),
         pytest.param(
             None,
             None,
             {
                 "ubuntu@24.04:amd64": {
-                    "build-on": ["amd64"],
+                    "build-on": ["ubuntu@22.04:amd64"],
                     "build-for": ["amd64"],
                 },
             },
-            "Platform 'ubuntu@24.04:amd64' declares a base in the platform's name and declares 'build-on' and 'build-for' entries.",
-            "Either remove the base from the platform's name or remove the 'build-on' and 'build-for' entries for the platform.",
+            "Platform 'ubuntu@24.04:amd64' has mismatched bases in the 'build-on' and 'build-for' entries.",
+            "Use the same base for all 'build-on' and 'build-for' entries for the platform.",
             id="platform-base-with-entries",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "ubuntu@24.04:amd64": {
+                    "build-on": ["ubuntu@22.04:amd64"],
+                    "build-for": ["ubuntu@22.04:amd64"],
+                },
+            },
+            r"Platform 'ubuntu@24.04:amd64' declares a base in the platform's name and declares an incompatible 'build-for' entry \(ubuntu@22.04\)",
+            "Either remove the base from the platform's name or remove the incompatible 'build-for' entry for the platform.",
+            id="build-on-base-wrong",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "ubuntu@24.04:amd64": {
+                    "build-on": ["ubuntu@22.04:amd64"],
+                },
+            },
+            r"Platform 'ubuntu@24.04:amd64' has mismatched bases in the 'build-on' and 'build-for' entries.",
+            "Use the same base for all 'build-on' and 'build-for' entries for the platform.",
+            id="platform-base-with-incompatible-build-on",
         ),
     ],
 )

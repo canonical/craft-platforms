@@ -13,6 +13,17 @@ Changelog
 
     For a complete list of commits, check out the `a.b.c`_ release on GitHub.
 
+0.11.1 (2026-04-03)
+-------------------
+
+Bug Fixes
+=========
+
+- Multi-base platforms for charms now accept expanded platforms passed by
+  Craft Application 6.
+
+For a complete list of commits, check out the `0.11.1`_ release on GitHub.
+
 0.11.0 (2026-02-11)
 -------------------
 
@@ -158,7 +169,6 @@ Features
 
 For a complete list of commits, check out the `0.2.0`_ release on GitHub.
 
-
 0.1.1 (2024-Jul-24)
 -------------------
 
@@ -181,6 +191,7 @@ New Features
 For a complete list of commits, check out the `0.1.0`_ release on GitHub.
 
 
+.. _0.11.1: https://github.com/canonical/craft-platforms/releases/tag/0.11.1
 .. _0.11.0: https://github.com/canonical/craft-platforms/releases/tag/0.11.0
 .. _0.3.1: https://github.com/canonical/craft-platforms/releases/tag/0.3.1
 .. _0.3.0: https://github.com/canonical/craft-platforms/releases/tag/0.3.0
