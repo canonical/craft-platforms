@@ -202,6 +202,25 @@ def test_build_plans_success(
             "ubuntu@24.04",
             None,
             {
+                "0:": {
+                    "build-on": ["amd64"],
+                    "build-for": ["amd64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "0:",
+                    craft_platforms.DebianArchitecture.AMD64,
+                    craft_platforms.DebianArchitecture.AMD64,
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                ),
+            ],
+            id="weird-platform-name-with-colon",
+        ),
+        pytest.param(
+            "ubuntu@24.04",
+            None,
+            {
                 "my-desktop": {
                     "build-on": ["amd64"],
                     "build-for": ["amd64"],
