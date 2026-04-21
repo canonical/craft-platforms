@@ -810,6 +810,43 @@ def _is_valid_platform(platforms):
     return True
 
 
+def _is_valid_multi_base_platform_dict(p):
+    """Return True if the platform dict is consistent for multi-base builds.
+
+    A valid multi-base platform dict must satisfy:
+    - All ``build-on`` entries either share the same base as ``build-for``,
+      or are devel-series entries (exactly ``"devel"`` or ``"*@devel"``).
+    - ``build-on`` must not mix devel-series entries with entries that carry
+      an explicit non-devel base, for the same reason that two different
+      stable bases in ``build-on`` are rejected.
+    """
+    build_ons = p["build-on"] if isinstance(p["build-on"], list) else [p["build-on"]]
+    build_fors = p["build-for"] if isinstance(p["build-for"], list) else [p["build-for"]]
+    build_for_base = build_fors[0].partition(":")[0]
+
+    devel_build_ons = [
+        on
+        for on in build_ons
+        if on.partition(":")[0] == "devel" or on.partition(":")[0].endswith("@devel")
+    ]
+    # build-on entries that carry an explicit distro@series that is not devel
+    non_devel_with_base_build_ons = [
+        on
+        for on in build_ons
+        if "@" in on.partition(":")[0]
+        and not on.partition(":")[0].endswith("@devel")
+    ]
+
+    # Mixing devel and explicit non-devel bases in build-on is not allowed.
+    if devel_build_ons and non_devel_with_base_build_ons:
+        return False
+
+    # All non-devel entries that carry an explicit base must match build-for.
+    return all(
+        on.partition(":")[0] == build_for_base for on in non_devel_with_base_build_ons
+    )
+
+
 @given(
     base=strategies.real_distro_base(),
     platforms=strategies.platform(
@@ -843,14 +880,7 @@ def test_fuzz_get_platforms_build_plan_single_base(
         values=strategies.platform_dict(
             build_ons=strategies.distro_series_arch_str(strategies.any_distro_base()),
             build_fors=strategies.distro_series_arch_str(strategies.any_distro_base()),
-        ).filter(
-            lambda p: all(
-                on.partition(":")[0] == p["build-for"][0].partition(":")[0]
-                or on.partition(":")[0] == "devel"
-                or on.partition(":")[0].endswith("@devel")
-                for on in p["build-on"]
-            )
-        ),
+        ).filter(_is_valid_multi_base_platform_dict),
     ),
 )
 def test_fuzz_get_platforms_build_plan_multi_base(
