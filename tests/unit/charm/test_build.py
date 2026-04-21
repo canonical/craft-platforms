@@ -821,7 +821,9 @@ def _is_valid_multi_base_platform_dict(p):
       stable bases in ``build-on`` are rejected.
     """
     build_ons = p["build-on"] if isinstance(p["build-on"], list) else [p["build-on"]]
-    build_fors = p["build-for"] if isinstance(p["build-for"], list) else [p["build-for"]]
+    build_fors = (
+        p["build-for"] if isinstance(p["build-for"], list) else [p["build-for"]]
+    )
     build_for_base = build_fors[0].partition(":")[0]
 
     devel_build_ons = [
@@ -833,8 +835,7 @@ def _is_valid_multi_base_platform_dict(p):
     non_devel_with_base_build_ons = [
         on
         for on in build_ons
-        if "@" in on.partition(":")[0]
-        and not on.partition(":")[0].endswith("@devel")
+        if "@" in on.partition(":")[0] and not on.partition(":")[0].endswith("@devel")
     ]
 
     # Mixing devel and explicit non-devel bases in build-on is not allowed.

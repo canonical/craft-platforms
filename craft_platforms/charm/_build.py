@@ -16,7 +16,7 @@
 """Charmcraft-specific platforms information."""
 
 import itertools
-from typing import Any, Collection, Dict, Iterable, List, Optional, Sequence
+from typing import Any, Collection, Dict, Iterable, List, Optional, Sequence, Set
 
 from craft_platforms import (
     _architectures,
@@ -93,7 +93,7 @@ def _validate_base_definition(  # noqa: PLR0912
         # build-on is not allowed).
         has_devel_build_on = False
         has_non_devel_base_build_on = False
-        non_devel_build_on_bases: set[str | None] = set()
+        non_devel_build_on_bases: Set[Optional[str]] = set()
         for entry in _utils.vectorize(platform.get("build-on", [platform_name])):
             distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
             if distro_base is not None and distro_base.series == "devel":
@@ -117,7 +117,7 @@ def _validate_base_definition(  # noqa: PLR0912
 
         # Combine the non-devel build-on bases with the build-for bases to check
         # overall consistency.
-        bases: set[str | None] = set(non_devel_build_on_bases)
+        bases: Set[Optional[str]] = set(non_devel_build_on_bases)
         for entry in _utils.vectorize(platform.get("build-for", [platform_name])):
             distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
             bases.add(str(distro_base) if distro_base else None)
@@ -309,8 +309,8 @@ def get_platforms_charm_build_plan(
                 _utils.vectorize(platform.get("build-on", [platform_name])),
                 _utils.vectorize(platform.get("build-for", [platform_name])),
             ):
-                build_on_base, build_on_arch = _architectures.parse_base_and_architecture(
-                    arch=build_on
+                build_on_base, build_on_arch = (
+                    _architectures.parse_base_and_architecture(arch=build_on)
                 )
                 if build_on_arch == "all":
                     raise ValueError(
@@ -326,7 +326,9 @@ def get_platforms_charm_build_plan(
                         platform=platform_name,
                         build_on=build_on_arch,
                         build_for=build_for_arch,
-                        build_base=build_on_base if build_on_base is not None else distro_base,
+                        build_base=build_on_base
+                        if build_on_base is not None
+                        else distro_base,
                     ),
                 )
 
