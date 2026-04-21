@@ -86,18 +86,41 @@ def _validate_base_definition(  # noqa: PLR0912
                         "the incompatible 'build-for' entry for the platform."
                     ),
                 )
-        # create a set of the bases defined in the build-on and build-for entries.
-        # devel series bases in build-on are allowed to differ from build-for bases,
-        # so they are excluded from the consistency check.
-        bases = set()
+        # Collect build-on entries, separating devel-series from non-devel.
+        # Devel-series build-on entries are allowed to differ from the build-for base,
+        # but mixing devel and non-devel (with an explicit base) in build-on is not
+        # allowed (for the same reason that mixing two different stable bases in
+        # build-on is not allowed).
+        has_devel_build_on = False
+        has_non_devel_base_build_on = False
+        non_devel_build_on_bases: set[str | None] = set()
+        for entry in _utils.vectorize(platform.get("build-on", [platform_name])):
+            distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
+            if distro_base is not None and distro_base.series == "devel":
+                has_devel_build_on = True
+            else:
+                non_devel_build_on_bases.add(str(distro_base) if distro_base else None)
+                if distro_base is not None:
+                    has_non_devel_base_build_on = True
+
+        if has_devel_build_on and has_non_devel_base_build_on:
+            raise _errors.InvalidMultiBaseError(
+                message=(
+                    f"Platform {platform_name!r} has mismatched bases in the 'build-on' "
+                    "and 'build-for' entries."
+                ),
+                resolution=(
+                    "Use the same base for all 'build-on' and 'build-for' entries for "
+                    "the platform."
+                ),
+            )
+
+        # Combine the non-devel build-on bases with the build-for bases to check
+        # overall consistency.
+        bases: set[str | None] = set(non_devel_build_on_bases)
         for entry in _utils.vectorize(platform.get("build-for", [platform_name])):
             distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
             bases.add(str(distro_base) if distro_base else None)
-        for entry in _utils.vectorize(platform.get("build-on", [platform_name])):
-            distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
-            # Allow devel series in build-on to differ from the build-for base.
-            if distro_base is None or distro_base.series != "devel":
-                bases.add(str(distro_base) if distro_base else None)
 
         if len(bases) == 0:
             # an empty set means no bases are defined

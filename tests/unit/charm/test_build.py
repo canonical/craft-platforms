@@ -571,31 +571,6 @@ def test_build_plans_success(
             None,
             {
                 "noble": {
-                    "build-on": ["devel:amd64", "ubuntu@24.04:arm64"],
-                    "build-for": ["ubuntu@24.04:amd64"],
-                },
-            },
-            [
-                craft_platforms.BuildInfo(
-                    "noble",
-                    craft_platforms.DebianArchitecture("amd64"),
-                    craft_platforms.DebianArchitecture("amd64"),
-                    craft_platforms.DistroBase("ubuntu", "devel"),
-                ),
-                craft_platforms.BuildInfo(
-                    "noble",
-                    craft_platforms.DebianArchitecture("arm64"),
-                    craft_platforms.DebianArchitecture("amd64"),
-                    craft_platforms.DistroBase("ubuntu", "24.04"),
-                ),
-            ],
-            id="multi-base-devel-and-stable-build-on",
-        ),
-        pytest.param(
-            None,
-            None,
-            {
-                "noble": {
                     "build-on": ["devel:amd64"],
                     "build-for": ["ubuntu@24.04:all"],
                 },
@@ -768,6 +743,19 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
             r"Platform 'ubuntu@24.04:amd64' has mismatched bases in the 'build-on' and 'build-for' entries.",
             "Use the same base for all 'build-on' and 'build-for' entries for the platform.",
             id="platform-base-with-incompatible-build-on",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "noble": {
+                    "build-on": ["devel:amd64", "ubuntu@24.04:arm64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            r"Platform 'noble' has mismatched bases in the 'build-on' and 'build-for' entries.",
+            "Use the same base for all 'build-on' and 'build-for' entries for the platform.",
+            id="devel-and-stable-mixed-build-on",
         ),
     ],
 )
