@@ -86,14 +86,18 @@ def _validate_base_definition(  # noqa: PLR0912
                         "the incompatible 'build-for' entry for the platform."
                     ),
                 )
-        # create a set of the bases defined in the build-on and build-for entries
+        # create a set of the bases defined in the build-on and build-for entries.
+        # devel series bases in build-on are allowed to differ from build-for bases,
+        # so they are excluded from the consistency check.
         bases = set()
-        for entry in [
-            *_utils.vectorize(platform.get("build-on", [platform_name])),
-            *_utils.vectorize(platform.get("build-for", [platform_name])),
-        ]:
+        for entry in _utils.vectorize(platform.get("build-for", [platform_name])):
             distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
             bases.add(str(distro_base) if distro_base else None)
+        for entry in _utils.vectorize(platform.get("build-on", [platform_name])):
+            distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
+            # Allow devel series in build-on to differ from the build-for base.
+            if distro_base is None or distro_base.series != "devel":
+                bases.add(str(distro_base) if distro_base else None)
 
         if len(bases) == 0:
             # an empty set means no bases are defined
@@ -166,8 +170,9 @@ def _get_base_from_build_data(
         if platform_base:
             return platform_base
 
-        # build-on and build-for entries all have the same base, so we only
-        # need to check one of them
+        # When build-on and build-for entries share a common base, use it.
+        # If build-on has a devel base and build-for has a stable base, the product
+        # loop in get_platforms_charm_build_plan will use the per-entry build-on base.
         if platform:
             build_for_base, _ = _architectures.parse_base_and_architecture(
                 arch=_utils.vectorize(platform["build-for"])[0]
@@ -281,7 +286,7 @@ def get_platforms_charm_build_plan(
                 _utils.vectorize(platform.get("build-on", [platform_name])),
                 _utils.vectorize(platform.get("build-for", [platform_name])),
             ):
-                _, build_on_arch = _architectures.parse_base_and_architecture(
+                build_on_base, build_on_arch = _architectures.parse_base_and_architecture(
                     arch=build_on
                 )
                 if build_on_arch == "all":
@@ -298,7 +303,7 @@ def get_platforms_charm_build_plan(
                         platform=platform_name,
                         build_on=build_on_arch,
                         build_for=build_for_arch,
-                        build_base=distro_base,
+                        build_base=build_on_base if build_on_base is not None else distro_base,
                     ),
                 )
 

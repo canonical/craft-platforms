@@ -528,6 +528,88 @@ def test_build_plans_success(
             ],
             id="multi-base-long-multi-build-on",
         ),
+        pytest.param(
+            None,
+            None,
+            {
+                "noble": {
+                    "build-on": ["devel:amd64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "devel"),
+                ),
+            ],
+            id="multi-base-devel-build-on",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "noble": {
+                    "build-on": ["ubuntu@devel:amd64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "devel"),
+                ),
+            ],
+            id="multi-base-ubuntu-at-devel-build-on",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "noble": {
+                    "build-on": ["devel:amd64", "ubuntu@24.04:arm64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "devel"),
+                ),
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("arm64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "24.04"),
+                ),
+            ],
+            id="multi-base-devel-and-stable-build-on",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "noble": {
+                    "build-on": ["devel:amd64"],
+                    "build-for": ["ubuntu@24.04:all"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    "all",
+                    craft_platforms.DistroBase("ubuntu", "devel"),
+                ),
+            ],
+            id="multi-base-devel-build-on-all",
+        ),
     ],
 )
 def test_build_plans_in_depth(base, build_base, platforms, expected):
@@ -774,9 +856,10 @@ def test_fuzz_get_platforms_build_plan_single_base(
             build_ons=strategies.distro_series_arch_str(strategies.any_distro_base()),
             build_fors=strategies.distro_series_arch_str(strategies.any_distro_base()),
         ).filter(
-            lambda p: (
-                {p["build-for"][0].partition(":")[0]}
-                == {on.partition(":")[0] for on in p["build-on"]}
+            lambda p: all(
+                on.partition(":")[0] == p["build-for"][0].partition(":")[0]
+                or on.partition(":")[0].endswith("@devel")
+                for on in p["build-on"]
             )
         ),
     ),
