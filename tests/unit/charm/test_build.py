@@ -858,6 +858,7 @@ def test_fuzz_get_platforms_build_plan_single_base(
         ).filter(
             lambda p: all(
                 on.partition(":")[0] == p["build-for"][0].partition(":")[0]
+                or on.partition(":")[0] == "devel"
                 or on.partition(":")[0].endswith("@devel")
                 for on in p["build-on"]
             )
