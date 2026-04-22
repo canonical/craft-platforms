@@ -88,11 +88,10 @@ def _validate_base_definition(  # noqa: PLR0912
                 )
         # Collect build-on entries, separating devel-series from non-devel.
         # Devel-series build-on entries are allowed to differ from the build-for base,
-        # but mixing devel and non-devel (with an explicit base) in build-on is not
-        # allowed (for the same reason that mixing two different stable bases in
-        # build-on is not allowed).
+        # but mixing devel with any non-devel entries (even base-less ones that inherit
+        # a stable top-level base) in build-on is not allowed, for the same reason
+        # that mixing two different stable bases in build-on is not allowed.
         has_devel_build_on = False
-        has_non_devel_base_build_on = False
         non_devel_build_on_bases: Set[Optional[str]] = set()
         for entry in _utils.vectorize(platform.get("build-on", [platform_name])):
             distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
@@ -100,10 +99,8 @@ def _validate_base_definition(  # noqa: PLR0912
                 has_devel_build_on = True
             else:
                 non_devel_build_on_bases.add(str(distro_base) if distro_base else None)
-                if distro_base is not None:
-                    has_non_devel_base_build_on = True
 
-        if has_devel_build_on and has_non_devel_base_build_on:
+        if has_devel_build_on and non_devel_build_on_bases:
             raise _errors.InvalidMultiBaseError(
                 message=(
                     f"Platform {platform_name!r} has mismatched bases in the 'build-on' "

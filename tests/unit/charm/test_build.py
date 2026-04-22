@@ -757,6 +757,19 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
             "Use the same base for all 'build-on' and 'build-for' entries for the platform.",
             id="devel-and-stable-mixed-build-on",
         ),
+        pytest.param(
+            "ubuntu@24.04",
+            None,
+            {
+                "my-platform": {
+                    "build-on": ["amd64", "devel:arm64"],
+                    "build-for": ["amd64"],
+                },
+            },
+            r"Platform 'my-platform' has mismatched bases in the 'build-on' and 'build-for' entries.",
+            "Use the same base for all 'build-on' and 'build-for' entries for the platform.",
+            id="devel-and-base-less-mixed-build-on",
+        ),
     ],
 )
 def test_build_plans_bad_base(base, build_base, platforms, error_msg, error_res):
@@ -816,9 +829,10 @@ def _is_valid_multi_base_platform_dict(p):
     A valid multi-base platform dict must satisfy:
     - All ``build-on`` entries either share the same base as ``build-for``,
       or are devel-series entries (exactly ``"devel"`` or ``"*@devel"``).
-    - ``build-on`` must not mix devel-series entries with entries that carry
-      an explicit non-devel base, for the same reason that two different
-      stable bases in ``build-on`` are rejected.
+    - ``build-on`` must not mix devel-series entries with any non-devel entries
+      (including base-less entries that would inherit a stable top-level base),
+      for the same reason that two different stable bases in ``build-on`` are
+      rejected.
     """
     build_ons = p["build-on"] if isinstance(p["build-on"], list) else [p["build-on"]]
     build_fors = (
@@ -831,20 +845,18 @@ def _is_valid_multi_base_platform_dict(p):
         for on in build_ons
         if on.partition(":")[0] == "devel" or on.partition(":")[0].endswith("@devel")
     ]
-    # build-on entries that carry an explicit distro@series that is not devel
-    non_devel_with_base_build_ons = [
-        on
-        for on in build_ons
-        if "@" in on.partition(":")[0] and not on.partition(":")[0].endswith("@devel")
-    ]
+    # build-on entries that are not devel-series (includes base-less entries)
+    non_devel_build_ons = [on for on in build_ons if on not in devel_build_ons]
 
-    # Mixing devel and explicit non-devel bases in build-on is not allowed.
-    if devel_build_ons and non_devel_with_base_build_ons:
+    # Mixing devel with any non-devel entries in build-on is not allowed.
+    if devel_build_ons and non_devel_build_ons:
         return False
 
     # All non-devel entries that carry an explicit base must match build-for.
     return all(
-        on.partition(":")[0] == build_for_base for on in non_devel_with_base_build_ons
+        on.partition(":")[0] == build_for_base
+        for on in non_devel_build_ons
+        if "@" in on.partition(":")[0]
     )
 
 
