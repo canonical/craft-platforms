@@ -52,7 +52,6 @@ extensions.extend(
         "sphinx.ext.viewcode",
         "sphinx.ext.coverage",
         "sphinx.ext.doctest",
-        "sphinx_pydantic",
         "sphinx_toolbox",
     ]
 )
