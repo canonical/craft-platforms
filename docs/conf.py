@@ -52,16 +52,12 @@ extensions.extend(
         "sphinx.ext.viewcode",
         "sphinx.ext.coverage",
         "sphinx.ext.doctest",
-        "sphinx-pydantic",
+        "sphinx_pydantic",
         "sphinx_toolbox",
     ]
 )
 
 exclude_patterns = [
-    # Exclude the empty quadrants
-    "tutorials/index.rst",
-    "how-to/index.rst",
-    "explanation/index.rst",
     "README.md",
     "reuse",
 ]

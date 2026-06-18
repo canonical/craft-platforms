@@ -2,24 +2,33 @@
 
 ## Overview
 
-`canonical/starbase` is a shared scaffold/base repository for the Starcraft team. It
-contains common build tooling, CI workflows, linting configs, documentation templates,
-and test infrastructure.
+`canonical/craft-platforms` is a Python library for parsing craft project platform data
+and building platform-aware build plans.
 
-## Starcraft projects
+## Craft apps and libraries
 
-This repository is an upstream repository for more than 20 Starcraft projects, such as
-Snapcraft, Rockcraft, craft-application, and craft-parts.
+Craft Platforms is used by craft apps, including but not limited to Charmcraft,
+Debcraft, Imagecraft, Rockcraft, and Snapcraft. The source code for these apps is at
+https://github.com/canonical/<app-name-in-lowercase>.
 
-The source code for these projects is at
-https://github.com/canonical/<project-name-in-lowercase>.
+Craft apps use Craft Platforms in conjunction with the following craft libraries:
 
-Repos that use starbase track it as a git remote named `starbase` and periodically merge
-changes from `starbase/main`.
+| Package             | Role                                                                                          |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| `craft-application` | Application framework: CLI lifecycle, configuration, service management, remote build support |
+| `craft-archives`    | Repository and package archive management (apt sources, keyrings)                             |
+| `craft-cli`         | Terminal output, progress reporting, error formatting                                         |
+| `craft-grammar`     | Architecture and platform-conditional YAML in project files                                   |
+| `craft-parts`       | Part lifecycle (pull, build, overlay, stage, prime) steps, plugins                            |
+| `craft-platforms`   | Platform and architecture abstractions                                                        |
+| `craft-providers`   | Build environment manager for LXD and Multipass                                               |
+| `craft-store`       | Store API client: upload, release, track management                                           |
+
+The source code for these libraries is at https://github.com/canonical/<library>.
 
 ## Development
 
-Starbase uses [uv](https://docs.astral.sh/uv/) for dependency management.
+Craft Platforms uses [uv](https://docs.astral.sh/uv/) for dependency management.
 
 ```bash
 make setup          # Install all deps
@@ -32,6 +41,12 @@ make test           # Full test suite
 make test-fast      # Fast tests only
 uv run pytest tests/unit/path/to/test_file.py::test_name  # run a specific test
 ```
+
+End-to-end tests (`tests/spread/`) use [spread](https://github.com/canonical/spread/)
+and require additional setup to run locally. Spread tests should be run for
+comprehensive changes or changes that can't be completely verified with unit and
+integration tests. Spread tests are expensive to run, so extend existing tests when
+appropriate.
 
 ### Formatting and linting
 
@@ -56,12 +71,17 @@ make lint-docs
 
 ## Practices
 
+- Backward compatibility is a **hard requirement**. Apps using this library must
+  continue to build successfully without requiring user modifications. Changes that
+  alter behavior, configuration, APIs, defaults, or validation rules must be opt-in.
+  When modifying business logic, verify that existing behavior is preserved and explain
+  how you verified it.
 - Make the smallest safe change necessary to resolve the issue. Avoid unrelated bug
   fixes, opportunistic cleanup, and refactoring unless required. The right amount of
   complexity is the minimum needed for the current task.
 - Never speculate about code you haven't inspected.
-- Follow the project's existing conventions regarding style, docstrings, logging, and
-  comments.
+- Follow the project's existing conventions regarding style, docstrings, logging,
+  comments, and testing.
 - Comments should explain complex business logic, non-obvious algorithms, regex, and
   other "gotchas". Comments should be brief, explain "why" not "how", and be helpful for
   future maintainers.
@@ -69,6 +89,8 @@ make lint-docs
 
 ## Processes
 
+- If you're contributing to a specific release, target the upstream
+  `hotfix/<major.minor>` branch, if it exists. Otherwise, target the `main` branch.
 - Commit headers are no more than 80 characters, follow [Conventional
   Commits](https://www.conventionalcommits.org/en/v1.0.0/), and use the following types:
     - ci, build, feat, fix, perf, refactor, style, test, docs, chore

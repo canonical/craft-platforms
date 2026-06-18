@@ -1,5 +1,5 @@
 .. meta::
-    :description: The reference documentation for Starcraft. These references describe the structure and function of the individual components in Starcraft.
+    :description: The reference documentation for Craft Platforms. These references describe the structure and function of the individual components in Craft Platforms.
 
 .. _reference:
 
@@ -7,7 +7,7 @@ Reference
 =========
 
 References describe the structure and function of the individual components in
-Starcraft.
+Craft Platforms.
 
 .. toctree::
     :hidden:
