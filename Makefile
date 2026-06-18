@@ -14,7 +14,12 @@ endif
 
 UV_TEST_GROUPS := "--group=dev"
 UV_DOCS_GROUPS := "--group=docs"
-UV_LINT_GROUPS := "--group=lint" "--group=types"
+UV_LINT_GROUPS := "--group=lint" "--group=types" $(UV_DOCS_GROUPS)
+UV_TICS_GROUPS := "--group=tics"
+
+# Define when more than the main package tree requires coverage
+# like is the case for snapcraft (snapcraft and snapcraft_legacy):
+# COVERAGE_SOURCE="craft_platforms"
 
 # If you have dev dependencies that depend on your distro version, uncomment these:
 # ifneq ($(wildcard /etc/os-release),)
@@ -24,15 +29,19 @@ UV_LINT_GROUPS := "--group=lint" "--group=types"
 # UV_TEST_GROUPS += "--group=dev-$(VERSION_CODENAME)"
 # UV_DOCS_GROUPS += "--group=dev-$(VERSION_CODENAME)"
 # UV_LINT_GROUPS += "--group=dev-$(VERSION_CODENAME)"
+# UV_TICS_GROUPS += "--group=dev-$(VERSION_CODENAME)"
 # endif
 
 include common.mk
 
 .PHONY: format
-format: format-ruff format-codespell format-prettier  ## Run all automatic formatters
+format: format-ruff format-codespell format-prettier format-pre-commit  ## Run all automatic formatters
 
 .PHONY: lint
-lint: lint-ruff lint-ty lint-codespell lint-mypy lint-prettier lint-shellcheck lint-docs lint-twine  ## Run all linters
+lint: lint-code lint-docs lint-twine lint-uv-lockfile lint-actions  ## Run all linters
+
+.PHONY: lint-code
+lint-code: lint-ruff lint-ty lint-codespell lint-mypy lint-prettier lint-pyright lint-shellcheck  ## Run code-specific linters
 
 .PHONY: pack
 pack: pack-pip  ## Build all packages
@@ -43,13 +52,6 @@ ifeq ($(shell which snapcraft),)
 	sudo snap install --classic snapcraft
 endif
 	snapcraft pack
-
-.PHONY: publish
-publish: publish-pypi  ## Publish packages
-
-.PHONY: publish-pypi
-publish-pypi: clean package-pip lint-twine  ##- Publish Python packages to pypi
-	uv tool run twine upload dist/*
 
 # Find dependencies that need installing
 APT_PACKAGES :=
@@ -76,18 +78,4 @@ endif
 
 # If additional build dependencies need installing in order to build the linting env.
 .PHONY: install-lint-build-deps
-install-lint-build-deps: install-ty
-
-.PHONY: lint-ty
-lint-ty: install-ty
-	ty check
-
-.PHONY: install-ty
-install-ty:
-ifneq ($(shell which ty),)
-else ifneq ($(shell which snap),)
-	sudo snap install --beta astral-ty
-	sudo snap alias astral-ty.ty ty
-else ifneq ($(shell which uv),)
-	uv tool install ty
-endif
+install-lint-build-deps:
