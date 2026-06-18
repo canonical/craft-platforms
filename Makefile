@@ -38,7 +38,7 @@ include common.mk
 format: format-ruff format-codespell format-prettier format-pre-commit  ## Run all automatic formatters
 
 .PHONY: lint
-lint: lint-code lint-docs lint-twine lint-uv-lockfile lint-actions  ## Run all linters
+lint: lint-ruff lint-ty lint-codespell lint-prettier lint-shellcheck lint-docs lint-twine  ## Run all linters
 
 .PHONY: lint-code
 lint-code: lint-ruff lint-ty lint-codespell lint-mypy lint-prettier lint-pyright lint-shellcheck  ## Run code-specific linters
@@ -52,6 +52,13 @@ ifeq ($(shell which snapcraft),)
 	sudo snap install --classic snapcraft
 endif
 	snapcraft pack
+
+.PHONY: publish
+publish: publish-pypi  ## Publish packages
+
+.PHONY: publish-pypi
+publish-pypi: clean package-pip lint-twine  ##- Publish Python packages to pypi
+	uv tool run twine upload dist/*
 
 # Find dependencies that need installing
 APT_PACKAGES :=
@@ -79,3 +86,17 @@ endif
 # If additional build dependencies need installing in order to build the linting env.
 .PHONY: install-lint-build-deps
 install-lint-build-deps:
+
+.PHONY: lint-ty
+lint-ty: install-ty
+	ty check
+
+.PHONY: install-ty
+install-ty:
+ifneq ($(shell which ty),)
+else ifneq ($(shell which snap),)
+	sudo snap install --beta astral-ty
+	sudo snap alias astral-ty.ty ty
+else ifneq ($(shell which uv),)
+	uv tool install ty
+endif

@@ -1,21 +1,18 @@
-# GitHub CODEOWNERS. See:
+# GitHub code owners. See:
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 # Remember, the last match takes precedence.
 
-# Global owner, used as a last resort.
-*       @lengau
-
-# General code owner
-*.py    @lengau
+# Global owner
+*                              @lengau
 
 # Documentation owners
-/docs/  @canonical/starcraft-authors
-/docs/reference/changelog.rst @canonical/starcraft-reviewers
+/docs/                         @canonical/starcraft-authors @lengau
+/docs/reference/changelog.rst  @canonical/starcraft-reviewers
 
 # Module-specific overrides to match application ownership.
-/craft_platforms/charm  @lengau
-/craft_platforms/rock   @tigarmo
-/craft_platforms/snap   @mr-cal
+/craft_platforms/charm         @lengau
+/craft_platforms/rock          @tigarmo
+/craft_platforms/snap          @mr-cal
 
-# Finally, all CODEOWNERS changes need to be approved by The Man, Himself.
-/.github/CODEOWNERS     @steinbro
+# Code owner changes must be approved by a maintainer.
+/.github/CODEOWNERS            @canonical/starcraft-maintainers
