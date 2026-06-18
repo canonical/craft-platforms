@@ -319,3 +319,6 @@ classmethod-decorators = ["pydantic.validator", "pydantic.root_validator"]
     "I001", # isort leaves init files alone by default, this makes ruff ignore them too.
     "F401", # Allows unused imports in __init__ files.
 ]
+"craft_platforms/_distro.py" = [
+    "UP007", # Keep Python 3.8-compatible typing syntax in this module.
+]

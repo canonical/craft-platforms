@@ -82,7 +82,7 @@ def _is_distrobase_compatible(item: object) -> bool:
 
 
 @dataclasses.dataclass(repr=True, frozen=True)
-class DistroBase:  # noqa: PLW1641 (https://github.com/astral-sh/ruff/issues/18905)
+class DistroBase:
     """A linux distribution base."""
 
     distribution: str
