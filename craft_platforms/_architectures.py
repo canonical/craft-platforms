@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import enum
 import platform
-from typing import Literal, Tuple, Union
+from typing import Literal
 
 from typing_extensions import Self
 
@@ -121,7 +121,7 @@ _ARCH_TRANSLATIONS_PLATFORM_TO_DEB = {
 
 def parse_base_and_architecture(
     arch: str,
-) -> Tuple[_distro.DistroBase | None, Union[DebianArchitecture, Literal["all"]]]:
+) -> tuple[_distro.DistroBase | None, DebianArchitecture | Literal["all"]]:
     """Get the debian arch and optional base from an architecture entry.
 
     The architecture may have an optional base prefixed as '[<base>:]<arch>'.
