@@ -11,3 +11,7 @@ Craft Platforms.
 
 .. toctree::
     :hidden:
+
+    package
+    changelog
+    testing/index
