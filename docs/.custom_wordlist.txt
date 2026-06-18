@@ -19,12 +19,14 @@ https
 Intersphinx
 io
 ip
+genindex
 landscape
 lang
 lastmod
 LaTeX
 latexmk
 Makefile
+modindex
 Multipass
 MyST
 Numpy
@@ -37,6 +39,8 @@ PNG
 PR
 Pygments
 pymarkdown
+pydantic
+Pydantic
 QEMU
 Read the Docs
 readthedocs
@@ -45,6 +49,7 @@ retrigger(ing)?
 Rockcraft
 rst
 sequenceDiagram
+sphinx_pydantic
 sitemapindex
 Sphinx
 Spread
@@ -72,3 +77,5 @@ xindy
 xml
 yaml
 YouTube
+Validator
+validators
