@@ -116,7 +116,7 @@ _ARCH_TRANSLATIONS_DEB_TO_GRUB = {
 # architecture translations from the other syntaxes to deb/snap syntax
 _ARCH_TRANSLATIONS_PLATFORM_TO_DEB = {
     **{platform: deb for (deb, platform) in _ARCH_TRANSLATIONS_DEB_TO_PLATFORM.items()},
-    "armv8l": "armhf",
+    "armv8l": "armhf",  # ARMv8 processor running in 32-bit LE mode
 }
 
 
