@@ -115,8 +115,9 @@ _ARCH_TRANSLATIONS_DEB_TO_GRUB = {
 
 # architecture translations from the other syntaxes to deb/snap syntax
 _ARCH_TRANSLATIONS_PLATFORM_TO_DEB = {
-    platform: deb for (deb, platform) in _ARCH_TRANSLATIONS_DEB_TO_PLATFORM.items()
-} | {"armv8l": "armhf"}
+    **{platform: deb for (deb, platform) in _ARCH_TRANSLATIONS_DEB_TO_PLATFORM.items()},
+    "armv8l": "armhf",
+}
 
 
 def parse_base_and_architecture(
