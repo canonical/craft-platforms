@@ -68,10 +68,18 @@ def test_debian_architecture_to_platform_arch(given, expected):
     assert given.to_platform_arch() == expected
 
 
-@pytest.mark.parametrize("machine", ["aarch64", "x86_64", "riscv64"])
-def test_debian_architecture_from_host(monkeypatch, machine):
+@pytest.mark.parametrize(
+    ("machine", "expected"),
+    [
+        ("aarch64", "aarch64"),
+        ("x86_64", "x86_64"),
+        ("riscv64", "riscv64"),
+        ("armv8l", "armv7l"),
+    ],
+)
+def test_debian_architecture_from_host(monkeypatch, machine, expected):
     monkeypatch.setattr(platform, "machine", lambda: machine)
-    assert DebianArchitecture.from_host().to_platform_arch() == machine
+    assert DebianArchitecture.from_host().to_platform_arch() == expected
 
 
 @pytest.mark.parametrize(
