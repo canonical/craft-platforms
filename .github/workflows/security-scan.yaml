@@ -13,6 +13,6 @@ jobs:
     uses: canonical/starflow/.github/workflows/scan-python.yaml@main
     with:
       osv-exclude-paths: |
-          docs
+        docs
       uv-export-no-groups: |
-          docs
+        docs
