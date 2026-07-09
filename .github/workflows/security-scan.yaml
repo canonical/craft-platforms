@@ -12,7 +12,6 @@ jobs:
     name: Scan Python project
     uses: canonical/starflow/.github/workflows/scan-python.yaml@main
     with:
-      osv-extra-args: "--config=source/osv-scanner.toml"
       osv-exclude-paths: |
           docs
       uv-export-no-groups: |
