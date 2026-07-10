@@ -3,8 +3,8 @@ Changelog
 *********
 
 .. Release template:
-    a.b.c (unrelased)
-    -----------------
+    a.b.c (unreleased)
+    ------------------
 
     Section
     =======
@@ -12,6 +12,21 @@ Changelog
     - Change
 
     For a complete list of commits, check out the `a.b.c`_ release on GitHub.
+
+0.12.0 (2026-07-10)
+-------------------
+
+Features
+========
+
+- Support armv8l as a system architecture, mapped to armhf.
+
+Bug Fixes
+=========
+
+- Allow colons in Charm platform names without a base prefix.
+
+For a complete list of commits, check out the `0.12.0`_ release on GitHub.
 
 0.11.1 (2026-04-03)
 -------------------
@@ -191,6 +206,7 @@ New Features
 For a complete list of commits, check out the `0.1.0`_ release on GitHub.
 
 
+.. _0.12.0: https://github.com/canonical/craft-platforms/releases/tag/0.12.0
 .. _0.11.1: https://github.com/canonical/craft-platforms/releases/tag/0.11.1
 .. _0.11.0: https://github.com/canonical/craft-platforms/releases/tag/0.11.0
 .. _0.3.1: https://github.com/canonical/craft-platforms/releases/tag/0.3.1
