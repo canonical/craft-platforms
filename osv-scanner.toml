@@ -1,16 +1,1 @@
-# Ignore pytest tmpdir vulnerability (CVE-2025-71176) for versions older than
-# 9.0.3. These versions are only resolved for Python <3.10 where pytest 9.0.3
-# (the fix) is not available. Python >=3.10 uses the fixed pytest 9.0.3.
-[[PackageOverrides]]
-name = "pytest"
-version = "8.3.5"
-ecosystem = "PyPI"
-vulnerability.ignore = true
-reason = "Only resolved for Python <3.9 where no fix is available (pytest 9.0.3 requires Python >=3.10)"
-
-[[PackageOverrides]]
-name = "pytest"
-version = "8.4.2"
-ecosystem = "PyPI"
-vulnerability.ignore = true
-reason = "Only resolved for Python 3.9 where no fix is available (pytest 9.0.3 requires Python >=3.10)"
+# OSV Scanner configuration
