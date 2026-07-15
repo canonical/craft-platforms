@@ -1,0 +1,4 @@
+uv tool install -U ruff
+uv tool install -U ty
+
+make setup

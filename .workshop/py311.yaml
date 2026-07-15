@@ -1,0 +1,7 @@
+name: py311
+base: ubuntu@22.04
+sdks:
+  - name: uv
+
+actions:
+  test: UV_PROJECT_ENVIRONMENT=/project/.venv-py3.11 uv run --python 3.11 --group dev pytest "$@"
