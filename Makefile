@@ -15,6 +15,7 @@ endif
 UV_TEST_GROUPS := "--group=dev"
 UV_DOCS_GROUPS := "--group=docs"
 UV_LINT_GROUPS := "--group=lint" "--group=types"
+UV_TICS_GROUPS := "--group=tics"
 
 # If you have dev dependencies that depend on your distro version, uncomment these:
 # ifneq ($(wildcard /etc/os-release),)
@@ -90,4 +91,12 @@ else ifneq ($(shell which snap),)
 	sudo snap alias astral-ty.ty ty
 else ifneq ($(shell which uv),)
 	uv tool install ty
+endif
+
+.PHONY: setup-tics
+setup-tics: install-uv install-build-deps ##- Set up a testing environment for Tiobe TICS
+	uv venv
+	uv sync $(UV_TEST_GROUPS) $(UV_LINT_GROUPS) $(UV_TICS_GROUPS)
+ifneq ($(CI),)
+	echo $(PWD)/.venv/bin >> $(GITHUB_PATH)
 endif

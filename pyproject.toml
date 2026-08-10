@@ -69,6 +69,10 @@ lint = [
 types = [
     # Left empty for scaffolding and Makefile compatibility
 ]
+tics = [
+    "flake8",
+    "pylint",
+]
 
 [tool.uv]
 constraint-dependencies = [
