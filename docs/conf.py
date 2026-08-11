@@ -31,6 +31,9 @@ html_context = {
     "github_url": "https://github.com/canonical/craft-platforms",
 }
 
+# The project slug passed to the sphinx-notfound-page extension
+slug = "craft-platforms"
+
 extensions = [
     "canonical_sphinx",
 ]
