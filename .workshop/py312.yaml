@@ -1,0 +1,8 @@
+name: py312
+base: ubuntu@24.04
+sdks:
+  - name: uv
+  - name: project-venv
+
+actions:
+  test: UV_PROJECT_ENVIRONMENT=/project/.venv-py3.12 uv run --python 3.12 --group dev pytest "$@"
