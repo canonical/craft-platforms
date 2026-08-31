@@ -528,6 +528,63 @@ def test_build_plans_success(
             ],
             id="multi-base-long-multi-build-on",
         ),
+        pytest.param(
+            None,
+            None,
+            {
+                "noble": {
+                    "build-on": ["devel:amd64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "devel"),
+                ),
+            ],
+            id="multi-base-devel-build-on",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "noble": {
+                    "build-on": ["ubuntu@devel:amd64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DebianArchitecture("amd64"),
+                    craft_platforms.DistroBase("ubuntu", "devel"),
+                ),
+            ],
+            id="multi-base-ubuntu-at-devel-build-on",
+        ),
+        pytest.param(
+            None,
+            None,
+            {
+                "noble": {
+                    "build-on": ["devel:amd64"],
+                    "build-for": ["ubuntu@24.04:all"],
+                },
+            },
+            [
+                craft_platforms.BuildInfo(
+                    "noble",
+                    craft_platforms.DebianArchitecture("amd64"),
+                    "all",
+                    craft_platforms.DistroBase("ubuntu", "devel"),
+                ),
+            ],
+            id="multi-base-devel-build-on-all",
+        ),
     ],
 )
 def test_build_plans_in_depth(base, build_base, platforms, expected):
@@ -687,6 +744,32 @@ def test_build_plans_in_depth(base, build_base, platforms, expected):
             "Use the same base for all 'build-on' and 'build-for' entries for the platform.",
             id="platform-base-with-incompatible-build-on",
         ),
+        pytest.param(
+            None,
+            None,
+            {
+                "noble": {
+                    "build-on": ["devel:amd64", "ubuntu@24.04:arm64"],
+                    "build-for": ["ubuntu@24.04:amd64"],
+                },
+            },
+            r"Platform 'noble' has mismatched bases in the 'build-on' and 'build-for' entries.",
+            "Use the same base for all 'build-on' and 'build-for' entries for the platform.",
+            id="devel-and-stable-mixed-build-on",
+        ),
+        pytest.param(
+            "ubuntu@24.04",
+            None,
+            {
+                "my-platform": {
+                    "build-on": ["amd64", "devel:arm64"],
+                    "build-for": ["amd64"],
+                },
+            },
+            r"Platform 'my-platform' has mismatched bases in the 'build-on' and 'build-for' entries.",
+            "Use the same base for all 'build-on' and 'build-for' entries for the platform.",
+            id="devel-and-base-less-mixed-build-on",
+        ),
     ],
 )
 def test_build_plans_bad_base(base, build_base, platforms, error_msg, error_res):
@@ -740,6 +823,43 @@ def _is_valid_platform(platforms):
     return True
 
 
+def _is_valid_multi_base_platform_dict(p):
+    """Return True if the platform dict is consistent for multi-base builds.
+
+    A valid multi-base platform dict must satisfy:
+    - All ``build-on`` entries either share the same base as ``build-for``,
+      or are devel-series entries (exactly ``"devel"`` or ``"*@devel"``).
+    - ``build-on`` must not mix devel-series entries with any non-devel entries
+      (including base-less entries that would inherit a stable top-level base),
+      for the same reason that two different stable bases in ``build-on`` are
+      rejected.
+    """
+    build_ons = p["build-on"] if isinstance(p["build-on"], list) else [p["build-on"]]
+    build_fors = (
+        p["build-for"] if isinstance(p["build-for"], list) else [p["build-for"]]
+    )
+    build_for_base = build_fors[0].partition(":")[0]
+
+    devel_build_ons = [
+        on
+        for on in build_ons
+        if on.partition(":")[0] == "devel" or on.partition(":")[0].endswith("@devel")
+    ]
+    # build-on entries that are not devel-series (includes base-less entries)
+    non_devel_build_ons = [on for on in build_ons if on not in devel_build_ons]
+
+    # Mixing devel with any non-devel entries in build-on is not allowed.
+    if devel_build_ons and non_devel_build_ons:
+        return False
+
+    # All non-devel entries that carry an explicit base must match build-for.
+    return all(
+        on.partition(":")[0] == build_for_base
+        for on in non_devel_build_ons
+        if "@" in on.partition(":")[0]
+    )
+
+
 @given(
     base=strategies.real_distro_base(),
     platforms=strategies.platform(
@@ -773,12 +893,7 @@ def test_fuzz_get_platforms_build_plan_single_base(
         values=strategies.platform_dict(
             build_ons=strategies.distro_series_arch_str(strategies.any_distro_base()),
             build_fors=strategies.distro_series_arch_str(strategies.any_distro_base()),
-        ).filter(
-            lambda p: (
-                {p["build-for"][0].partition(":")[0]}
-                == {on.partition(":")[0] for on in p["build-on"]}
-            )
-        ),
+        ).filter(_is_valid_multi_base_platform_dict),
     ),
 )
 def test_fuzz_get_platforms_build_plan_multi_base(
