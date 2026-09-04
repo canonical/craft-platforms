@@ -35,7 +35,10 @@ PlatformDict = typing.TypedDict(
     "PlatformDict",
     {
         "build-on": Union[Sequence[str], str],
-        "build-for": Union[Annotated[Sequence[str], annotated_types.Len(1)], str],
+        "build-for": Union[
+            Annotated[Sequence[str], annotated_types.Len(min_length=1, max_length=1)],
+            str,
+        ],
     },
 )
 """The platforms where an artifact is built and where the resulting artifact runs."""
