@@ -1,0 +1,8 @@
+name: py310
+base: ubuntu@22.04
+sdks:
+  - name: uv
+  - name: project-venv
+
+actions:
+  test: UV_PROJECT_ENVIRONMENT=/project/.venv-py3.10 uv run --python 3.10 --group dev pytest "$@"

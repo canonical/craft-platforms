@@ -1,0 +1,7 @@
+name: py39
+base: ubuntu@22.04
+sdks:
+  - name: uv
+
+actions:
+  test: UV_PROJECT_ENVIRONMENT=/project/.venv-py3.9 uv run --python 3.9 --group dev pytest "$@"
