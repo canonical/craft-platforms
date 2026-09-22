@@ -4,11 +4,9 @@ on:
 
 jobs:
   policy:
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+      security-events: write
     uses: canonical/starflow/.github/workflows/policy.yaml@main
-    with:
-      osv-extra-args: "--config=osv-scanner.toml"
-      osv-exclude-paths: |
-        docs
-      uv-export-no-groups: |
-        docs
-        docs-sphinx-stack

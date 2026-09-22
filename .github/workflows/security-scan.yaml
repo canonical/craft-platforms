@@ -7,6 +7,8 @@ on:
       - hotfix/*
       - work/secscan # For development
 
+permissions: read-all
+
 jobs:
   python-scans:
     name: Scan Python project
