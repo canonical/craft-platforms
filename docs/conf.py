@@ -1,80 +1,274 @@
-# This file is part of starbase.
-#
-# Copyright 2024 Canonical Ltd.
-#
-# This program is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License version 3, as published
-# by the Free Software Foundation.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranties of MERCHANTABILITY,
-# SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 import datetime
+import os
+import textwrap
 
-project = "craft-platforms"
-author = "Canonical"
+# Configuration for the Sphinx documentation builder.
+# All configuration specific to your project should be done in this file.
+#
+# If you're new to Sphinx and don't want any advanced or custom features,
+# just go through the items marked 'TODO'.
+#
+# A complete list of built-in Sphinx configuration values:
+# https://www.sphinx-doc.org/en/master/usage/configuration.html
+#
+# The Sphinx Stack uses the Canonical Sphinx theme to keep all documentation consistent
+# and on brand:
+# https://github.com/canonical/canonical-sphinx
 
-copyright = "2023-%s, %s" % (datetime.date.today().year, author)
 
-# region Configuration for canonical-sphinx
+#######################
+# Project information #
+#######################
+
+# Project name
+project = "Craft Platforms"
+
+# Author name; used in the default copyright statement in the page footer
+author = "Canonical Ltd."
+
+# The year in the copyright statement
+copyright = f"2023-{datetime.date.today().year}"
+
+# Documentation website URL
 ogp_site_url = "https://canonical-craft-platforms.readthedocs-hosted.com/"
-ogp_site_name = project
-ogp_image = "https://assets.ubuntu.com/v1/253da317-image-document-ubuntudocs.svg"
 
+# Preview name of the documentation website
+ogp_site_name = project
+
+# Preview image URL
+ogp_image = "https://assets.ubuntu.com/v1/cc828679-docs_illustration.svg"
+
+# Product favicon; shown in bookmarks, browser tabs, etc.
+# TODO: To customise the favicon, uncomment and update the next line.
+# html_favicon = ".sphinx/_static/favicon.png"
+
+# Dictionary of values to pass into the Sphinx context for all pages:
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_context
 html_context = {
+    # Product page URL; can be different from product docs URL
     "product_page": "github.com/canonical/craft-platforms",
+    # Product tag image; the orange part of your logo, shown in the page header
+    # "product_tag": "_static/tag.png",
+    # Your Discourse instance URL
+    "discourse": "",
+    # Your Mattermost channel URL
+    "mattermost": "https://chat.canonical.com/canonical/channels/documentation",
+    # Your Matrix channel URL
+    "matrix": "https://matrix.to/#/#starcraft-development:ubuntu.com",
+    # Your documentation GitHub repository URL. If set, links for viewing the
+    # documentation source files and creating GitHub issues are added at the bottom of
+    # each page.
     "github_url": "https://github.com/canonical/craft-platforms",
+    # Docs branch in the repo; used in links for viewing the source files
+    "repo_default_branch": "main",
+    # Docs location in the repo; used in links for viewing the source files
+    "repo_folder": "/docs/",
+    # List contributors on individual pages
+    "display_contributors": False,
+    # Required for feedback button
+    "github_issues": "enabled",
+    # Passes the top-level 'author' value to the theme
+    "author": author,
+    # Documentation license information
+    "license": {
+        "name": "LGPL-3.0",
+        "url": "https://github.com/canonical/craft-platforms/blob/main/LICENSE",
+    },
+}
+
+html_theme_options = {
+    "source_edit_link": "https://github.com/canonical/craft-platforms",
 }
 
 # The project slug passed to the sphinx-notfound-page extension
 slug = "craft-platforms"
 
-extensions = [
-    "canonical_sphinx",
+
+#########################
+# Sitemap configuration #
+#########################
+
+# Use RTD canonical URL to ensure duplicate pages have a specific canonical URL
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
+
+# sphinx-sitemap uses html_baseurl to generate the full URL for each page:
+sitemap_url_scheme = "{link}"
+
+# Include `lastmod` dates in the sitemap:
+# sitemap_show_lastmod = True
+
+# Pages excluded from the sitemap:
+sitemap_excludes = [
+    "404/",
+    "genindex/",
+    "search/",
 ]
-# endregion
 
-# region General configuration
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions.extend(
-    [
-        "sphinx.ext.autodoc",
-        "sphinx.ext.napoleon",
-        "sphinx_autodoc_typehints",
-        "sphinx.ext.intersphinx",
-        "sphinx.ext.viewcode",
-        "sphinx.ext.coverage",
-        "sphinx.ext.doctest",
-        "sphinx-pydantic",
-    ]
+################################
+# Template and asset locations #
+################################
+
+# html_static_path = ["_static"]
+# templates_path = ["_templates"]
+
+
+#############
+# Redirects #
+#############
+
+# Add redirects to the 'redirects.txt' file
+# https://sphinxext-rediraffe.readthedocs.io/en/latest/
+
+# To set up redirects in the Read the Docs project dashboard:
+# https://docs.readthedocs.io/en/stable/guides/redirects.html
+
+rediraffe_redirects = "redirects.txt"
+
+# Strips '/index.html' from destination URLs when building with 'dirhtml'
+rediraffe_dir_only = True
+
+############################
+# sphinx-llm configuration #
+############################
+
+# This description is included in llms.txt to provide some initial context for your
+# product docs.
+llms_txt_description = textwrap.dedent(
+    """\
+    This is the documentation for Craft Platforms, a library that handles platform
+    information for Snapcraft, Charmcraft, Rockcraft, and other craft apps.
+    """
 )
 
+# The base URL for references built by sphinx-markdown-builder.
+if os.environ.get("READTHEDOCS"):
+    markdown_http_base = html_baseurl
+
+###########################
+# Link checker exceptions #
+###########################
+
+# Whole sites and individuals URLs to ignore
+linkcheck_ignore = [
+    # Entire domains to ignore due to flakiness or issues
+    r"^https://github.com",
+    r"^https://www.gnu.org/",
+    r"^https://crates.io/",
+    r"^https://([\w-]*\.)?npmjs.org",
+    r"^https://rsync.samba.org",
+    r"^https://ubuntu.com",
+    r"^https://matrix.to/#",
+    r"^https://gitlab.gnome.org",
+]
+
+# Anchor strings to ignore
+# linkcheck_anchors_ignore = []
+
+# Give linkcheck multiple tries on failure
+linkcheck_retries = 20
+
+# Report timeouts as 'timeout' instead of 'broken'
+linkcheck_report_timeouts_as_broken = False
+
+
+########################
+# Configuration extras #
+########################
+
+# Custom Sphinx extensions; see
+# https://www.sphinx-doc.org/en/master/usage/extensions/index.html
+extensions = [
+    "canonical_sphinx",
+    "notfound.extension",
+    "sphinx_design",
+    "sphinx_rerediraffe",
+    # "sphinx_tabs.tabs",
+    # "sphinxcontrib.jquery"
+    "sphinxext.opengraph",
+    # "sphinx_config_options",
+    # "sphinx_contributor_listing",
+    # "sphinx_filtered_toctree",
+    "sphinx_llm.txt",
+    "sphinx_related_links",
+    "sphinx_roles",
+    "sphinx_terminal",
+    # "sphinx_ubuntu_images",
+    # "sphinx_youtube_links",
+    # "sphinxcontrib.cairosvgconverter",
+    # "sphinx_last_updated_by_git",
+    "sphinx.ext.intersphinx",
+    "sphinx_sitemap",
+    # Custom Craft extensions
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx_autodoc_typehints",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.coverage",
+    "sphinx.ext.doctest",
+    "sphinx-pydantic",
+]
+
+# Excludes files or directories from processing
 exclude_patterns = [
+    "README.md",  # Docs README
+    "reuse",
     # Exclude the empty quadrants
     "tutorials/index.rst",
     "how-to/index.rst",
     "explanation/index.rst",
 ]
 
-# endregion
+# Adds custom CSS files, located remotely or in 'html_static_path'.
+# html_css_files = [
+#     "https://assets.ubuntu.com/v1/d86746ef-cookie_banner.css",
+# ]
 
-# region Options for extensions
-# Intersphinx extension
-# https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#configuration
+# Adds custom JavaScript files, located remotely or in 'html_static_path'.
+# html_js_files = [
+#     "https://assets.ubuntu.com/v1/287a5e8f-bundle.js",
+# ]
 
+# Appends extra markup to the end of every document written in reST
+# rst_epilog = """
+# """
+
+# Feedback button at the top; enabled by default
+# disable_feedback_button = True
+
+# Your manpage URL
+# manpages_url = "https://manpages.ubuntu.com/manpages/{codename}/en/" + \
+#     "man{section}/{page}.{section}.html"
+
+# Specifies a reST snippet to be prepended to each .rst file
+# This defines a :center: role that centers table cell content.
+# This defines a :h2: role that styles content for use with PDF generation.
+rst_prolog = """
+.. role:: center
+   :class: align-center
+.. role:: h2
+    :class: hclass2
+.. role:: woke-ignore
+    :class: woke-ignore
+.. role:: vale-ignore
+    :class: vale-ignore
+"""
+
+# Add configuration for intersphinx mapping
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "hypothesis": ("https://hypothesis.readthedocs.io/en/latest", None),
+    "starflow": ("https://documentation.ubuntu.com/starflow/latest", None),
 }
 
-# Type annotations config
-# add_module_names = True
+# Block Intersphinx from looking up external sources with internal references. In other
+# words, only :external+<project>... will search in other projects.
+intersphinx_disabled_reftypes = ["std:*"]
+
+
+##############################
+# Custom Craft configuration #
+##############################
 
 # Type hints configuration
 set_type_checking_flag = True
@@ -97,9 +291,3 @@ typehints_defaults = "comma"
 # Napoleon configuration
 # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
 napoleon_attr_annotations = True
-
-# Github config
-github_username = "canonical"
-github_repository = "craft-platforms"
-
-# endregion
