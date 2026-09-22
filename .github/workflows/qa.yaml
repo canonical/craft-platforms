@@ -9,12 +9,16 @@ on:
       - "renovate/*"
   pull_request:
 
-permissions: read-all
-
 jobs:
   lint:
+    permissions:
+      contents: read
+      pull-requests: read
     uses: canonical/starflow/.github/workflows/lint-python.yaml@main
   test:
+    permissions:
+      actions: read
+      contents: read
     uses: canonical/starflow/.github/workflows/test-python.yaml@main
     with:
       fast-test-platforms: >
