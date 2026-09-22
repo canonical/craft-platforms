@@ -52,7 +52,6 @@ docs = [
     # Use the last version supported on 3.8 if needed
     "sphinx-autobuild ; python_version<'3.9'",
     "sphinx-pydantic~=0.1.1",
-    "sphinx-toolbox~=4.0",
     "sphinx-lint~=1.0.0",
 ]
 test = [

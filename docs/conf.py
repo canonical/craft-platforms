@@ -44,9 +44,7 @@ extensions = [
 
 extensions.extend(
     [
-        # "sphinx_toolbox.more_autodoc",
-        "sphinx_toolbox.more_autodoc.variables",
-        "sphinx.ext.autodoc",  # Must be loaded after more_autodoc
+        "sphinx.ext.autodoc",
         "sphinx.ext.napoleon",
         "sphinx_autodoc_typehints",
         "sphinx.ext.intersphinx",
@@ -54,7 +52,6 @@ extensions.extend(
         "sphinx.ext.coverage",
         "sphinx.ext.doctest",
         "sphinx-pydantic",
-        "sphinx_toolbox",
     ]
 )
 
@@ -96,10 +93,6 @@ autodoc_typehints_format = "short"
 always_use_bars_union = True
 typehints_use_rtype = False
 typehints_defaults = "comma"
-
-# More-autodoc configuration
-# https://sphinx-toolbox.readthedocs.io/en/stable/extensions/more_autodoc/index.html
-overloads_location = "bottom"
 
 # Napoleon configuration
 # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
