@@ -98,8 +98,4 @@ typehints_defaults = "comma"
 # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
 napoleon_attr_annotations = True
 
-# Github config
-github_username = "canonical"
-github_repository = "craft-platforms"
-
 # endregion
