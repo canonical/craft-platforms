@@ -2,6 +2,12 @@ name: Check policy
 on:
   pull_request:
 
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+  security-events: write
+
 jobs:
   policy:
     uses: canonical/starflow/.github/workflows/policy.yaml@main

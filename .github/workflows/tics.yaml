@@ -6,6 +6,8 @@ on:
       # For troubleshooting
       - "work/tiobe**"
 
+permissions: read-all
+
 jobs:
   TICS:
     uses: canonical/starflow/.github/workflows/tics.yaml@main
