@@ -53,7 +53,6 @@ docs = [
   # now that the Sphinx Stack no longer depends on sphinx-toolbox.
   "sphinx-autodoc-typehints",
   "sphinx-lint~=1.0.0",
-  "sphinx-pydantic~=0.1.1",
   { include-group = "docs-sphinx-stack" },
 ]
 # We disable the unused but default Sphinx Stack dependencies slated for removal
