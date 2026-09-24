@@ -1,0 +1,43 @@
+name: Workshop tests
+on:
+  push:
+    branches:
+      - "main"
+      - "feature/*"
+      - "hotfix/*"
+      - "release/*"
+      - "renovate/*"
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-26.04
+          - ubuntu-26.04-arm
+        workshop:
+          - py38
+          - py39
+          - py310
+          - py311
+          - py312
+          - py313
+          - py314
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Launch workshop
+        uses: canonical/launch-workshop@v1
+        with:
+          workshop: ${{ matrix.workshop }}
+          cache: |
+            uv:cache
+
+      - name: Run tests
+        run: workshop run "$WS" test
+        env:
+          WS: ${{ matrix.workshop }}
