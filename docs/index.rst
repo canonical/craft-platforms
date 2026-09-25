@@ -1,34 +1,31 @@
-.. craft-platforms documentation root file
+.. meta::
+    :description: Craft Platforms is a library that handles platform information for Snapcraft, Charmcraft, Rockcraft, and other craft apps.
+
 
 Craft Platforms
-===============
+================
 
-.. toctree::
-   :maxdepth: 1
-   :hidden:
+.. list-table::
 
-   reference/index
+    * - | :ref:`Reference <reference>`
+        | **Technical information** about Craft Platforms
+    * - | :ref:`Explanation <explanation>`
+        | **Discussion and clarification** of key topics
 
-.. grid:: 1 1 2 2
-
-   .. grid-item-card:: :ref:`Reference <reference>`
-
-      **Technical information** about Craft Platforms
 
 Project and community
-=====================
+----------------------
 
 Craft Platforms is a member of the Canonical family. It's an open source project
 that warmly welcomes community projects, contributions, suggestions, fixes
 and constructive feedback.
 
-* `Ubuntu Code of Conduct <https://ubuntu.com/community/code-of-conduct>`_.
-* `Canonical contributor licenses agreement
-  <https://ubuntu.com/legal/contributors>`_.
+- `Ubuntu Code of Conduct <https://ubuntu.com/community/code-of-conduct>`__
+- `Canonical Contributor License Agreement <https://ubuntu.com/legal/contributors>`__
 
-Indices and tables
-==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+.. toctree::
+    :hidden:
+
+    reference/index
+    explanation/index

@@ -6,11 +6,12 @@ on:
       # For troubleshooting
       - "work/tiobe**"
 
-permissions: read-all
-
 jobs:
   TICS:
+    permissions:
+      contents: read
     uses: canonical/starflow/.github/workflows/tics.yaml@main
     with:
       project: "craft-platforms"
-    secrets: inherit
+    secrets:
+      TICSAUTHTOKEN: ${{ secrets.TICSAUTHTOKEN }}
