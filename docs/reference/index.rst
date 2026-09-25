@@ -1,17 +1,17 @@
+.. meta::
+    :description: The reference documentation for Craft Platforms. These references describe the structure and function of the individual components in Craft Platforms.
+
 .. _reference:
 
 Reference
-*********
+=========
+
+References describe the structure and function of the individual components in
+Craft Platforms.
 
 .. toctree::
-   :maxdepth: 2
+    :hidden:
 
-   package
-   changelog
-   testing/index
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
+    package
+    changelog
+    testing/index

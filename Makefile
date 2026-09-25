@@ -1,20 +1,8 @@
 PROJECT=craft_platforms
-SOURCES=$(wildcard *.py) $(PROJECT) tests
-DOCS=docs
-
-ifneq ($(OS),Windows_NT)
-	OS := $(shell uname)
-endif
-
-.DEFAULT_GOAL := help
-
-.ONESHELL:
-
-.SHELLFLAGS = -ec
-
+export DOCS_VENVDIR ?= ../.venv-docs
 UV_TEST_GROUPS := "--group=dev"
 UV_DOCS_GROUPS := "--group=docs"
-UV_LINT_GROUPS := "--group=lint" "--group=types"
+UV_LINT_GROUPS := "--group=lint" "--group=types" $(UV_DOCS_GROUPS)
 UV_TICS_GROUPS := "--group=tics"
 
 # If you have dev dependencies that depend on your distro version, uncomment these:
@@ -25,15 +13,19 @@ UV_TICS_GROUPS := "--group=tics"
 # UV_TEST_GROUPS += "--group=dev-$(VERSION_CODENAME)"
 # UV_DOCS_GROUPS += "--group=dev-$(VERSION_CODENAME)"
 # UV_LINT_GROUPS += "--group=dev-$(VERSION_CODENAME)"
+# UV_TICS_GROUPS += "--group=dev-$(VERSION_CODENAME)"
 # endif
 
 include common.mk
 
 .PHONY: format
-format: format-ruff format-codespell format-prettier  ## Run all automatic formatters
+format: format-ruff format-codespell format-prettier format-shfmt format-tombi format-pre-commit  ## Run all automatic formatters
 
 .PHONY: lint
-lint: lint-ruff lint-ty lint-codespell lint-prettier lint-shellcheck lint-docs lint-twine  ## Run all linters
+lint: lint-code lint-docs lint-twine lint-uv-lockfile lint-actions  ## Run all linters
+
+.PHONY: lint-code
+lint-code: lint-ruff lint-ty lint-codespell lint-prettier lint-shfmt lint-shellcheck lint-tombi  ## Run code-specific linters
 
 .PHONY: pack
 pack: pack-pip  ## Build all packages
@@ -78,20 +70,6 @@ endif
 # If additional build dependencies need installing in order to build the linting env.
 .PHONY: install-lint-build-deps
 install-lint-build-deps: install-ty
-
-.PHONY: lint-ty
-lint-ty: install-ty
-	ty check
-
-.PHONY: install-ty
-install-ty:
-ifneq ($(shell which ty),)
-else ifneq ($(shell which snap),)
-	sudo snap install --beta astral-ty
-	sudo snap alias astral-ty.ty ty
-else ifneq ($(shell which uv),)
-	uv tool install ty
-endif
 
 .PHONY: setup-tics
 setup-tics: install-uv install-build-deps ##- Set up a testing environment for Tiobe TICS
