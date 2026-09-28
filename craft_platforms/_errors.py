@@ -34,7 +34,7 @@ class CraftError(typing.Protocol):
 
 
 @dataclasses.dataclass(unsafe_hash=True)
-class CraftPlatformsError(Exception):  # noqa: PLW1641 (https://github.com/astral-sh/ruff/issues/18905)
+class CraftPlatformsError(Exception):
     """Signal a program error with a lot of information to report."""
 
     message: str
