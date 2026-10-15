@@ -14,12 +14,12 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
-    uses: canonical/starflow/.github/workflows/lint-python.yaml@main
+    uses: canonical/starflow/.github/workflows/lint-python.yaml@work/testing-skill
   test:
     permissions:
       actions: read
       contents: read
-    uses: canonical/starflow/.github/workflows/test-python.yaml@main
+    uses: canonical/starflow/.github/workflows/test-python.yaml@work/testing-skill
     with:
       fast-test-platforms: >
         [

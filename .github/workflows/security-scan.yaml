@@ -12,7 +12,7 @@ permissions: read-all
 jobs:
   python-scans:
     name: Scan Python project
-    uses: canonical/starflow/.github/workflows/scan-python.yaml@main
+    uses: canonical/starflow/.github/workflows/scan-python.yaml@work/testing-skill
     with:
       osv-extra-args: "--config=osv-scanner.toml"
       osv-exclude-paths: |

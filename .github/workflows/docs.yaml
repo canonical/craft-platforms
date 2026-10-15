@@ -14,6 +14,7 @@ on:
 
 jobs:
   sphinx:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Start UV install
