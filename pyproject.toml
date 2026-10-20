@@ -106,6 +106,8 @@ types = [
 [tool.uv]
 constraint-dependencies = [
   # The constraints below are because older versions won't install with uv
+  # Keep ty 3.8 baseline working: newer versions use dataclass(slots=True).
+  "annotated-types<0.8.0",
   "build>=0.1.0",
   "cffi>=1.15",
   "httplib2>=0.20.0",
@@ -119,6 +121,7 @@ constraint-dependencies = [
   "pynacl>=1.5",
   "pyparsing>=3.0.0",
   "pyproject-hooks>=1.0.0",
+  "pydantic<2.14.0",
   "pytz>=2020",
   "pyyaml>=5.0",
   "regex>=2021.11.10",
