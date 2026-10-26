@@ -36,7 +36,7 @@ PlatformDict = typing.TypedDict(
     {
         "build-on": Union[Sequence[str], str],
         "build-for": Union[
-            Annotated[Sequence[str], annotated_types.Len(min_length=1)],
+            Annotated[Sequence[str], annotated_types.Len(min_length=1)],  # ty: ignore[unknown-argument]
             str,
         ],
     },
