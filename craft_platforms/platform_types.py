@@ -46,7 +46,7 @@ weed out many known bad values.
 StrictPlatformName = Annotated[
     str,
     pydantic.BeforeValidator(
-        functools.partial(validate_strict_platform_name, allow_app_characters=False)
+        functools.partial(validate_strict_platform_name, allow_app_characters=False)  # ty: ignore[too-many-positional-arguments]
     ),
     pydantic.Field(
         description="The name of a platform.",
@@ -68,7 +68,7 @@ StrictAppPlatformName = Annotated[
         description="The name of a platform that could be inserted by an application.",
         examples=["amd64", "my-favourite-platform", "some-device"],
     ),
-    pydantic.AfterValidator(validate_strict_platform_name),
+    pydantic.AfterValidator(validate_strict_platform_name),  # ty: ignore[too-many-positional-arguments]
 ]
 """The name of a platform, possibly app-provided.
 
