@@ -209,7 +209,7 @@ exclude_also = [
 ]
 
 [tool.ty.environment]
-python-version = "3.8"
+python-version = "3.10"
 python-platform = "linux"
 
 [tool.ruff]
