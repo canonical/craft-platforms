@@ -90,15 +90,11 @@ def get_platforms_build_plan(
 
     for platform_name, platform in platforms.items():
         if platform is None:
-            # This is a workaround for Python 3.10.
-            # In python 3.12+ we can just check:
-            # `if platform_name not in _architectures.DebianArchitecture`
-            try:
-                architecture = _architectures.DebianArchitecture(platform_name)
-            except ValueError:
-                raise _errors.InvalidDebianArchPlatformNameError(
-                    platform_name
-                ) from None
+            if platform_name not in (
+                arch.value for arch in _architectures.DebianArchitecture
+            ):
+                raise _errors.InvalidDebianArchPlatformNameError(platform_name)
+            architecture = _architectures.DebianArchitecture(platform_name)
             build_plan.append(
                 _buildinfo.BuildInfo(
                     platform=platform_name,
