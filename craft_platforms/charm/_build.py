@@ -302,6 +302,22 @@ def get_platforms_charm_build_plan(
                     ),
                 )
 
+    # Charms support multi-base recipes, so "build-for: all" is validated per base
+    # rather than across the whole build plan: each base's platforms are otherwise
+    # independent of one another.
+    build_plan_by_base: Dict[_distro.DistroBase, List[_buildinfo.BuildInfo]] = {}
+    for info in build_plan:
+        build_plan_by_base.setdefault(info.build_base, []).append(info)
+
+    for base_build_plan in build_plan_by_base.values():
+        build_for_archs = {info.build_for for info in base_build_plan}
+        if "all" in build_for_archs:
+            _platforms._validate_build_for_all(  # noqa: SLF001
+                base_build_plan,
+                build_for_archs,
+                allow_all_and_architecture_dependent=False,
+            )
+
     return build_plan
 
 

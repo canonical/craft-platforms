@@ -121,6 +121,9 @@ class DistroBase:
             )
         )
 
+    def __hash__(self) -> int:
+        return hash((self.distribution, self.series.split(".")[0]))
+
     def __lt__(self, other: object) -> bool:
         if not _is_distrobase_compatible(other):
             return NotImplemented
