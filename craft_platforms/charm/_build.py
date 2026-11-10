@@ -16,7 +16,7 @@
 """Charmcraft-specific platforms information."""
 
 import itertools
-from typing import Any, Collection, Dict, Iterable, List, Optional, Sequence
+from typing import Any, Collection, Dict, Iterable, List, Optional, Sequence, Set
 
 from craft_platforms import (
     _architectures,
@@ -86,12 +86,36 @@ def _validate_base_definition(  # noqa: PLR0912
                         "the incompatible 'build-for' entry for the platform."
                     ),
                 )
-        # create a set of the bases defined in the build-on and build-for entries
-        bases = set()
-        for entry in [
-            *_utils.vectorize(platform.get("build-on", [platform_name])),
-            *_utils.vectorize(platform.get("build-for", [platform_name])),
-        ]:
+        # Collect build-on entries, separating devel-series from non-devel.
+        # Devel-series build-on entries are allowed to differ from the build-for base,
+        # but mixing devel with any non-devel entries (even base-less ones that inherit
+        # a stable top-level base) in build-on is not allowed, for the same reason
+        # that mixing two different stable bases in build-on is not allowed.
+        has_devel_build_on = False
+        non_devel_build_on_bases: Set[Optional[str]] = set()
+        for entry in _utils.vectorize(platform.get("build-on", [platform_name])):
+            distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
+            if distro_base is not None and distro_base.series == "devel":
+                has_devel_build_on = True
+            else:
+                non_devel_build_on_bases.add(str(distro_base) if distro_base else None)
+
+        if has_devel_build_on and non_devel_build_on_bases:
+            raise _errors.InvalidMultiBaseError(
+                message=(
+                    f"Platform {platform_name!r} has mismatched bases in the 'build-on' "
+                    "and 'build-for' entries."
+                ),
+                resolution=(
+                    "Use the same base for all 'build-on' and 'build-for' entries for "
+                    "the platform."
+                ),
+            )
+
+        # Combine the non-devel build-on bases with the build-for bases to check
+        # overall consistency.
+        bases: Set[Optional[str]] = set(non_devel_build_on_bases)
+        for entry in _utils.vectorize(platform.get("build-for", [platform_name])):
             distro_base, _ = _architectures.parse_base_and_architecture(arch=entry)
             bases.add(str(distro_base) if distro_base else None)
 
@@ -166,8 +190,9 @@ def _get_base_from_build_data(
         if platform_base:
             return platform_base
 
-        # build-on and build-for entries all have the same base, so we only
-        # need to check one of them
+        # When build-on and build-for entries share a common base, use it.
+        # If build-on has a devel base and build-for has a stable base, the product
+        # loop in get_platforms_charm_build_plan will use the per-entry build-on base.
         if platform:
             build_for_base, _ = _architectures.parse_base_and_architecture(
                 arch=_utils.vectorize(platform["build-for"])[0]
@@ -281,8 +306,8 @@ def get_platforms_charm_build_plan(
                 _utils.vectorize(platform.get("build-on", [platform_name])),
                 _utils.vectorize(platform.get("build-for", [platform_name])),
             ):
-                _, build_on_arch = _architectures.parse_base_and_architecture(
-                    arch=build_on
+                build_on_base, build_on_arch = (
+                    _architectures.parse_base_and_architecture(arch=build_on)
                 )
                 if build_on_arch == "all":
                     raise ValueError(
@@ -298,7 +323,9 @@ def get_platforms_charm_build_plan(
                         platform=platform_name,
                         build_on=build_on_arch,
                         build_for=build_for_arch,
-                        build_base=distro_base,
+                        build_base=build_on_base
+                        if build_on_base is not None
+                        else distro_base,
                     ),
                 )
 
