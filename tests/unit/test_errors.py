@@ -47,7 +47,7 @@ class OtherCraftError(Exception):
 
 
 NON_MATCHING_ERROR = OtherCraftError("message", "details", "resolution")
-NON_MATCHING_ERROR.docs_url = "no match"  # pyright: ignore[reportAttributeAccessIssue] # ty: ignore[unresolved-attribute]
+NON_MATCHING_ERROR.docs_url = "no match"  # pyright: ignore[reportAttributeAccessIssue] # ty: ignore[missing-attribute]
 
 
 class NonError:
