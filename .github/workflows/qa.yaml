@@ -41,3 +41,4 @@ jobs:
       slow-test-python-versions: '["3.10", "3.12", "3.14"]'
       lowest-python-platform: ubuntu-22.04
       lowest-python-version: "3.8"
+      use-lxd: false
