@@ -13,6 +13,17 @@ Changelog
 
     For a complete list of commits, check out the `a.b.c`_ release on GitHub.
 
+0.12.1 (unreleased)
+-------------------
+
+Bug Fixes
+=========
+
+- Validate ``build-for: all`` usage in the charm platforms build planner, matching
+  the rules enforced for other craft apps.
+
+For a complete list of commits, check out the `0.12.1`_ release on GitHub.
+
 0.12.0 (2026-07-10)
 -------------------
 
@@ -206,6 +217,7 @@ New Features
 For a complete list of commits, check out the `0.1.0`_ release on GitHub.
 
 
+.. _0.12.1: https://github.com/canonical/craft-platforms/releases/tag/0.12.1
 .. _0.12.0: https://github.com/canonical/craft-platforms/releases/tag/0.12.0
 .. _0.11.1: https://github.com/canonical/craft-platforms/releases/tag/0.11.1
 .. _0.11.0: https://github.com/canonical/craft-platforms/releases/tag/0.11.0
