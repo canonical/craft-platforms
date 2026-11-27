@@ -1054,7 +1054,6 @@ docs = [
     { name = "hypothesis", version = "6.170.15", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "myst-parser", marker = "python_full_version >= '3.10'" },
     { name = "packaging", version = "26.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "rst2html", marker = "python_full_version >= '3.10'" },
     { name = "sphinx-autobuild", version = "2024.10.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
     { name = "sphinx-autobuild", version = "2025.8.25", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "sphinx-autodoc-typehints", version = "2.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
@@ -1078,7 +1077,6 @@ docs-sphinx-stack = [
     { name = "canonical-sphinx", marker = "python_full_version >= '3.10'" },
     { name = "myst-parser", marker = "python_full_version >= '3.10'" },
     { name = "packaging", version = "26.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "rst2html", marker = "python_full_version >= '3.10'" },
     { name = "sphinx-autobuild", version = "2024.10.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
     { name = "sphinx-autobuild", version = "2025.8.25", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "sphinx-design", marker = "python_full_version >= '3.10'" },
@@ -1150,7 +1148,6 @@ docs = [
     { name = "hypothesis", specifier = "~=6.108" },
     { name = "myst-parser", marker = "python_full_version >= '3.10'", specifier = "~=4.0" },
     { name = "packaging", marker = "python_full_version >= '3.10'", specifier = "~=26.1" },
-    { name = "rst2html", marker = "python_full_version >= '3.10'", specifier = ">=2020.7.4" },
     { name = "sphinx-autobuild", marker = "python_full_version >= '3.10'", specifier = ">=2024.10.3" },
     { name = "sphinx-autodoc-typehints" },
     { name = "sphinx-design", marker = "python_full_version >= '3.10'", specifier = "==0.6.1" },
@@ -1171,7 +1168,6 @@ docs-sphinx-stack = [
     { name = "canonical-sphinx", marker = "python_full_version >= '3.10'", specifier = "~=0.6" },
     { name = "myst-parser", marker = "python_full_version >= '3.10'", specifier = "~=4.0" },
     { name = "packaging", marker = "python_full_version >= '3.10'", specifier = "~=26.1" },
-    { name = "rst2html", marker = "python_full_version >= '3.10'", specifier = ">=2020.7.4" },
     { name = "sphinx-autobuild", marker = "python_full_version >= '3.10'", specifier = ">=2024.10.3" },
     { name = "sphinx-design", marker = "python_full_version >= '3.10'", specifier = "==0.6.1" },
     { name = "sphinx-llm", marker = "python_full_version >= '3.10'", specifier = "~=0.4" },
@@ -4636,15 +4632,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/80/ef/3a9f8e4279c7920af561deed4cb7ebebed2794a8f608cf404d5eef14a105/rpds_py-2026.9.1-pp312-pypy312_pp80-macosx_10_12_x86_64.whl", hash = "sha256:56c6952a9b15047466d0c2347c446a761d4527f89976156341e68f0ce5cc08b0", size = 357108, upload-time = "2026-10-04T16:32:31.641Z" },
     { url = "https://files.pythonhosted.org/packages/b7/55/4b2fa381a583760aea5c92841e4e928a358e1c6511b129219e9c2826a226/rpds_py-2026.9.1-pp312-pypy312_pp80-macosx_11_0_arm64.whl", hash = "sha256:b242c27c8f836305a4a72df9cdd564386ac57b807bd252a063223331c9316b37", size = 346877, upload-time = "2026-10-04T16:32:34.061Z" },
 ]
-
-[[package]]
-name = "rst2html"
-version = "2020.7.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "docutils", version = "0.21.2", source = { registry = "https://pypi.org/simple" } },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/29/8e/050653d3f88c7c0ef3ba6df84421dc022d84f152e2c84fc23d49b2d60d1f/rst2html-2020.7.4.tar.gz", hash = "sha256:ea450c6f3dfc0d1cac2a2dc76067d1efc7bb98414487faf2f1abc468463bc6e4", size = 1517, upload-time = "2020-07-15T18:37:40.884Z" }
 
 [[package]]
 name = "snowballstemmer"
